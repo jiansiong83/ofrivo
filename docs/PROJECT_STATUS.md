@@ -63,7 +63,7 @@ Complete the approved-provider Job Feed and Bid workflow while preserving public
 
 ## Commit ID / rollback point
 
-Step 6 commit: pending until this round is committed. Rollback point is the Step 5 commit `9496274`.
+Step 6 commit: `ff9fca1` (`feat: add provider job feed and bid flow`). Rollback point is the Step 5 commit `9496274`.
 
 ## Next step
 
