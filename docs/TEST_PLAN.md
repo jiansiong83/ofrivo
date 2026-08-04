@@ -84,6 +84,14 @@
 - SQL fan-out creates user-scoped rows for matching providers/customers; expiry queue is idempotent within the scheduler window.
 - Run `node supabase/tests/validate_step10.mjs`, Flutter analyze/test, and Android debug build.
 
+## Step 11 Security and Testing checks
+
+- Run `node supabase/tests/validate_step11.mjs` and the Flutter analyze/test/APK commands.
+- In an isolated Supabase runtime, execute `supabase/tests/step11_security_and_testing.sql` for RLS, private Storage, account isolation, invalid transitions, and concurrent bid acceptance.
+- Confirm the customer/provider pickers reject spoofed extensions, unsupported signatures, oversized files, duplicate paths, and missing files.
+- Confirm `ErrorState` retries the failed loader, `OfflineState` communicates recoverability, and the global crash reporter captures uncaught Flutter/async errors without storing secrets.
+- Confirm no `service_role` value or hosted backend secret is present in mobile/admin source.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

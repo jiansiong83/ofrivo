@@ -90,3 +90,11 @@
 - Added SQL fan-out triggers for published jobs, bids, and verification results plus a scheduled job-expiry queue function; notification rows remain the durable outbox.
 - Added unread notification badge, mark-all-read state, provider new-job routing, local demo token fixture, and notification tests.
 - Added `supabase/tests/validate_step10.mjs`; Flutter analyze, 23 tests, and Android debug build pass.
+
+## Step 11 — Security and Testing
+
+- Added manual RLS, private Storage, multiple-account, concurrent accept-bid, and invalid-transition scenarios in `step11_security_and_testing.sql`.
+- Added image file validation for extension/signature, size, count, duplicate paths, and missing files; customer/provider pickers now reject unsafe selections.
+- Added retryable error and offline widgets plus global crash diagnostic capture.
+- Added multi-account, image, crash, and widget resilience tests with `supabase/tests/validate_step11.mjs`.
+- Flutter analyze, 28 tests, and Android debug build pass; live Supabase permission tests remain environment-gated.

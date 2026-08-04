@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 10 Push Notification (push-ready outbox/token pipeline; Flutter Android validation is enabled).
+Step 11 Security and Testing (local security contract validation; Supabase integration scenarios are ready for an isolated runtime).
 
 ## Current objective
 
-Deliver a push-ready notification pipeline while preserving user-scoped inbox privacy, server-owned event fan-out, and runtime-only delivery configuration.
+Complete the security and resilience package while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets.
 
 ## Completed
 
@@ -49,11 +49,16 @@ Deliver a push-ready notification pipeline while preserving user-scoped inbox pr
 - Notification event types expanded for new matching jobs, job expiry, and provider verification results; the mobile shell now shows an unread badge and supports mark-all-read.
 - Step 10 SQL migration adds new-job, new-bid, verification-result, and scheduled job-expiry notification fan-out with user-scoped device-token validation.
 - Step 10 seed fixture, notification tests, and static push contract validator added.
+- Step 11 manual SQL scenarios added for RLS, private Storage, multiple accounts, concurrent bid acceptance, and invalid state errors.
+- Image validation now checks extension, file signature, file size, count, duplicate paths, missing files, and is wired into customer/provider pickers.
+- Error states expose a working retry action; an offline state component and global crash diagnostic capture are included.
+- Multi-account, image, crash, error/offline widget, and Step 11 static security contract tests added.
 
 ## Not completed yet
 
 - No Supabase Cloud project connection or production FCM credentials/native delivery bridge; push tokens can be supplied at runtime and the notification rows remain the durable outbox.
 - Admin Web is intentionally a local fake-data preview until server-side Supabase Auth claims, RLS-backed queries, signed URLs, and audit writes are configured.
+- Supabase RLS/Storage/multi-account/concurrency scenarios are documented but not executed because Docker, PostgreSQL, and Supabase CLI are unavailable in this workspace.
 
 ## Known issues / environment
 
@@ -70,7 +75,7 @@ Deliver a push-ready notification pipeline while preserving user-scoped inbox pr
 - Admin production build: PASS (static `/` output).
 - Admin Step 2 regression lint/build: PASS.
 - Flutter analyze: PASS — `No issues found!` (Flutter 3.44.8).
-- Flutter test: PASS — 23 tests passed.
+- Flutter test: PASS — 28 tests passed.
 - Android debug build: PASS — `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
@@ -87,12 +92,17 @@ Deliver a push-ready notification pipeline while preserving user-scoped inbox pr
 - Step 10 Flutter analyze: PASS (`No issues found!`).
 - Step 10 Flutter test: PASS (23 tests passed).
 - Step 10 Android debug build: PASS (`apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`).
+- Step 11 security/testing static contract validation: PASS (`node supabase/tests/validate_step11.mjs`).
+- Step 11 Flutter analyze: PASS (`No issues found!`).
+- Step 11 Flutter test: PASS (28 tests passed).
+- Step 11 Android debug build: PASS (`apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`).
+- Supabase CLI/Docker integration suite: BLOCKED; run `supabase/tests/step11_security_and_testing.sql` when an isolated runtime is available.
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Rollback point is the Step 9 docs commit `63bb74c`.
+Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Rollback point is the Step 10 docs commit `d2f2cc6`.
 
 ## Next step
 
-Next: Step 11 Security and Testing.
+Next: Step 12 Closed Beta.

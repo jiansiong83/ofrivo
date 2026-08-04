@@ -77,6 +77,16 @@
 - [x] Flutter analyze, tests, and Android debug build pass.
 - [ ] Native FCM provider, scheduled expiry worker, and production delivery credentials are configured.
 
+## Step 11 Security and Testing
+
+- [x] Step 11 static security/testing contract validation passes.
+- [x] Flutter analyze passes with no issues.
+- [x] Flutter test suite passes (28 tests).
+- [x] Android debug APK builds successfully.
+- [x] Image signature, size, count, duplicate, and missing-file validation is wired to pickers.
+- [x] Error retry, offline state, crash diagnostic, and multi-account smoke tests exist.
+- [ ] RLS, private Storage, and concurrent acceptance scenarios pass against an isolated Supabase runtime.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

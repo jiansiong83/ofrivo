@@ -6,7 +6,7 @@ Brand line: **Post a job. Compare offers. Get it done.**
 
 ## Current scope
 
-This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, the Step 4 customer job flow, the Step 5 provider application flow, the Step 6 provider feed/bid flow, the Step 7 transactional accept-bid flow, the Step 8 lifecycle/review/report flow, the Step 9 Admin Web console, and the Step 10 push-ready notification pipeline from the project master plan:
+This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, the Step 4 customer job flow, the Step 5 provider application flow, the Step 6 provider feed/bid flow, the Step 7 transactional accept-bid flow, the Step 8 lifecycle/review/report flow, the Step 9 Admin Web console, the Step 10 push-ready notification pipeline, and the Step 11 security/testing package from the project master plan:
 
 - Flutter Android app shell with Riverpod, go_router, Material 3, feature-based folders, and fake data.
 - Next.js + TypeScript + Tailwind Admin Web console with login preview, operational dashboard, provider verification, user controls, jobs, bids, reports, taxonomy, settings, and audit log.
@@ -20,6 +20,7 @@ This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supaba
 - Transactional start/complete/cancel actions, customer/provider reviews, participant-aware reports, and job event history.
 - Admin moderation actions run against explicit local fake data in the preview and append attributable audit events; production Supabase Auth/RLS wiring remains runtime-only.
 - Push-ready notifications include device-token registration, matching-job/new-bid/verification/expiry event fan-out, unread badges, and read-all state; native FCM delivery remains runtime-configured.
+- Security/testing package includes RLS/Storage/multi-account/concurrency scenarios, retryable error/offline states, crash diagnostics, and image signature/size/count validation.
 
 The mobile app connects to Supabase only when explicit `--dart-define` values are supplied; otherwise it uses local demo data. Payments, chat, maps, AI pricing, and production FCM credentials/native delivery remain deferred.
 

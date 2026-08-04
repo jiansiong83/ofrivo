@@ -43,6 +43,13 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 - `notifications` is the durable outbox for a later FCM worker. FCM credentials, scheduled-job credentials, and any provider access token remain server-only secrets.
 - Runtime `PUSH_DEVICE_TOKEN` is optional demo/bridge input and is never committed; an absent token leaves the app in inbox-only mode without failing sign-in.
 
+## Step 11 Security and testing controls
+
+- RLS, private Storage, multiple-account, and concurrent-acceptance scenarios are maintained as repeatable isolated-environment SQL, not as claims of a hosted test run.
+- Image inputs are bounded by extension, file signature, size, count, duplicate-path, and existence checks before upload; server-side Storage policies remain authoritative.
+- Error and offline states expose retry/recovery without revealing backend details, and uncaught Flutter/async failures are captured only in an in-memory diagnostic sink.
+- The security validator rejects missing RLS/Storage/concurrency contracts and checks that mobile source contains no service-role credential.
+
 ## Environment contract
 
 Mobile: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `APP_ENV=development`, supplied with `--dart-define` or a CI secret. No values are committed.
