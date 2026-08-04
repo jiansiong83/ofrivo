@@ -6,6 +6,8 @@ abstract interface class NotificationRepository {
   Future<List<AppNotification>> loadNotifications();
 
   Future<void> markRead(String notificationId);
+
+  Future<void> markAllRead();
 }
 
 class FakeNotificationRepository implements NotificationRepository {
@@ -25,6 +27,13 @@ class FakeNotificationRepository implements NotificationRepository {
     final index = _notifications
         .indexWhere((notification) => notification.id == notificationId);
     if (index >= 0) {
+      _notifications[index] = _notifications[index].copyWith(isRead: true);
+    }
+  }
+
+  @override
+  Future<void> markAllRead() async {
+    for (var index = 0; index < _notifications.length; index++) {
       _notifications[index] = _notifications[index].copyWith(isRead: true);
     }
   }
@@ -56,6 +65,15 @@ class SupabaseNotificationRepository implements NotificationRepository {
         .eq('user_id', userId);
   }
 
+  @override
+  Future<void> markAllRead() async {
+    await client
+        .from('notifications')
+        .update({'is_read': true})
+        .eq('user_id', userId)
+        .eq('is_read', false);
+  }
+
   AppNotification _map(Map<String, dynamic> row) => AppNotification(
         id: row['id'] as String,
         type: _type(row['type'] as String?),
@@ -71,14 +89,22 @@ class SupabaseNotificationRepository implements NotificationRepository {
 
   NotificationType _type(String? value) {
     switch (value) {
+      case 'new_job':
+        return NotificationType.newJob;
       case 'new_bid':
         return NotificationType.newBid;
       case 'bid_accepted':
         return NotificationType.bidAccepted;
       case 'job_assigned':
         return NotificationType.jobAssigned;
+      case 'job_expiring':
+        return NotificationType.jobExpiring;
       case 'provider_approved':
         return NotificationType.providerApproved;
+      case 'provider_rejected':
+        return NotificationType.providerRejected;
+      case 'provider_suspended':
+        return NotificationType.providerSuspended;
       case 'job_started':
         return NotificationType.jobStarted;
       case 'job_completed':

@@ -8,6 +8,8 @@ import '../../core/theme/app_theme.dart';
 import '../auth/auth_controller.dart';
 import '../auth/auth_screens.dart';
 import '../common/common_screens.dart';
+import '../notifications/notification_controller.dart';
+import '../notifications/push_registration_controller.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({required this.child, super.key});
@@ -17,11 +19,21 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (previous?.user == null && next.user != null && !next.isSuspended) {
+        ref.read(pushRegistrationControllerProvider.notifier).register();
+      }
+      if (previous?.user != null && next.user == null) {
+        ref.read(pushRegistrationControllerProvider.notifier).unregister();
+      }
+    });
     if (!auth.initialized) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (!auth.isAuthenticated) return const LoginScreen();
     if (auth.isSuspended) return const SuspendedAccountScreen();
+    final notificationState = ref.watch(notificationControllerProvider);
+    ref.watch(pushRegistrationControllerProvider);
     final mode = ref.watch(appModeProvider);
     final isProvider = mode == AppMode.provider;
     if (isProvider && !auth.isApprovedProvider) return const Scaffold(body: ProviderModeGuardScreen());
@@ -46,7 +58,7 @@ class AppShell extends ConsumerWidget {
       appBar: AppBar(
         title: Text(isProvider ? 'Provider mode' : 'Ofrivo'),
         actions: [
-          IconButton(onPressed: () => context.go('/notifications'), icon: const Icon(Icons.notifications_none), tooltip: 'Notifications'),
+          IconButton(onPressed: () => context.go('/notifications'), icon: _NotificationIcon(unreadCount: notificationState.unreadCount), tooltip: 'Notifications'),
           PopupMenuButton<String>(
             tooltip: 'Switch mode',
             onSelected: (value) {
@@ -70,6 +82,49 @@ class AppShell extends ConsumerWidget {
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) => context.go(tabs[index].path),
         destinations: [for (final item in tabs) NavigationDestination(icon: Icon(item.icon), label: item.label)],
+      ),
+    );
+  }
+}
+
+class _NotificationIcon extends StatelessWidget {
+  const _NotificationIcon({required this.unreadCount});
+
+  final int unreadCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = unreadCount == 0
+        ? 'Notifications'
+        : '$unreadCount unread notification${unreadCount == 1 ? '' : 's'}';
+    return Semantics(
+      label: label,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Icon(Icons.notifications_none),
+          if (unreadCount > 0)
+            Positioned(
+              right: -7,
+              top: -7,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade700,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  unreadCount > 9 ? '9+' : '$unreadCount',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

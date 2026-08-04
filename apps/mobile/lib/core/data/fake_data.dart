@@ -199,6 +199,26 @@ final fakeProviderProfiles = <ProviderProfile>[
 
 final fakeNotifications = <AppNotification>[
   AppNotification(
+    id: 'notification-003',
+    type: NotificationType.jobExpiring,
+    title: 'Job expiring soon',
+    body: 'Your toilet blockage job will stop accepting offers tomorrow.',
+    isRead: false,
+    createdAt: DateTime(2026, 8, 4, 10),
+    referenceType: 'job',
+    referenceId: 'job-001',
+  ),
+  AppNotification(
+    id: 'notification-004',
+    type: NotificationType.newJob,
+    title: 'New matching job nearby',
+    body: 'A plumbing job is open in Mount Austin.',
+    isRead: false,
+    createdAt: DateTime(2026, 8, 4, 9, 30),
+    referenceType: 'job',
+    referenceId: 'job-001',
+  ),
+  AppNotification(
     id: 'notification-001',
     type: NotificationType.newBid,
     title: 'New offer received',

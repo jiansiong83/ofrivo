@@ -15,7 +15,20 @@ class NotificationsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(notificationControllerProvider);
     return AppScaffold(
-      title: 'Notification centre',
+      title: state.unreadCount == 0
+          ? 'Notification centre'
+          : 'Notification centre (${state.unreadCount})',
+      actions: [
+        if (state.unreadCount > 0)
+          TextButton(
+            onPressed: state.isLoading
+                ? null
+                : () => ref
+                    .read(notificationControllerProvider.notifier)
+                    .markAllRead(),
+            child: const Text('Mark all read'),
+          ),
+      ],
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -57,9 +70,14 @@ class NotificationsScreen extends ConsumerWidget {
                       if (!context.mounted || referenceId == null) return;
                       final mode = ref.read(appModeProvider);
                       if (notification.referenceType == 'job') {
-                        context.go(mode == AppMode.provider
-                            ? '/provider/assigned/$referenceId'
-                            : '/customer/jobs/$referenceId');
+                        if (mode == AppMode.provider &&
+                            notification.type == NotificationType.newJob) {
+                          context.go('/provider/jobs/$referenceId');
+                        } else {
+                          context.go(mode == AppMode.provider
+                              ? '/provider/assigned/$referenceId'
+                              : '/customer/jobs/$referenceId');
+                        }
                       }
                     },
                   ),
@@ -72,13 +90,20 @@ class NotificationsScreen extends ConsumerWidget {
 
   static IconData _iconFor(NotificationType type) {
     switch (type) {
+      case NotificationType.newJob:
+        return Icons.rss_feed_outlined;
       case NotificationType.newBid:
       case NotificationType.bidAccepted:
         return Icons.local_offer_outlined;
       case NotificationType.jobAssigned:
         return Icons.assignment_turned_in_outlined;
+      case NotificationType.jobExpiring:
+        return Icons.schedule_outlined;
       case NotificationType.providerApproved:
         return Icons.verified_outlined;
+      case NotificationType.providerRejected:
+      case NotificationType.providerSuspended:
+        return Icons.gpp_bad_outlined;
       case NotificationType.jobStarted:
         return Icons.play_circle_outline;
       case NotificationType.jobCompleted:

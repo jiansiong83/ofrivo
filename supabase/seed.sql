@@ -159,4 +159,9 @@ values
   ('00000000-0000-0000-0000-000000000602', '00000000-0000-0000-0000-000000000102', 'provider_approved', 'Provider verification approved', 'You can now view matching jobs.', 'provider', '00000000-0000-0000-0000-000000000102')
 on conflict (id) do nothing;
 
+insert into public.device_tokens (id, user_id, token, platform)
+values
+  ('00000000-0000-0000-0000-000000000701', '00000000-0000-0000-0000-000000000101', 'local-demo-device-token-android', 'android')
+on conflict (id) do nothing;
+
 commit;

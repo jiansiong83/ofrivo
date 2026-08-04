@@ -81,4 +81,15 @@ class NotificationController extends StateNotifier<NotificationState> {
       state = state.copyWith(error: 'Unable to update this notification.');
     }
   }
+
+  Future<void> markAllRead() async {
+    try {
+      await repository.markAllRead();
+      state = state.copyWith(notifications: [
+        for (final item in state.notifications) item.copyWith(isRead: true),
+      ]);
+    } catch (_) {
+      state = state.copyWith(error: 'Unable to update notifications.');
+    }
+  }
 }

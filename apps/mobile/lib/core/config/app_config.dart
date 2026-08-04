@@ -4,6 +4,8 @@ abstract final class AppConfig {
   static const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
   static const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
   static const appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'development');
+  static const pushDeviceToken = String.fromEnvironment('PUSH_DEVICE_TOKEN');
+  static const pushPlatform = String.fromEnvironment('PUSH_PLATFORM', defaultValue: 'android');
 
   static bool get hasSupabaseConfig => supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 }

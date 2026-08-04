@@ -15,10 +15,14 @@ enum BidStatus { pending, accepted, rejected, withdrawn, expired }
 enum VerificationStatus { notApplied, pending, approved, rejected, suspended }
 
 enum NotificationType {
+  newJob,
   newBid,
   bidAccepted,
   jobAssigned,
+  jobExpiring,
   providerApproved,
+  providerRejected,
+  providerSuspended,
   jobStarted,
   jobCompleted,
   jobCancelled,
@@ -28,14 +32,22 @@ enum NotificationType {
 extension NotificationTypeLabel on NotificationType {
   String get label {
     switch (this) {
+      case NotificationType.newJob:
+        return 'New matching job';
       case NotificationType.newBid:
         return 'New offer';
       case NotificationType.bidAccepted:
         return 'Offer accepted';
       case NotificationType.jobAssigned:
         return 'Job assigned';
+      case NotificationType.jobExpiring:
+        return 'Job expiring soon';
       case NotificationType.providerApproved:
         return 'Provider approved';
+      case NotificationType.providerRejected:
+        return 'Provider verification update';
+      case NotificationType.providerSuspended:
+        return 'Provider account update';
       case NotificationType.jobStarted:
         return 'Job started';
       case NotificationType.jobCompleted:
