@@ -8,6 +8,13 @@
 - Manual route smoke test for public, customer, provider, and admin placeholder flows.
 - Search the repository for forbidden real credentials and backend URLs.
 
+## Step 2 SQL checks
+
+- Run `node supabase/tests/validate_step2.mjs` for migration/seed contract checks.
+- Apply the migration and seed to an isolated Supabase local instance when the CLI/Docker runtime is available.
+- Run the scenarios in `supabase/tests/step2_security_and_concurrency.sql` with the listed test identities.
+- Confirm the two-device accept-bid scenario leaves exactly one accepted bid and one assigned job.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.
@@ -15,4 +22,3 @@
 - Integration: register → post → approve → feed → bid → accept → address reveal → complete → review.
 - RLS: cross-account privacy, verification files, suspended users, admin-only actions, and no service-role exposure.
 - Concurrency: two devices accepting different bids leaves exactly one accepted bid and one assigned job.
-

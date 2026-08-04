@@ -1,3 +1,16 @@
-# Step 1 placeholder. Supabase CLI configuration starts in Step 2.
-# No project ref, database migration, bucket, or credential is defined here.
+project_id = "ofrivo-dev"
 
+# Local-only CLI configuration. This does not identify or connect to a
+# Supabase Cloud project.
+[api]
+enabled = true
+schemas = ["public", "storage", "graphql_public"]
+
+[db]
+port = 54322
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true

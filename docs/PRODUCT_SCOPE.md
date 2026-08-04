@@ -16,9 +16,16 @@ The intended MVP covers registration, profiles, customer job creation, provider 
 - Fake-data mobile prototype and admin layout placeholder.
 - Repository and environment structure.
 
+## Step 2 delivered here
+
+- PostgreSQL schema migration for the planned entities.
+- Constraints, foreign keys, indexes, Storage bucket definitions, and RLS policies.
+- Safe public feed/provider views and transactional `accept_bid`, `start_job`, `complete_job`, and `cancel_job` RPCs.
+- Local fake auth users and marketplace seed data in `supabase/seed.sql`.
+
 ## Explicitly deferred
 
-Supabase integration, migrations, RLS implementation, authentication wiring, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
+App-side Supabase integration, authentication wiring, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
 
 ## Launch service categories
 
@@ -27,4 +34,3 @@ Plumbing / Toilet, Electrical / Lighting / Fan, Air Conditioning, Moving / Deliv
 ## Safety boundaries
 
 The first release does not open locksmithing, childcare, medical care, personal-driver work, financial services, lending, high-value renovation, high-risk engineering, or regulated specialist work.
-

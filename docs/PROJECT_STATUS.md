@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 1 foundation (implementation complete; Flutter validation is environment-blocked).
+Step 2 database foundation (local SQL source complete; cloud application deferred).
 
 ## Current objective
 
-Establish the Ofrivo monorepo, Flutter fake-data prototype, Admin web shell, and Step 0 documentation without connecting a backend.
+Establish the local Supabase schema, seed fixtures, storage policy, RLS baseline, and transaction RPCs without connecting the apps or a hosted project.
 
 ## Completed
 
@@ -18,10 +18,12 @@ Establish the Ofrivo monorepo, Flutter fake-data prototype, Admin web shell, and
 - Product, screen map, UI, data, security, test, changelog, and release documents added.
 - Admin `npm.cmd run lint` passed.
 - Admin `npm.cmd run build` passed with Next 16.3.0.
+- Step 2 migration added for all planned entities, constraints, indexes, Storage buckets, RLS policies, safe views, and RPCs.
+- Step 2 seed added with local auth fixtures, categories, areas, providers, jobs, bids, and notifications.
 
 ## Not completed yet
 
-- No Supabase project, migrations, storage buckets, auth, or FCM connection.
+- No Supabase Cloud project connection, app-side auth, or FCM connection.
 - Flutter `analyze`, `test`, and Android debug build could not start because Flutter/Dart are not installed or on PATH.
 
 ## Known issues / environment
@@ -32,21 +34,24 @@ Establish the Ofrivo monorepo, Flutter fake-data prototype, Admin web shell, and
 
 ## Database migration
 
-None. Deferred to Step 2.
+`supabase/migrations/20260804000100_step2_foundation.sql` — local source added; not applied to a cloud project.
 
 ## Test/build result
 
 - Admin lint: PASS.
 - Admin production build: PASS (static `/` output).
+- Admin Step 2 regression lint/build: PASS.
 - Flutter analyze: BLOCKED — `flutter` command not recognized.
 - Flutter test: BLOCKED — `flutter` command not recognized.
 - Android debug build: BLOCKED — `flutter` command not recognized.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
+- Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
+- Supabase CLI local lint: BLOCKED — no local PostgreSQL/Docker runtime is available (`LegacyDbConnectError`).
 
 ## Commit ID / rollback point
 
-To be recorded after the single Step 0 + Step 1 commit. Rollback point is the commit immediately before Step 2 work.
+Step 2 commit and rollback point are to be recorded after verification. Rollback point is the Step 1 commit `77ac8d7`.
 
 ## Next step
 
-After this round is accepted: Step 2 Supabase database foundation.
+After this round is accepted: Step 3 Authentication and Profiles.
