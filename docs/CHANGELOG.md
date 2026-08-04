@@ -98,3 +98,10 @@
 - Added retryable error and offline widgets plus global crash diagnostic capture.
 - Added multi-account, image, crash, and widget resilience tests with `supabase/tests/validate_step11.mjs`.
 - Flutter analyze, 28 tests, and Android debug build pass; live Supabase permission tests remain environment-gated.
+
+## Step 12 — Closed Beta preparation
+
+- Added an Android release-signing guard, ignored keystore contract, and `key.properties.example`; debug signing is permitted only for explicitly marked local smoke builds.
+- Added the closed-beta runbook covering signed artifacts, Play internal/closed tracks, test identities/jobs, bug triage, and immutable rollback builds.
+- Added a privacy-aware bug report template and `scripts/validate_closed_beta.mjs` readiness checks.
+- Permanent application ID, production keystore, Play Console promotion, and real beta accounts remain external gates.

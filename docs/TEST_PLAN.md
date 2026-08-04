@@ -92,6 +92,14 @@
 - Confirm `ErrorState` retries the failed loader, `OfflineState` communicates recoverability, and the global crash reporter captures uncaught Flutter/async errors without storing secrets.
 - Confirm no `service_role` value or hosted backend secret is present in mobile/admin source.
 
+## Step 12 Closed Beta checks
+
+- Run `node scripts/validate_closed_beta.mjs`, Flutter analyze, and Flutter test before creating a release artifact.
+- Confirm a normal `flutter build appbundle --release` refuses to run without `android/key.properties`; use `OFRIVO_ALLOW_DEBUG_RELEASE_SIGNING=true` only for local smoke validation.
+- For a real beta artifact, verify the permanent application ID, production upload keystore, version code, AAB SHA-256, Git commit, and build date in the release ticket.
+- Execute the internal-test and closed-test paths in `docs/CLOSED_BETA_RUNBOOK.md` with isolated test identities and deterministic jobs; promote the same immutable AAB without rebuilding.
+- Use `docs/BUG_REPORT_TEMPLATE.md` for every tester issue and redact credentials, tokens, private evidence, and personal contact data before sharing evidence.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

@@ -87,6 +87,17 @@
 - [x] Error retry, offline state, crash diagnostic, and multi-account smoke tests exist.
 - [ ] RLS, private Storage, and concurrent acceptance scenarios pass against an isolated Supabase runtime.
 
+## Step 12 Closed Beta
+
+- [x] Release signing guard and `key.properties.example` are documented; real keystore remains outside git.
+- [x] Closed-beta runbook defines signed APK/AAB, Play internal/closed tracks, tester identities/jobs, bug triage, and rollback.
+- [x] Bug report template requires build, device, reproduction, privacy redaction, and retest evidence.
+- [x] Step 12 static readiness validator passes.
+- [ ] Permanent Android application ID is selected and registered in Google Play Console.
+- [ ] Production upload keystore is provisioned in the secret manager and a signed AAB is archived with SHA-256.
+- [ ] Google Play internal test passes with the isolated beta project and approved test accounts.
+- [ ] Google Play closed test is promoted without rebuilding the immutable artifact.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

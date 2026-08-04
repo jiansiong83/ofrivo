@@ -6,7 +6,7 @@ Step 11 Security and Testing (local security contract validation; Supabase integ
 
 ## Current objective
 
-Complete the security and resilience package while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets.
+Prepare the Step 12 closed-beta release package while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets.
 
 ## Completed
 
@@ -53,12 +53,14 @@ Complete the security and resilience package while preserving account privacy, t
 - Image validation now checks extension, file signature, file size, count, duplicate paths, missing files, and is wired into customer/provider pickers.
 - Error states expose a working retry action; an offline state component and global crash diagnostic capture are included.
 - Multi-account, image, crash, error/offline widget, and Step 11 static security contract tests added.
+- Step 12 release signing guard, keystore example, closed-beta runbook, bug report template, and static readiness validator added.
 
 ## Not completed yet
 
 - No Supabase Cloud project connection or production FCM credentials/native delivery bridge; push tokens can be supplied at runtime and the notification rows remain the durable outbox.
 - Admin Web is intentionally a local fake-data preview until server-side Supabase Auth claims, RLS-backed queries, signed URLs, and audit writes are configured.
 - Supabase RLS/Storage/multi-account/concurrency scenarios are documented but not executed because Docker, PostgreSQL, and Supabase CLI are unavailable in this workspace.
+- Closed Beta remains externally gated by a permanent Android application ID, production upload keystore, Google Play Console access, isolated beta project, and real tester accounts.
 
 ## Known issues / environment
 
@@ -97,11 +99,14 @@ Complete the security and resilience package while preserving account privacy, t
 - Step 11 Flutter test: PASS (28 tests passed).
 - Step 11 Android debug build: PASS (`apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`).
 - Supabase CLI/Docker integration suite: BLOCKED; run `supabase/tests/step11_security_and_testing.sql` when an isolated runtime is available.
+- Step 12 closed-beta readiness validation: PASS (`node scripts/validate_closed_beta.mjs`).
+- Step 12 local debug-signed AAB smoke: PASS (`apps/mobile/build/app/outputs/bundle/release/app-release.aab`); this artifact is not Play-uploadable.
+- Step 12 signed AAB/Play internal and closed-test validation: BLOCKED until release secrets, Play access, and beta runtime are supplied.
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Rollback point is the Step 10 docs commit `d2f2cc6`.
+Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Rollback point is the Step 11 docs commit `abc69ae`.
 
 ## Next step
 
