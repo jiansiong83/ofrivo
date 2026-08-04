@@ -69,7 +69,7 @@ Complete the customer offer-selection workflow while preserving public-feed priv
 
 ## Commit ID / rollback point
 
-Step 7 commit: `ef6dce8` (`feat: add transactional bid acceptance flow`). Rollback point is the Step 6 commit `ff9fca1`.
+Step 7 commit: `e7de83b` (`feat: add transactional bid acceptance flow`). Rollback point is the Step 6 commit `ff9fca1`.
 
 ## Next step
 
