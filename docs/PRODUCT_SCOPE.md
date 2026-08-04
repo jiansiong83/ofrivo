@@ -37,9 +37,17 @@ The intended MVP covers registration, profiles, customer job creation, provider 
 - Supabase repository for jobs and private job-photo Storage uploads, with a fake repository for demo mode.
 - Job controller loading/error states and local tests for draft validation and lifecycle actions.
 
+## Step 5 delivered here
+
+- Provider information form with business/display name and bio.
+- Service category and area selection using the seeded marketplace options.
+- Private identity evidence upload (ID front/back, selfie, optional SSM/certificates) and up-to-six work photos.
+- Pending, approved, rejected, and suspended verification status UI with admin-note and resubmission states.
+- Supabase `submit_provider_application` RPC, private verification Storage uploads, provider portfolio photo table, and a fake repository for demo mode.
+
 ## Explicitly deferred
 
-Provider application/feed/bids, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
+Provider feed/bids, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
 
 ## Launch service categories
 

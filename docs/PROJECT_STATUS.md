@@ -2,7 +2,7 @@
 
 ## Current stable version
 
-Step 4 customer job creation (runtime connection optional; Flutter validation remains environment-blocked).
+Step 5 provider application (runtime connection optional; Flutter validation remains environment-blocked).
 
 ## Current objective
 
@@ -25,10 +25,12 @@ Add the mobile Email + Password Auth/Profile adapter on top of the local Supabas
 - Auth unit tests added (not runnable until Flutter SDK is available).
 - Step 4 customer job form, photo picker adapter, draft/preview/publish flow, My Jobs, Job Detail, cancellation, and fake/Supabase repositories added.
 - Job draft validation and fake repository lifecycle tests added (not runnable until Flutter SDK is available).
+- Step 5 provider application form, category/area selection, private evidence/work-photo upload adapter, status UI, fake/Supabase repository, and server submission RPC added.
+- Provider application validation and fake lifecycle tests added (not runnable until Flutter SDK is available).
 
 ## Not completed yet
 
-- No Supabase Cloud project connection or FCM connection; app-side auth/jobs connect only when runtime defines are supplied.
+- No Supabase Cloud project connection or FCM connection; app-side auth/jobs/provider application connect only when runtime defines are supplied.
 - Flutter `analyze`, `test`, and Android debug build could not start because Flutter/Dart are not installed or on PATH.
 
 ## Known issues / environment
@@ -53,12 +55,12 @@ Add the mobile Email + Password Auth/Profile adapter on top of the local Supabas
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
 - Supabase CLI local lint: BLOCKED — no local PostgreSQL/Docker runtime is available (`LegacyDbConnectError`).
 - Auth unit/widget tests: BLOCKED — Flutter SDK is not available on PATH.
-- Step 3/4 static source review: PASS; no runtime Supabase values or service-role key committed.
+- Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 4 commit: `1965cbe` (`feat: add customer job creation flow`). Rollback point is the Step 3 commit `1c4dc5d`.
+Step 5 commit: `7c8202c` (`feat: add provider verification workflow`). Rollback point is the Step 4 commit `5c34d48`.
 
 ## Next step
 
-After this round is accepted: Step 5 Provider Application.
+After this round is accepted: Step 6 Provider Job Feed.

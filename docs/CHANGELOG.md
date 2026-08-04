@@ -32,3 +32,13 @@
 - Added fake and Supabase job repositories, private Storage photo upload, draft/preview/publish, My Jobs, Job Detail, and cancellation flow.
 - Added customer job controller loading/error states and lifecycle tests.
 - Flutter validation remains blocked because the SDK is unavailable in the environment.
+
+## Step 5 — Provider Application
+
+- Added shared service category/area options and provider application draft/status models.
+- Added Provider Information form, category/area selection, private ID/SSM/certificate evidence, and work-photo selection.
+- Added Pending, Approved, Rejected, and Suspended verification status UI.
+- Added fake and Supabase provider application repositories with private Storage upload cleanup.
+- Added `provider_work_photos` and protected `submit_provider_application` migration/RPC, including server-controlled status transitions.
+- Added provider application validation and fake lifecycle tests.
+- Flutter validation remains blocked because the SDK is unavailable in the environment.

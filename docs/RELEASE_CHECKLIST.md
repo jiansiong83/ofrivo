@@ -39,6 +39,16 @@
 - [ ] Cancellation uses `cancel_job` and rejects non-cancellable states.
 - [x] No service-role key or hosted Supabase values committed.
 
+## Step 5 provider application
+
+- [ ] Provider application validation tests pass once the Flutter SDK is available.
+- [ ] Categories and areas persist only for the authenticated provider.
+- [ ] Identity evidence and work photos upload to the private verification bucket.
+- [ ] `submit_provider_application` transitions the provider to pending without allowing client-side approval.
+- [ ] Pending, approved, rejected, and suspended UI states render with the correct next action.
+- [ ] Supabase RLS and Storage scenarios pass against an isolated local project.
+- [x] No service-role key or hosted Supabase values committed.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

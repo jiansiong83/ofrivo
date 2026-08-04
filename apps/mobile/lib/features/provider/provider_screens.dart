@@ -1,26 +1,198 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/models/app_models.dart';
+import '../../core/models/service_options.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_widgets.dart';
 import '../auth/auth_controller.dart';
 import '../shell/shell_screen.dart';
+import 'provider_application_controller.dart';
+import 'provider_application_models.dart';
 
-class BecomeProviderScreen extends StatelessWidget {
+class BecomeProviderScreen extends ConsumerStatefulWidget {
   const BecomeProviderScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Become a provider', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), const Text('Apply once and, after approval, switch between customer and provider modes.'), const SizedBox(height: 22), const TextField(decoration: InputDecoration(labelText: 'Business or display name')), const SizedBox(height: 14), const TextField(maxLines: 4, decoration: InputDecoration(labelText: 'Tell customers about your work')), const SizedBox(height: 16), const Text('Services', style: TextStyle(fontWeight: FontWeight.w700)), const SizedBox(height: 8), const Wrap(spacing: 8, runSpacing: 8, children: [CategoryChip(label: 'Plumbing'), CategoryChip(label: 'Handyman'), CategoryChip(label: 'Electrical')]), const SizedBox(height: 16), const Text('Service areas', style: TextStyle(fontWeight: FontWeight.w700)), const SizedBox(height: 8), const Wrap(spacing: 8, children: [AreaChip(label: 'Johor Bahru'), AreaChip(label: 'Mount Austin')]), const SizedBox(height: 20), PrimaryButton(label: 'Continue application', onPressed: () => context.go('/provider/verification'))]);
+  ConsumerState<BecomeProviderScreen> createState() => _BecomeProviderScreenState();
 }
 
-class VerificationStatusScreen extends StatelessWidget {
+class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
+  final displayNameController = TextEditingController();
+  final bioController = TextEditingController();
+  final imagePicker = ImagePicker();
+  final selectedCategories = <ServiceCategoryOption>[];
+  final selectedAreas = <ServiceAreaOption>[];
+  String? icFrontPath;
+  String? icBackPath;
+  String? selfiePath;
+  String? ssmPath;
+  List<String> certificatePaths = const [];
+  List<String> workPhotoPaths = const [];
+  bool hydrated = false;
+
+  @override
+  void dispose() {
+    displayNameController.dispose();
+    bioController.dispose();
+    super.dispose();
+  }
+
+  void _hydrate(ProviderApplication? application) {
+    if (hydrated || application == null) return;
+    hydrated = true;
+    displayNameController.text = application.displayName;
+    bioController.text = application.bio;
+    selectedCategories.addAll(application.categories);
+    selectedAreas.addAll(application.areas);
+    icFrontPath = application.icFrontPath;
+    icBackPath = application.icBackPath;
+    selfiePath = application.selfiePath;
+    ssmPath = application.ssmPath;
+    certificatePaths = List<String>.from(application.certificatePaths);
+    workPhotoPaths = List<String>.from(application.workPhotoPaths);
+  }
+
+  ProviderApplicationDraft _draft() => ProviderApplicationDraft(
+        displayName: displayNameController.text,
+        bio: bioController.text,
+        categories: List.unmodifiable(selectedCategories),
+        areas: List.unmodifiable(selectedAreas),
+        icFrontPath: icFrontPath,
+        icBackPath: icBackPath,
+        selfiePath: selfiePath,
+        ssmPath: ssmPath,
+        certificatePaths: certificatePaths,
+        workPhotoPaths: workPhotoPaths,
+      );
+
+  Future<void> _pickIdentity(String kind) async {
+    final file = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 82, maxWidth: 1600);
+    if (!mounted || file == null) return;
+    setState(() {
+      if (kind == 'front') icFrontPath = file.path;
+      if (kind == 'back') icBackPath = file.path;
+      if (kind == 'selfie') selfiePath = file.path;
+      if (kind == 'ssm') ssmPath = file.path;
+    });
+  }
+
+  Future<void> _pickCertificates() async {
+    final files = await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
+    if (!mounted || files.isEmpty) return;
+    setState(() => certificatePaths = files.take(5).map((file) => file.path).toList());
+  }
+
+  Future<void> _pickWorkPhotos() async {
+    final files = await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
+    if (!mounted || files.isEmpty) return;
+    setState(() => workPhotoPaths = files.take(6).map((file) => file.path).toList());
+  }
+
+  Future<void> _submit() async {
+    final application = await ref.read(providerApplicationControllerProvider.notifier).submit(_draft());
+    if (!mounted) return;
+    if (application == null) {
+      final error = ref.read(providerApplicationControllerProvider).error ?? 'Unable to submit your application.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
+    context.go('/provider/verification');
+  }
+
+  void _toggleCategory(ServiceCategoryOption option, bool selected) => setState(() {
+        selectedCategories.removeWhere((item) => item.id == option.id);
+        if (selected) selectedCategories.add(option);
+      });
+
+  void _toggleArea(ServiceAreaOption option, bool selected) => setState(() {
+        selectedAreas.removeWhere((item) => item.id == option.id);
+        if (selected) selectedAreas.add(option);
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(providerApplicationControllerProvider);
+    _hydrate(state.application);
+    final busy = state.isLoading;
+    if (!state.initialized && state.isLoading) return const ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 32), children: [LoadingSkeleton()]);
+    if (state.error != null && state.application == null && !hydrated) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerApplicationControllerProvider.notifier).load())]);
+    if (state.status == ProviderApplicationStatus.pending || state.status == ProviderApplicationStatus.approved || state.status == ProviderApplicationStatus.suspended) {
+      final approved = state.status == ProviderApplicationStatus.approved;
+      final suspended = state.status == ProviderApplicationStatus.suspended;
+      return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text(approved ? 'Provider approved' : (suspended ? 'Provider access suspended' : 'Application submitted'), style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(approved ? 'Your profile is ready for Provider Mode.' : (suspended ? 'Provider features are temporarily unavailable. Contact support if you need help.' : 'Your documents are waiting for admin review.'), style: const TextStyle(color: AppColors.textSecondary)), const SizedBox(height: 22), Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(approved ? Icons.verified_rounded : (suspended ? Icons.error_outline : Icons.hourglass_top_rounded), size: 34, color: approved ? AppColors.success : (suspended ? AppColors.danger : AppColors.warning)), const SizedBox(width: 14), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(approved ? 'Approved' : (suspended ? 'Suspended' : 'Pending review'), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), const SizedBox(height: 4), Text(approved ? 'Switch to Provider Mode from the top menu.' : (suspended ? 'Your account needs support review before provider access can resume.' : 'We will notify you when an admin reviews the application.'))]))])), const SizedBox(height: 18), SecondaryButton(label: 'View verification status', onPressed: () => context.go('/provider/verification'))]);
+    }
+    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [
+      Text(state.status == ProviderApplicationStatus.rejected ? 'Update your provider application' : 'Become a provider', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+      const SizedBox(height: 8),
+      Text(state.status == ProviderApplicationStatus.rejected ? 'Make the requested changes and submit again.' : 'Apply once and, after approval, switch between customer and provider modes.'),
+      if (state.application?.adminNote != null) ...[const SizedBox(height: 14), Card(color: AppColors.danger.withOpacity(0.08), child: Padding(padding: const EdgeInsets.all(14), child: Text('Admin note: ${state.application!.adminNote}', style: const TextStyle(color: AppColors.danger))))],
+      const SizedBox(height: 22),
+      TextField(controller: displayNameController, enabled: !busy, decoration: const InputDecoration(labelText: 'Business or display name', prefixIcon: Icon(Icons.storefront_outlined))),
+      const SizedBox(height: 14),
+      TextField(controller: bioController, enabled: !busy, maxLines: 4, decoration: const InputDecoration(labelText: 'Tell customers about your work', hintText: 'Experience, specialties, and what customers can expect.')),
+      const SizedBox(height: 18),
+      const Text('Services', style: TextStyle(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 8),
+      Wrap(spacing: 8, runSpacing: 8, children: [for (final option in serviceCategoryOptions) FilterChip(label: Text(option.label), selected: selectedCategories.any((item) => item.id == option.id), onSelected: busy ? null : (selected) => _toggleCategory(option, selected))]),
+      const SizedBox(height: 18),
+      const Text('Service areas', style: TextStyle(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 8),
+      Wrap(spacing: 8, runSpacing: 8, children: [for (final option in serviceAreaOptions) FilterChip(label: Text(option.label), selected: selectedAreas.any((item) => item.id == option.id), onSelected: busy ? null : (selected) => _toggleArea(option, selected))]),
+      const SizedBox(height: 22),
+      const Text('Verification documents', style: TextStyle(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 8),
+      _EvidenceTile(label: 'ID front', path: icFrontPath, required: true, onPick: busy ? null : () => _pickIdentity('front')),
+      _EvidenceTile(label: 'ID back', path: icBackPath, required: true, onPick: busy ? null : () => _pickIdentity('back')),
+      _EvidenceTile(label: 'Verification selfie', path: selfiePath, required: true, onPick: busy ? null : () => _pickIdentity('selfie')),
+      _EvidenceTile(label: 'SSM / business document (optional)', path: ssmPath, onPick: busy ? null : () => _pickIdentity('ssm')),
+      SecondaryButton(label: certificatePaths.isEmpty ? 'Add certificates (optional)' : '${certificatePaths.length} certificates selected', onPressed: busy ? null : _pickCertificates),
+      const SizedBox(height: 14),
+      const Text('Work photos', style: TextStyle(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 8),
+      PhotoUploader(paths: workPhotoPaths, onPick: busy ? null : _pickWorkPhotos),
+      if (state.error != null) ...[const SizedBox(height: 12), Text(state.error!, style: const TextStyle(color: AppColors.danger))],
+      const SizedBox(height: 22),
+      PrimaryButton(label: busy ? 'Submitting…' : 'Submit application', onPressed: busy ? null : _submit),
+    ]);
+  }
+}
+
+class _EvidenceTile extends StatelessWidget {
+  const _EvidenceTile({required this.label, required this.path, required this.onPick, this.required = false});
+
+  final String label;
+  final String? path;
+  final VoidCallback? onPick;
+  final bool required;
+
+  @override
+  Widget build(BuildContext context) => Card(child: ListTile(leading: Icon(path == null ? Icons.upload_file_outlined : Icons.check_circle_outline, color: path == null ? AppColors.textSecondary : AppColors.success), title: Text(label), subtitle: Text(path == null ? (required ? 'Required' : 'Not added') : 'File selected'), trailing: OutlinedButton(onPressed: onPick, child: Text(path == null ? 'Choose' : 'Change'))));
+}
+
+class VerificationStatusScreen extends ConsumerWidget {
   const VerificationStatusScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Verification status', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [const Icon(Icons.hourglass_top_rounded, size: 34, color: AppColors.warning), const SizedBox(width: 14), const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Pending review', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), SizedBox(height: 4), Text('The fake-data application is waiting for an admin decision.')]))])), const SizedBox(height: 18), const PhotoUploader(count: 2), const SizedBox(height: 18), SecondaryButton(label: 'View application details', onPressed: () {}), const SizedBox(height: 12), const Text('Approved providers will be able to access Job Feed and submit bids.', style: TextStyle(color: AppColors.textSecondary))]);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(providerApplicationControllerProvider);
+    if (!state.initialized && state.isLoading) return const ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 32), children: [LoadingSkeleton()]);
+    if (state.error != null && state.application == null) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerApplicationControllerProvider.notifier).load())]);
+    final application = state.application;
+    if (application == null) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Verification status', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), const EmptyState(title: 'No application yet', message: 'Complete your provider information and verification documents to apply.'), PrimaryButton(label: 'Start application', onPressed: () => context.go('/provider/apply'))]);
+    final status = application.status;
+    final approved = status == ProviderApplicationStatus.approved;
+    final rejected = status == ProviderApplicationStatus.rejected;
+    final suspended = status == ProviderApplicationStatus.suspended;
+    final color = approved ? AppColors.success : (rejected || suspended ? AppColors.danger : AppColors.warning);
+    final icon = approved ? Icons.verified_rounded : (rejected || suspended ? Icons.error_outline : Icons.hourglass_top_rounded);
+    final title = approved ? 'Approved' : (rejected ? 'Changes requested' : (suspended ? 'Provider access suspended' : 'Pending review'));
+    final message = approved ? 'Your provider profile is approved. You can switch to Provider Mode.' : (rejected ? 'Update the application using the admin note below and submit again.' : (suspended ? 'Provider features are temporarily unavailable. Contact support if you need help.' : 'Your documents are waiting for an admin review.'));
+    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Verification status', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, size: 34, color: color), const SizedBox(width: 14), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), const SizedBox(height: 4), Text(message)])), StatusBadge(label: status.name)]))), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(application.displayName, style: const TextStyle(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text('${application.categories.length} services · ${application.areas.length} service areas'), Text('${application.workPhotoPaths.length} work photos · ${application.certificatePaths.length} certificates'), if (application.submittedAt != null) Text('Submitted ${application.submittedAt!.toLocal().toString().split('.').first}', style: const TextStyle(color: AppColors.textSecondary)), if (application.adminNote != null) ...[const SizedBox(height: 12), Text('Admin note: ${application.adminNote}', style: const TextStyle(color: AppColors.danger))]]))), if (rejected) ...[const SizedBox(height: 18), SecondaryButton(label: 'Edit and resubmit', onPressed: () => context.go('/provider/apply'))], if (approved) ...[const SizedBox(height: 18), PrimaryButton(label: 'Open Provider Mode', onPressed: () { ref.read(appModeProvider.notifier).state = AppMode.provider; context.go('/provider/feed'); })], const SizedBox(height: 12), const Text('Identity documents are stored in a private bucket and are visible only to you and authorized admins.', style: TextStyle(color: AppColors.textSecondary))]);
+  }
 }
 
 class ProviderFeedScreen extends ConsumerWidget {

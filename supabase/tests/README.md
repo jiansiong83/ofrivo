@@ -11,3 +11,4 @@ When a Supabase local runtime is available:
 
 The fixture identities are documented in the SQL file. Do not use the local fixture passwords in any hosted environment.
 
+`validate_step5.mjs` checks the provider application migration, server RPC, private verification path, and mobile validation contracts.

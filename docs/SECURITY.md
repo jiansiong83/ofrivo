@@ -48,3 +48,10 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Job photos use the private `job-photos` bucket and a job-scoped path; Storage RLS checks the job participant.
 - The app limits photo selection to five items and reports missing-file/upload failures instead of silently publishing.
 - Customer cancellation calls the server-side `cancel_job` RPC, which enforces the allowed status and actor checks.
+
+## Step 5 Provider Application controls
+
+- Direct client inserts are restricted to `not_applied` provider profiles and `pending` verification rows.
+- Provider verification status, approval timestamps, suspension timestamps, and admin review fields remain server-controlled.
+- `submit_provider_application` validates category/area IDs, evidence ownership paths, evidence counts, and active-account status in one transaction.
+- Identity evidence and work photos use the private `provider-verifications` bucket; paths are scoped to the authenticated provider and are never public URLs.

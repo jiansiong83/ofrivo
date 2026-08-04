@@ -4,7 +4,7 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 
 ## Planned entities
 
-`profiles`, `provider_profiles`, `service_categories`, `areas`, `provider_categories`, `provider_areas`, `provider_verifications`, `jobs`, `job_photos`, `bids`, `reviews`, `reports`, `notifications`, `device_tokens`, and `job_events`.
+`profiles`, `provider_profiles`, `service_categories`, `areas`, `provider_categories`, `provider_areas`, `provider_verifications`, `provider_work_photos`, `jobs`, `job_photos`, `bids`, `reviews`, `reports`, `notifications`, `device_tokens`, and `job_events`.
 
 ## Core rules
 
@@ -18,6 +18,7 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 - `job_events` records important transitions.
 - `public_job_feed` and `public_provider_directory` are safe read views; they do not expose full address/contact fields.
 - `accept_bid`, `start_job`, `complete_job`, and `cancel_job` are `SECURITY DEFINER` transaction functions with explicit actor checks.
+- `submit_provider_application` is a `SECURITY DEFINER` transaction function that owns the pending transition and rewrites the provider's category/area selections.
 
 ## Privacy shape
 

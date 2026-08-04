@@ -32,6 +32,14 @@
 - Customer cancellation uses the transactional `cancel_job` RPC and only enables for cancellable job states.
 - Flutter unit/widget tests and Android build remain environment-blocked until a Flutter SDK is available.
 
+## Step 5 Provider Application checks
+
+- Provider draft validation requires display name, bio, at least one category/area, ID front/back, and selfie; evidence and work-photo limits are enforced.
+- Fake repository transitions a not-applied profile to pending after submission.
+- Supabase submission uploads private verification evidence, calls `submit_provider_application`, and cleans up uploaded files if the transaction fails.
+- SQL policy prevents direct client insertion of approved provider or verification states; status changes are server-controlled.
+- Pending, approved, rejected, and suspended status states expose clear next actions and never reveal verification files publicly.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

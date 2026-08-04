@@ -1,33 +1,11 @@
 import '../../core/models/app_models.dart';
+import '../../core/models/service_options.dart';
 
-class JobCategoryOption {
-  const JobCategoryOption({required this.id, required this.label});
+typedef JobCategoryOption = ServiceCategoryOption;
+typedef JobAreaOption = ServiceAreaOption;
 
-  final String id;
-  final String label;
-}
-class JobAreaOption {
-  const JobAreaOption({required this.id, required this.label});
-
-  final String id;
-  final String label;
-}
-
-const jobCategoryOptions = <JobCategoryOption>[
-  JobCategoryOption(id: '00000000-0000-0000-0000-000000000201', label: 'Plumbing / Toilet'),
-  JobCategoryOption(id: '00000000-0000-0000-0000-000000000202', label: 'Electrical / Lighting / Fan'),
-  JobCategoryOption(id: '00000000-0000-0000-0000-000000000203', label: 'Air Conditioning'),
-  JobCategoryOption(id: '00000000-0000-0000-0000-000000000204', label: 'Moving / Delivery'),
-  JobCategoryOption(id: '00000000-0000-0000-0000-000000000205', label: 'Cleaning'),
-  JobCategoryOption(id: '00000000-0000-0000-0000-000000000206', label: 'Handyman'),
-];
-
-const jobAreaOptions = <JobAreaOption>[
-  JobAreaOption(id: '00000000-0000-0000-0000-000000000251', label: 'Mount Austin'),
-  JobAreaOption(id: '00000000-0000-0000-0000-000000000252', label: 'Taman Molek'),
-  JobAreaOption(id: '00000000-0000-0000-0000-000000000253', label: 'Permas Jaya'),
-  JobAreaOption(id: '00000000-0000-0000-0000-000000000254', label: 'Skudai'),
-];
+const jobCategoryOptions = serviceCategoryOptions;
+const jobAreaOptions = serviceAreaOptions;
 
 class JobDraft {
   const JobDraft({
