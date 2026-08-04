@@ -1,8 +1,30 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val signingProperties = Properties()
+val signingPropertiesFile = rootProject.file("key.properties")
+if (signingPropertiesFile.exists()) {
+    signingPropertiesFile.inputStream().use(signingProperties::load)
+}
+
+val requiredSigningProperties = listOf(
+    "storeFile",
+    "storePassword",
+    "keyAlias",
+    "keyPassword",
+)
+val releaseSigningConfigured = requiredSigningProperties.all { property ->
+    !signingProperties.getProperty(property).isNullOrBlank()
+}
+val allowDebugReleaseSigning =
+    providers.gradleProperty("allowDebugReleaseSigning").orNull?.toBoolean()
+        ?: System.getenv("OFRIVO_ALLOW_DEBUG_RELEASE_SIGNING")?.toBoolean()
+        ?: false
 
 android {
     namespace = "com.example.ofrivo_mobile"
@@ -25,12 +47,38 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            create("release") {
+                storeFile = rootProject.file(signingProperties.getProperty("storeFile"))
+                storePassword = signingProperties.getProperty("storePassword")
+                keyAlias = signingProperties.getProperty("keyAlias")
+                keyPassword = signingProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Local smoke builds may opt into debug signing explicitly. A closed-beta
+            // build uses `android/key.properties` and the release signing config.
+            signingConfig = if (releaseSigningConfigured) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    val includesReleaseTask = allTasks.any { task -> task.name.contains("Release") }
+    if (includesReleaseTask && !releaseSigningConfigured && !allowDebugReleaseSigning) {
+        throw GradleException(
+            "Closed-beta release signing is not configured. Create android/key.properties " +
+                "from key.properties.example, or set OFRIVO_ALLOW_DEBUG_RELEASE_SIGNING=true " +
+                "only for a local smoke build.",
+        )
     }
 }
 

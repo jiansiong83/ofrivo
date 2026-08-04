@@ -1,0 +1,6 @@
+# Copy this file to key.properties and replace every placeholder locally.
+# key.properties is ignored by git; never commit a real keystore or password.
+storeFile=ofrivo-upload-key.jks
+storePassword=REPLACE_WITH_KEYSTORE_PASSWORD
+keyAlias=ofrivo
+keyPassword=REPLACE_WITH_KEY_PASSWORD
