@@ -6,10 +6,10 @@ Brand line: **Post a job. Compare offers. Get it done.**
 
 ## Current scope
 
-This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, the Step 4 customer job flow, the Step 5 provider application flow, the Step 6 provider feed/bid flow, the Step 7 transactional accept-bid flow, and the Step 8 lifecycle/review/report flow from the project master plan:
+This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, the Step 4 customer job flow, the Step 5 provider application flow, the Step 6 provider feed/bid flow, the Step 7 transactional accept-bid flow, the Step 8 lifecycle/review/report flow, and the Step 9 Admin Web console from the project master plan:
 
 - Flutter Android app shell with Riverpod, go_router, Material 3, feature-based folders, and fake data.
-- Next.js + TypeScript + Tailwind admin shell with placeholder dashboard content.
+- Next.js + TypeScript + Tailwind Admin Web console with login preview, operational dashboard, provider verification, user controls, jobs, bids, reports, taxonomy, settings, and audit log.
 - Product, screen, UI, data, security, test, release, and project-status documentation.
 - Supabase migration, seed, storage policy, RLS, and transaction-RPC source files. They are not applied to Supabase Cloud in this repository.
 - Mobile Email + Password auth with session restore, profile guards, and a local demo fallback.
@@ -18,6 +18,7 @@ This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supaba
 - Provider Job Feed with public-field filtering, job detail privacy boundaries, bid submission/edit/withdraw, and My Bids.
 - Customer Received Bids, Provider Profile, transactional offer acceptance, automatic rejection of competing pending bids, assigned-job state, address/contact reveal for the accepted provider, and notifications.
 - Transactional start/complete/cancel actions, customer/provider reviews, participant-aware reports, and job event history.
+- Admin moderation actions run against explicit local fake data in the preview and append attributable audit events; production Supabase Auth/RLS wiring remains runtime-only.
 
 The mobile app connects to Supabase only when explicit `--dart-define` values are supplied; otherwise it uses local demo data. Payments, chat, maps, AI pricing, and FCM remain deferred.
 

@@ -59,6 +59,15 @@
 - [x] Step 6 static migration/mobile contract validation passes.
 - [x] No service-role key or hosted Supabase values committed.
 
+## Step 9 Admin Web
+
+- [x] Admin login preview and sign-out flow render.
+- [x] Dashboard, provider verification, users, jobs, bids, reports, taxonomy, settings, and audit views render.
+- [x] Provider/account/report moderation actions append local audit events.
+- [x] Step 9 static contract validation passes.
+- [x] Admin lint and production build pass.
+- [ ] Production admin Auth claims, RLS-backed repositories, signed evidence URLs, and server-side audit writes are configured.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

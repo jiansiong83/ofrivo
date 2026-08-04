@@ -5,7 +5,7 @@
 - Flutter static analysis and unit/widget tests.
 - Android debug build with the prepared Flutter SDK.
 - Admin lint and production build.
-- Manual route smoke test for public, customer, provider, and admin placeholder flows.
+- Manual route smoke test for public, customer, provider, and Admin Web preview flows.
 - Search the repository for forbidden real credentials and backend URLs.
 
 ## Step 2 SQL checks
@@ -65,6 +65,15 @@
 - Reports require a reason and useful description, route to the safety team, and keep participant IDs server-derived in Supabase mode.
 - Job Event Log displays transaction events without exposing private fields.
 - Run `node supabase/tests/validate_step8.mjs`, Flutter analyze/test, and Android debug build.
+
+## Step 9 Admin Web checks
+
+- Admin login preview gates the console and sign-out returns to the login screen.
+- Dashboard queue counts navigate to Pending Providers, Reports, and Audit Log.
+- Provider verification actions cover approve, reject, suspend, and restore-to-approved states; private evidence is labelled as signed-preview only.
+- Users covers suspend/restore; Jobs exposes private address only in the admin detail; Bids show admin-scoped offer monitoring.
+- Reports cover reviewing, resolving, and dismissing; each moderation mutation appends an audit event.
+- Run `node supabase/tests/validate_step9.mjs`, `npm.cmd run lint`, and `npm.cmd run build` from `apps/admin`.
 
 ## Later test layers
 

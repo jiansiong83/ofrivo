@@ -74,3 +74,11 @@
 - Added Job Event Log timeline to customer and provider job details.
 - Added review/report routes, completed-job actions, provider start/complete controls, and cancellation confirmation.
 - Added Step 8 lifecycle contract validation; Flutter analyze, 21 tests, and Android debug build pass.
+
+## Step 9 — Admin Web
+
+- Replaced the static admin placeholder with a local operations console and login preview.
+- Added Dashboard, Provider Verification, Users, Jobs, Bids, Reports, Categories, Areas, Audit Log, and System Settings views.
+- Added approve/reject/suspend provider actions, suspend/restore account actions, report review/resolve/dismiss actions, and local audit-event append behavior.
+- Added private evidence and job-address admin detail boundaries with production signed-URL/server-guard guidance.
+- Added `supabase/tests/validate_step9.mjs`; Admin lint and Next.js production build pass.

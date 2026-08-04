@@ -29,6 +29,13 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 - Start/complete/cancel actions call transaction RPCs; the client never performs a sequence of status updates.
 - Review and report inserts derive the opposite participant from the accepted bid in Supabase mode, while database triggers enforce completed-job/participant rules.
 
+## Step 9 Admin Web controls
+
+- The browser preview uses fake data only and does not embed a service-role key or hosted Supabase secret.
+- Production admin routes must require Supabase Auth admin claims and server-side RLS/policy checks for every provider, user, job, bid, report, taxonomy, and settings mutation.
+- Verification evidence and private job addresses are admin-only fields; serve evidence through short-lived signed URLs and never expose storage paths as public URLs.
+- Provider, account, and report actions must write an actor, target, action, and timestamp to the audit log in the same server-authorized operation.
+
 ## Environment contract
 
 Mobile: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `APP_ENV=development`, supplied with `--dart-define` or a CI secret. No values are committed.

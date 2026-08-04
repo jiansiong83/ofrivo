@@ -34,11 +34,11 @@ Only the approved-provider concept is represented by fake state; real eligibilit
 
 ## Admin web
 
-The shell exposes placeholder destinations for Dashboard, Pending Providers, Provider Detail, Users, Jobs, Bids, Reports, Categories, Areas, Audit Log, and System Settings. It does not perform moderation yet.
+The Admin Web preview exposes Dashboard, Pending Providers, Provider Detail, Users, Jobs, Bids, Reports, Categories, Areas, Audit Log, and System Settings. Provider approval/rejection/suspension, account suspend/restore, and report review actions update local fake data and append an audit event; production data access remains behind Supabase Auth/RLS.
 
 ## Interaction notes
 
 - Every list has loading, empty, and error treatment available from shared widgets.
 - A job card exposes public location only; full address/contact reveal is a later backend rule.
 - Provider cards and bid cards never display another provider's price in the feed.
-- Destructive actions use a confirmation dialog placeholder.
+- Destructive moderation actions are represented by explicit action buttons in the preview; production must add server-side authorization and confirmation before mutating real data.

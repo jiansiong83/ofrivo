@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 8 Job Completion, Review, and Report (runtime connection optional; Flutter Android validation is enabled).
+Step 9 Admin Web (local preview data; Flutter Android validation remains enabled).
 
 ## Current objective
 
-Complete the end-to-end job lifecycle while preserving participant privacy, transactional state changes, and runtime-only Supabase configuration.
+Deliver the Admin Web operations console while preserving participant privacy, auditable moderation actions, and runtime-only Supabase configuration.
 
 ## Completed
 
@@ -40,10 +40,16 @@ Complete the end-to-end job lifecycle while preserving participant privacy, tran
 - Review and Report flows added with rating/comment validation, reason selection, participant-aware Supabase inserts, and fake-data adapters.
 - Job Event Log timeline added to customer and provider job details.
 - Step 8 lifecycle tests and static RPC/mobile contract validation added.
+- Step 9 Admin Web console added with local login preview and operational Dashboard.
+- Provider verification supports approve, reject, and suspend actions with private-evidence signed-preview guidance.
+- Users supports suspend/restore; Jobs and Bids expose admin-scoped marketplace monitoring; Reports supports reviewing, resolving, and dismissing.
+- Categories, Areas, System Settings, and Audit Log views added; every moderation mutation appends an attributable local audit event.
+- Step 9 static Admin Web contract validator added.
 
 ## Not completed yet
 
 - No Supabase Cloud project connection or FCM connection; app-side auth/jobs/provider application/feed/bids connect only when runtime defines are supplied.
+- Admin Web is intentionally a local fake-data preview until server-side Supabase Auth claims, RLS-backed queries, signed URLs, and audit writes are configured.
 
 ## Known issues / environment
 
@@ -70,12 +76,15 @@ Complete the end-to-end job lifecycle while preserving participant privacy, tran
 - Step 6 SQL/mobile static contract validation: PASS (`node supabase/tests/validate_step6.mjs`).
 - Step 7 RPC/mobile static contract validation: PASS (`node supabase/tests/validate_step7.mjs`).
 - Step 8 lifecycle/mobile static contract validation: PASS (`node supabase/tests/validate_step8.mjs`).
+- Step 9 Admin Web static contract validation: PASS (`node supabase/tests/validate_step9.mjs`).
+- Step 9 Admin lint: PASS (`npm.cmd run lint`).
+- Step 9 Admin production build: PASS (`npm.cmd run build`, static `/` output).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 8 commit: `bd5b669` (`feat: add job completion review and report flow`). Rollback point is the Step 7 commit `e7de83b`.
+Step 9 commit: `7176c96` (`feat: add admin operations console`). Rollback point is the Step 8 commit `bd5b669`.
 
 ## Next step
 
-After this round is accepted: Step 9 Admin Web.
+Next: Step 10 Push Notification.
