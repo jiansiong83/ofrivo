@@ -2,9 +2,9 @@
 
 ## Step 0 + Step 1
 
-- [ ] Flutter analyze passes (blocked: Flutter SDK unavailable in current environment).
-- [ ] Flutter tests pass (blocked: Flutter SDK unavailable in current environment).
-- [ ] Android debug build passes (blocked: Flutter SDK unavailable in current environment).
+- [x] Flutter analyze passes (Flutter 3.44.8).
+- [x] Flutter tests pass (10 tests).
+- [x] Android debug build passes (`apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`).
 - [x] Admin lint passes.
 - [x] Admin production build passes.
 - [x] No Supabase/Firebase credentials committed.
@@ -24,7 +24,7 @@
 
 ## Step 3 authentication and profiles
 
-- [ ] Flutter Auth unit/widget tests pass once the SDK is available.
+- [x] Flutter Auth unit/widget tests pass.
 - [ ] Runtime Supabase defines are supplied only through local/CI secrets.
 - [ ] Register/login/session restore works against `ofrivo-dev`.
 - [ ] Profile RLS tests pass.
@@ -32,7 +32,7 @@
 
 ## Step 4 customer job creation
 
-- [ ] Job form validation tests pass once the Flutter SDK is available.
+- [x] Job form validation tests pass.
 - [ ] Draft save and publish work in local demo mode.
 - [ ] Supabase insert, private job-photo upload, and draft-to-open transition pass against an isolated project.
 - [ ] My Jobs and Job Detail show only the authenticated customer's jobs.
@@ -41,7 +41,7 @@
 
 ## Step 5 provider application
 
-- [ ] Provider application validation tests pass once the Flutter SDK is available.
+- [x] Provider application validation tests pass.
 - [ ] Categories and areas persist only for the authenticated provider.
 - [ ] Identity evidence and work photos upload to the private verification bucket.
 - [ ] `submit_provider_application` transitions the provider to pending without allowing client-side approval.

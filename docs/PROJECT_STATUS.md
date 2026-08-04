@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 5 provider application (runtime connection optional; Flutter validation remains environment-blocked).
+Step 5 provider application (runtime connection optional; Flutter Android validation is now enabled).
 
 ## Current objective
 
-Add the mobile Email + Password Auth/Profile adapter on top of the local Supabase foundation without committing hosted credentials.
+Validate the Step 5 mobile workspace with the prepared Flutter SDK while preserving runtime-only Supabase configuration.
 
 ## Completed
 
@@ -22,21 +22,21 @@ Add the mobile Email + Password Auth/Profile adapter on top of the local Supabas
 - Step 2 seed added with local auth fixtures, categories, areas, providers, jobs, bids, and notifications.
 - Step 3 mobile Auth repository/controller added with runtime `--dart-define` configuration and local demo fallback.
 - Profile restore/upsert, sign-out, password reset, suspended-account guard, and Provider Mode guard added.
-- Auth unit tests added (not runnable until Flutter SDK is available).
+- Auth unit tests added and passing with the prepared Flutter SDK.
 - Step 4 customer job form, photo picker adapter, draft/preview/publish flow, My Jobs, Job Detail, cancellation, and fake/Supabase repositories added.
-- Job draft validation and fake repository lifecycle tests added (not runnable until Flutter SDK is available).
+- Job draft validation and fake repository lifecycle tests added and passing.
 - Step 5 provider application form, category/area selection, private evidence/work-photo upload adapter, status UI, fake/Supabase repository, and server submission RPC added.
-- Provider application validation and fake lifecycle tests added (not runnable until Flutter SDK is available).
+- Provider application validation and fake lifecycle tests added and passing.
+- Flutter stable SDK 3.44.8 / Dart 3.12.2 prepared at `F:\Dev\FlutterSDK`; Android licenses accepted and user PATH updated.
+- Android platform host generated with `flutter create --platforms=android .`; Kotlin incremental compilation disabled for the Windows cross-drive cache layout.
 
 ## Not completed yet
 
 - No Supabase Cloud project connection or FCM connection; app-side auth/jobs/provider application connect only when runtime defines are supplied.
-- Flutter `analyze`, `test`, and Android debug build could not start because Flutter/Dart are not installed or on PATH.
 
 ## Known issues / environment
 
-- Flutter and Dart are not currently available on PATH, so Flutter validation may remain blocked unless an SDK is discovered or installed.
-- Android SDK is present; `adb` is not currently on PATH.
+- Android SDK is present and Android licenses are accepted; `adb` remains available by absolute path but is not currently on PATH in this shell.
 - Admin commands may require `npm.cmd` on this PowerShell host.
 
 ## Database migration
@@ -48,18 +48,18 @@ Add the mobile Email + Password Auth/Profile adapter on top of the local Supabas
 - Admin lint: PASS.
 - Admin production build: PASS (static `/` output).
 - Admin Step 2 regression lint/build: PASS.
-- Flutter analyze: BLOCKED — `flutter` command not recognized.
-- Flutter test: BLOCKED — `flutter` command not recognized.
-- Android debug build: BLOCKED — `flutter` command not recognized.
+- Flutter analyze: PASS — `No issues found!` (Flutter 3.44.8).
+- Flutter test: PASS — 10 tests passed.
+- Android debug build: PASS — `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
 - Supabase CLI local lint: BLOCKED — no local PostgreSQL/Docker runtime is available (`LegacyDbConnectError`).
-- Auth unit/widget tests: BLOCKED — Flutter SDK is not available on PATH.
+- Auth, customer job, provider application, and onboarding widget tests: PASS — 10 tests passed.
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 5 commit: `7c8202c` (`feat: add provider verification workflow`). Rollback point is the Step 4 commit `5c34d48`.
+Step 5 commit: `9496274` (`feat: add provider verification workflow`). Rollback point is the Step 4 commit `5c34d48`.
 
 ## Next step
 

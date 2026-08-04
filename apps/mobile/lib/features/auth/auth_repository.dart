@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthUser;
 
 import 'auth_models.dart';
 
@@ -137,4 +137,3 @@ class SupabaseAuthRepository implements AuthRepository {
     }
   }
 }
-

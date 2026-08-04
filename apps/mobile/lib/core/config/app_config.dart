@@ -20,10 +20,9 @@ abstract final class AppBootstrap {
 
     await Supabase.initialize(
       url: AppConfig.supabaseUrl,
-      anonKey: AppConfig.supabaseAnonKey,
+      publishableKey: AppConfig.supabaseAnonKey,
     );
     client = Supabase.instance.client;
     demoMode = false;
   }
 }
-

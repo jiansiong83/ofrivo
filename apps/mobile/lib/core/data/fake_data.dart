@@ -89,5 +89,4 @@ const fakeProvider = ProviderProfile(
   verification: VerificationStatus.approved,
 );
 
-final fakeProviderProfileProvider = fakeProvider;
-
+const fakeProviderProfileProvider = fakeProvider;

@@ -31,7 +31,14 @@
 - Added category/area selection, private address/contact fields, urgency, service window, budget, and up-to-five photo selection.
 - Added fake and Supabase job repositories, private Storage photo upload, draft/preview/publish, My Jobs, Job Detail, and cancellation flow.
 - Added customer job controller loading/error states and lifecycle tests.
-- Flutter validation remains blocked because the SDK is unavailable in the environment.
+- Flutter validation was initially blocked until the SDK was prepared; current validation is recorded below.
+
+## SDK preparation — Flutter Android validation
+
+- Prepared Flutter stable 3.44.8 / Dart 3.12.2 with accepted Android SDK licenses.
+- Generated the Android host project and locked the Gradle wrapper to the cached 9.1.0 binary distribution.
+- Disabled Kotlin incremental compilation for the Windows cross-drive Pub-cache layout.
+- `flutter analyze` passes with no issues, all 10 Flutter tests pass, and the debug APK builds successfully.
 
 ## Step 5 — Provider Application
 
@@ -41,4 +48,4 @@
 - Added fake and Supabase provider application repositories with private Storage upload cleanup.
 - Added `provider_work_photos` and protected `submit_provider_application` migration/RPC, including server-controlled status transitions.
 - Added provider application validation and fake lifecycle tests.
-- Flutter validation remains blocked because the SDK is unavailable in the environment.
+- Flutter validation passes with the prepared SDK; see the SDK preparation entry above.

@@ -12,11 +12,11 @@ void main() {
   });
 
   test('provider application draft requires identity evidence', () {
-    final draft = ProviderApplicationDraft(
+    const draft = ProviderApplicationDraft(
       displayName: 'Local Fix',
       bio: 'A local home repair service.',
-      categories: const [],
-      areas: const [],
+      categories: [],
+      areas: [],
       icFrontPath: null,
       icBackPath: null,
       selfiePath: null,

@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/app_config.dart';
-import '../../core/data/fake_data.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../auth/auth_controller.dart';

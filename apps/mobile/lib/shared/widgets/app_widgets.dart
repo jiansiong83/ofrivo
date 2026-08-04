@@ -95,7 +95,7 @@ class StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: _color.withOpacity(0.10), borderRadius: BorderRadius.circular(99)),
+      decoration: BoxDecoration(color: _color.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(99)),
       child: Text(label, style: TextStyle(color: _color, fontWeight: FontWeight.w700, fontSize: 12)),
     );
   }
@@ -207,12 +207,39 @@ class ProviderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(child: InkWell(borderRadius: BorderRadius.circular(16), onTap: onTap, child: Padding(padding: const EdgeInsets.all(16), child: Row(children: [
-      CircleAvatar(radius: 26, backgroundColor: const Color(0xFFD4ECEC), child: Text(provider.name.substring(0, 1))),
-      const SizedBox(width: 12),
-      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(provider.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)), Text(provider.category), Text('${provider.rating.toStringAsFixed(1)} ★  ·  ${provider.completedJobs} completed')]))),
-      const Icon(Icons.chevron_right),
-    ]))));
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 26,
+                backgroundColor: const Color(0xFFD4ECEC),
+                child: Text(provider.name.substring(0, 1)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      provider.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    Text(provider.category),
+                    Text('${provider.rating.toStringAsFixed(1)} ★  ·  ${provider.completedJobs} completed'),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -278,7 +305,7 @@ class ErrorState extends StatelessWidget {
   final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) => EmptyState(title: 'Something went wrong', message: 'Please check your connection and try again.', icon: Icons.error_outline);
+  Widget build(BuildContext context) => const EmptyState(title: 'Something went wrong', message: 'Please check your connection and try again.', icon: Icons.error_outline);
 }
 
 class LoadingSkeleton extends StatelessWidget {

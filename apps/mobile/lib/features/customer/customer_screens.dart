@@ -36,7 +36,7 @@ class CustomerHomeScreen extends ConsumerWidget {
         else
           for (final job in jobs.take(2))
             Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 12), child: JobCard(job: job, onTap: () => context.go('/customer/jobs/${job.id}'))),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [const Icon(Icons.shield_outlined, color: AppColors.primary), const SizedBox(width: 12), const Expanded(child: Text('Compare verified local providers and keep your address private until you choose.'))])))),
+        const Padding(padding: EdgeInsets.symmetric(horizontal: 20), child: Card(child: Padding(padding: EdgeInsets.all(18), child: Row(children: [Icon(Icons.shield_outlined, color: AppColors.primary), SizedBox(width: 12), Expanded(child: Text('Compare verified local providers and keep your address private until you choose.'))])))),
       ],
     );
   }
@@ -131,14 +131,14 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         const Text('Give providers enough detail to send useful bids.', style: TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 22),
         DropdownButtonFormField<JobCategoryOption>(
-          value: selectedCategory,
+          initialValue: selectedCategory,
           decoration: const InputDecoration(labelText: 'Service category', prefixIcon: Icon(Icons.category_outlined)),
           items: [for (final option in jobCategoryOptions) DropdownMenuItem(value: option, child: Text(option.label))],
           onChanged: busy ? null : (value) { if (value != null) setState(() => selectedCategory = value); },
         ),
         const SizedBox(height: 14),
         DropdownButtonFormField<JobAreaOption>(
-          value: selectedArea,
+          initialValue: selectedArea,
           decoration: const InputDecoration(labelText: 'Area', prefixIcon: Icon(Icons.location_on_outlined)),
           items: [for (final option in jobAreaOptions) DropdownMenuItem(value: option, child: Text(option.label))],
           onChanged: busy ? null : (value) { if (value != null) setState(() => selectedArea = value); },

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/data/fake_data.dart';
 import '../../core/models/app_models.dart';
 import '../../core/models/service_options.dart';
 import '../../core/state/app_state.dart';
@@ -118,18 +119,84 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
     final state = ref.watch(providerApplicationControllerProvider);
     _hydrate(state.application);
     final busy = state.isLoading;
-    if (!state.initialized && state.isLoading) return const ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 32), children: [LoadingSkeleton()]);
+    if (!state.initialized && state.isLoading) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [const LoadingSkeleton()],
+      );
+    }
     if (state.error != null && state.application == null && !hydrated) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerApplicationControllerProvider.notifier).load())]);
     if (state.status == ProviderApplicationStatus.pending || state.status == ProviderApplicationStatus.approved || state.status == ProviderApplicationStatus.suspended) {
       final approved = state.status == ProviderApplicationStatus.approved;
       final suspended = state.status == ProviderApplicationStatus.suspended;
-      return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text(approved ? 'Provider approved' : (suspended ? 'Provider access suspended' : 'Application submitted'), style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(approved ? 'Your profile is ready for Provider Mode.' : (suspended ? 'Provider features are temporarily unavailable. Contact support if you need help.' : 'Your documents are waiting for admin review.'), style: const TextStyle(color: AppColors.textSecondary)), const SizedBox(height: 22), Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(approved ? Icons.verified_rounded : (suspended ? Icons.error_outline : Icons.hourglass_top_rounded), size: 34, color: approved ? AppColors.success : (suspended ? AppColors.danger : AppColors.warning)), const SizedBox(width: 14), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(approved ? 'Approved' : (suspended ? 'Suspended' : 'Pending review'), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), const SizedBox(height: 4), Text(approved ? 'Switch to Provider Mode from the top menu.' : (suspended ? 'Your account needs support review before provider access can resume.' : 'We will notify you when an admin reviews the application.'))]))])), const SizedBox(height: 18), SecondaryButton(label: 'View verification status', onPressed: () => context.go('/provider/verification'))]);
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [
+          Text(
+            approved ? 'Provider approved' : (suspended ? 'Provider access suspended' : 'Application submitted'),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            approved
+                ? 'Your profile is ready for Provider Mode.'
+                : (suspended
+                    ? 'Provider features are temporarily unavailable. Contact support if you need help.'
+                    : 'Your documents are waiting for admin review.'),
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 22),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                children: [
+                  Icon(
+                    approved
+                        ? Icons.verified_rounded
+                        : (suspended ? Icons.error_outline : Icons.hourglass_top_rounded),
+                    size: 34,
+                    color: approved
+                        ? AppColors.success
+                        : (suspended ? AppColors.danger : AppColors.warning),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          approved ? 'Approved' : (suspended ? 'Suspended' : 'Pending review'),
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          approved
+                              ? 'Switch to Provider Mode from the top menu.'
+                              : (suspended
+                                  ? 'Your account needs support review before provider access can resume.'
+                                  : 'We will notify you when an admin reviews the application.'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          SecondaryButton(
+            label: 'View verification status',
+            onPressed: () => context.go('/provider/verification'),
+          ),
+        ],
+      );
     }
     return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [
       Text(state.status == ProviderApplicationStatus.rejected ? 'Update your provider application' : 'Become a provider', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
       const SizedBox(height: 8),
       Text(state.status == ProviderApplicationStatus.rejected ? 'Make the requested changes and submit again.' : 'Apply once and, after approval, switch between customer and provider modes.'),
-      if (state.application?.adminNote != null) ...[const SizedBox(height: 14), Card(color: AppColors.danger.withOpacity(0.08), child: Padding(padding: const EdgeInsets.all(14), child: Text('Admin note: ${state.application!.adminNote}', style: const TextStyle(color: AppColors.danger))))],
+      if (state.application?.adminNote != null) ...[const SizedBox(height: 14), Card(color: AppColors.danger.withValues(alpha: 0.08), child: Padding(padding: const EdgeInsets.all(14), child: Text('Admin note: ${state.application!.adminNote}', style: const TextStyle(color: AppColors.danger))))],
       const SizedBox(height: 22),
       TextField(controller: displayNameController, enabled: !busy, decoration: const InputDecoration(labelText: 'Business or display name', prefixIcon: Icon(Icons.storefront_outlined))),
       const SizedBox(height: 14),
@@ -179,7 +246,12 @@ class VerificationStatusScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(providerApplicationControllerProvider);
-    if (!state.initialized && state.isLoading) return const ListView(padding: EdgeInsets.fromLTRB(20, 20, 20, 32), children: [LoadingSkeleton()]);
+    if (!state.initialized && state.isLoading) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [const LoadingSkeleton()],
+      );
+    }
     if (state.error != null && state.application == null) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerApplicationControllerProvider.notifier).load())]);
     final application = state.application;
     if (application == null) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Verification status', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), const EmptyState(title: 'No application yet', message: 'Complete your provider information and verification documents to apply.'), PrimaryButton(label: 'Start application', onPressed: () => context.go('/provider/apply'))]);

@@ -46,7 +46,7 @@ abstract final class AppTheme {
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
@@ -55,11 +55,11 @@ abstract final class AppTheme {
           side: const BorderSide(color: AppColors.outline),
         ),
       ),
-      navigationBarTheme: NavigationBarThemeData(
+      navigationBarTheme: const NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: const Color(0xFFD4ECEC),
-        labelTextStyle: MaterialStatePropertyAll(
-          const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+        indicatorColor: Color(0xFFD4ECEC),
+        labelTextStyle: WidgetStatePropertyAll<TextStyle>(
+          TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
         ),
       ),
       chipTheme: ChipThemeData(

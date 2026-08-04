@@ -30,7 +30,7 @@ assets/         Branding, icons, and mockup placeholders
 
 ## Local development
 
-Flutter is required for the mobile commands and Node.js for the admin commands. Run them from their respective app directories once the SDKs are available:
+Flutter stable 3.44.8 is prepared for the mobile commands, and Node.js is used for the admin commands. Run them from their respective app directories:
 
 ```text
 flutter pub get

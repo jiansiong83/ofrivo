@@ -3,7 +3,7 @@
 ## Step 0 + Step 1 checks
 
 - Flutter static analysis and unit/widget tests.
-- Android debug build when a Flutter SDK is available.
+- Android debug build with the prepared Flutter SDK.
 - Admin lint and production build.
 - Manual route smoke test for public, customer, provider, and admin placeholder flows.
 - Search the repository for forbidden real credentials and backend URLs.
@@ -30,7 +30,7 @@
 - Post Job form carries category/area IDs and private contact fields into preview and repository payloads.
 - Supabase repository inserts a draft, uploads job photos to the private `job-photos` bucket, and transitions draft to open only after the insert succeeds.
 - Customer cancellation uses the transactional `cancel_job` RPC and only enables for cancellable job states.
-- Flutter unit/widget tests and Android build remain environment-blocked until a Flutter SDK is available.
+- Flutter unit/widget tests and Android build pass with the prepared SDK.
 
 ## Step 5 Provider Application checks
 
