@@ -84,6 +84,13 @@ class ProviderJobController extends StateNotifier<ProviderJobState> {
     return loaded;
   }
 
+  void applyAssignedJobUpdate(String jobId, JobStatus status) {
+    state = state.copyWith(assignedJobs: [
+      for (final job in state.assignedJobs)
+        if (job.id == jobId) job.copyWith(status: status) else job,
+    ]);
+  }
+
   Future<void> setFilters(ProviderJobFilters filters) async {
     state = state.copyWith(filters: filters);
     await loadFeed();

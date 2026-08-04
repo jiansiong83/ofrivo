@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 7 transactional accept_bid (runtime connection optional; Flutter Android validation is enabled).
+Step 8 Job Completion, Review, and Report (runtime connection optional; Flutter Android validation is enabled).
 
 ## Current objective
 
-Complete the customer offer-selection workflow while preserving public-feed privacy, transactional state changes, and runtime-only Supabase configuration.
+Complete the end-to-end job lifecycle while preserving participant privacy, transactional state changes, and runtime-only Supabase configuration.
 
 ## Completed
 
@@ -36,6 +36,10 @@ Complete the customer offer-selection workflow while preserving public-feed priv
 - Provider Assigned Jobs now load only accepted-provider jobs and reveal full address/contact fields through the authorized assigned-job query.
 - Notification repository/controller and read-state UI added for fake data and the Supabase `notifications` table.
 - Step 7 fake acceptance/concurrency guard tests and static RPC/mobile contract validation added.
+- Step 8 lifecycle repository/controller added for start, complete, and assigned-job cancellation through the existing transaction RPCs.
+- Review and Report flows added with rating/comment validation, reason selection, participant-aware Supabase inserts, and fake-data adapters.
+- Job Event Log timeline added to customer and provider job details.
+- Step 8 lifecycle tests and static RPC/mobile contract validation added.
 
 ## Not completed yet
 
@@ -56,7 +60,7 @@ Complete the customer offer-selection workflow while preserving public-feed priv
 - Admin production build: PASS (static `/` output).
 - Admin Step 2 regression lint/build: PASS.
 - Flutter analyze: PASS — `No issues found!` (Flutter 3.44.8).
-- Flutter test: PASS — 18 tests passed.
+- Flutter test: PASS — 21 tests passed.
 - Android debug build: PASS — `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
@@ -65,12 +69,13 @@ Complete the customer offer-selection workflow while preserving public-feed priv
 - Provider feed filters, bid edit/withdraw, and bid validation tests: PASS — 5 additional tests.
 - Step 6 SQL/mobile static contract validation: PASS (`node supabase/tests/validate_step6.mjs`).
 - Step 7 RPC/mobile static contract validation: PASS (`node supabase/tests/validate_step7.mjs`).
+- Step 8 lifecycle/mobile static contract validation: PASS (`node supabase/tests/validate_step8.mjs`).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 7 commit: `e7de83b` (`feat: add transactional bid acceptance flow`). Rollback point is the Step 6 commit `ff9fca1`.
+Step 7 rollback point: `e7de83b` (`feat: add transactional bid acceptance flow`). Step 8 commit is recorded after this implementation round.
 
 ## Next step
 
-After this round is accepted: Step 8 Job Completion, Review, and Report.
+After this round is accepted: Step 9 Admin Web.

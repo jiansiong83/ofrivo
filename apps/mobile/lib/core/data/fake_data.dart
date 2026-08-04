@@ -1,4 +1,5 @@
 import '../models/app_models.dart';
+import '../../features/job_lifecycle/job_lifecycle_models.dart';
 
 final fakeJobs = <Job>[
   Job(
@@ -218,3 +219,7 @@ final fakeNotifications = <AppNotification>[
     referenceId: 'demo-user',
   ),
 ];
+
+final fakeJobEvents = <JobEventRecord>[];
+final fakeReviews = <ReviewRecord>[];
+final fakeReports = <ReportRecord>[];

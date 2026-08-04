@@ -12,6 +12,7 @@ import 'customer_job_models.dart';
 import 'customer_jobs_controller.dart';
 import 'customer_bid_controller.dart';
 import 'customer_bid_models.dart';
+import '../job_lifecycle/job_lifecycle_screens.dart';
 
 class CustomerHomeScreen extends ConsumerWidget {
   const CustomerHomeScreen({super.key});
@@ -529,6 +530,15 @@ class JobDetailScreen extends ConsumerWidget {
                       }
                     }
                   : null),
+          JobLifecycleActions(
+              jobId: currentJob.id,
+              status: currentJob.status,
+              role: AppMode.customer),
+          if (currentJob.status != JobStatus.open &&
+              currentJob.status != JobStatus.draft) ...[
+            const SizedBox(height: 12),
+            JobEventTimeline(jobId: currentJob.id)
+          ],
         ]);
   }
 }

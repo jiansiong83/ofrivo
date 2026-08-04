@@ -16,7 +16,7 @@ Bottom navigation: `Home | Post Job | My Jobs | Profile`
 Customer Home
 ├── Post Job → Post Job Preview → My Jobs
 ├── My Jobs → Job Detail → Received Bids → Provider Profile
-└── Job Detail → Accepted Job Detail → Complete Job → Review / Report
+└── Job Detail → Accepted Job Detail → Start / Complete → Review / Report → Job History
 ```
 
 ## Provider mode
@@ -27,7 +27,7 @@ Bottom navigation: `Job Feed | My Bids | Assigned | Profile`
 Profile → Become a Provider → Provider Application → Verification Status
 Job Feed → Job Filters → Job Detail → Submit Bid
 My Bids → Bid Detail / Edit Bid
-Assigned → Assigned Job Detail → Start / Complete placeholder
+Assigned → Assigned Job Detail → Start / Complete / Cancel → Review / Report → Job History
 ```
 
 Only the approved-provider concept is represented by fake state; real eligibility is Step 3+.
@@ -42,4 +42,3 @@ The shell exposes placeholder destinations for Dashboard, Pending Providers, Pro
 - A job card exposes public location only; full address/contact reveal is a later backend rule.
 - Provider cards and bid cards never display another provider's price in the feed.
 - Destructive actions use a confirmation dialog placeholder.
-

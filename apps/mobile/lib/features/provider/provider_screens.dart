@@ -16,6 +16,7 @@ import 'provider_application_controller.dart';
 import 'provider_application_models.dart';
 import 'provider_job_controller.dart';
 import 'provider_job_models.dart';
+import '../job_lifecycle/job_lifecycle_screens.dart';
 
 class BecomeProviderScreen extends ConsumerStatefulWidget {
   const BecomeProviderScreen({super.key});
@@ -1383,18 +1384,13 @@ class AssignedJobDetailScreen extends ConsumerWidget {
           JobPhotoGallery(paths: assignedJob.photoPaths)
         ],
         const SizedBox(height: 20),
-        PrimaryButton(
-            label: 'Mark as started',
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Fake-data flow: start_job placeholder.')))),
-        const SizedBox(height: 10),
-        SecondaryButton(
-            label: 'Mark as completed',
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content:
-                        Text('Fake-data flow: complete_job placeholder.')))),
+        JobLifecycleActions(
+            jobId: assignedJob.id,
+            status: assignedJob.status,
+            role: AppMode.provider,
+            includeCancel: true),
+        const SizedBox(height: 12),
+        JobEventTimeline(jobId: assignedJob.id),
       ],
     );
   }

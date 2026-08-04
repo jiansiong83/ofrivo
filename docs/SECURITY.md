@@ -26,6 +26,8 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 - RPC functions write `job_events` and notifications inside the same transaction.
 - The customer UI invokes `accept_bid` rather than issuing independent bid/job updates; fake mode mirrors the same all-or-nothing transition for local testing.
 - Provider address/contact reads use the accepted-provider job path; the provider feed and bid cards only receive public job fields.
+- Start/complete/cancel actions call transaction RPCs; the client never performs a sequence of status updates.
+- Review and report inserts derive the opposite participant from the accepted bid in Supabase mode, while database triggers enforce completed-job/participant rules.
 
 ## Environment contract
 

@@ -28,6 +28,8 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 
 The provider assigned-job adapter queries accepted bids first, then reads the full job row; public feed mapping never includes `full_address`, phone, or WhatsApp.
 
+Step 8 lifecycle writes are routed through `start_job`, `complete_job`, and `cancel_job`; reviews and reports are inserted with the authenticated user as reporter/reviewer and are checked again by participant-validation triggers.
+
 ## Local fixtures
 
 `supabase/seed.sql` creates Customer, two approved providers, one pending provider, an Admin fixture, Johor Bahru areas, six categories, open jobs, pending bids, and an assigned job. Fixture credentials are local-only and must never be reused in a hosted environment.

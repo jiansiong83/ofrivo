@@ -66,3 +66,11 @@
 - Added accepted-provider assigned-job loading with full address/contact reveal only after authorization.
 - Added notification repository/controller, unread styling, mark-read behavior, and fake/Supabase adapters.
 - Added Step 7 RPC/mobile contract validation; Flutter analyze, 18 tests, and Android debug build pass.
+
+## Step 8 — Job Completion, Review, and Report
+
+- Added transactional start, complete, and assigned-job cancellation adapters for fake mode and Supabase RPCs.
+- Added review and report drafts, participant-aware Supabase inserts, fake lifecycle behavior, and validation tests.
+- Added Job Event Log timeline to customer and provider job details.
+- Added review/report routes, completed-job actions, provider start/complete controls, and cancellation confirmation.
+- Added Step 8 lifecycle contract validation; Flutter analyze, 21 tests, and Android debug build pass.

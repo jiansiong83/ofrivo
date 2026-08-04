@@ -57,6 +57,15 @@
 - Notifications load unread/read state, mark items read, and route job references to the relevant job detail.
 - Run `node supabase/tests/validate_step7.mjs`, Flutter analyze/test, and Android debug build.
 
+## Step 8 Job Completion, Review, and Report checks
+
+- Only the accepted provider can start an assigned job; customers and the accepted provider can complete an in-progress job.
+- Assigned-job cancellation uses `cancel_job` and rejects invalid states or non-participants.
+- Completed jobs expose one review action per participant, enforce 1–5 stars and comment limits, and preserve the unique reviewer/job rule.
+- Reports require a reason and useful description, route to the safety team, and keep participant IDs server-derived in Supabase mode.
+- Job Event Log displays transaction events without exposing private fields.
+- Run `node supabase/tests/validate_step8.mjs`, Flutter analyze/test, and Android debug build.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.
