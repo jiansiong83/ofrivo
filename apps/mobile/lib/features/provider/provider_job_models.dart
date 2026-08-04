@@ -54,16 +54,24 @@ class ProviderJobFilters {
 
   bool matches(Job job) {
     if (categoryId != null && job.categoryId != categoryId) return false;
-    if (categoryId == null && categoryLabel != null && job.category != categoryLabel) return false;
+    if (categoryId == null &&
+        categoryLabel != null &&
+        job.category != categoryLabel) {
+      return false;
+    }
     if (areaId != null && job.areaId != areaId) return false;
-    if (areaId == null && areaLabel != null && job.area != areaLabel) return false;
+    if (areaId == null && areaLabel != null && job.area != areaLabel) {
+      return false;
+    }
     if (urgentOnly && !job.urgent) return false;
     if (noBidsOnly && job.bidCount != 0) return false;
     if (minBudget != null && job.budget < minBudget!) return false;
     if (maxBudget != null && job.budget > maxBudget!) return false;
     if (serviceDate != null) {
       final scheduled = job.scheduledAt;
-      if (scheduled == null || !_sameDate(scheduled, serviceDate!)) return false;
+      if (scheduled == null || !_sameDate(scheduled, serviceDate!)) {
+        return false;
+      }
     }
     return true;
   }
@@ -76,12 +84,17 @@ class ProviderJobFilters {
           return _dateValue(b.createdAt).compareTo(_dateValue(a.createdAt));
         case ProviderJobSort.noBids:
           final byCount = a.bidCount.compareTo(b.bidCount);
-          return byCount == 0 ? _dateValue(b.createdAt).compareTo(_dateValue(a.createdAt)) : byCount;
+          return byCount == 0
+              ? _dateValue(b.createdAt).compareTo(_dateValue(a.createdAt))
+              : byCount;
         case ProviderJobSort.highestBudget:
           final byBudget = b.budget.compareTo(a.budget);
-          return byBudget == 0 ? _dateValue(b.createdAt).compareTo(_dateValue(a.createdAt)) : byBudget;
+          return byBudget == 0
+              ? _dateValue(b.createdAt).compareTo(_dateValue(a.createdAt))
+              : byBudget;
         case ProviderJobSort.soonest:
-          return _dateValue(a.scheduledAt ?? a.createdAt).compareTo(_dateValue(b.scheduledAt ?? b.createdAt));
+          return _dateValue(a.scheduledAt ?? a.createdAt)
+              .compareTo(_dateValue(b.scheduledAt ?? b.createdAt));
       }
     });
     return result;
@@ -118,9 +131,13 @@ class ProviderJobFilters {
     );
   }
 
-  static DateTime _dateValue(DateTime? value) => value ?? DateTime.fromMillisecondsSinceEpoch(0);
+  static DateTime _dateValue(DateTime? value) =>
+      value ?? DateTime.fromMillisecondsSinceEpoch(0);
 
-  static bool _sameDate(DateTime left, DateTime right) => left.year == right.year && left.month == right.month && left.day == right.day;
+  static bool _sameDate(DateTime left, DateTime right) =>
+      left.year == right.year &&
+      left.month == right.month &&
+      left.day == right.day;
 }
 
 class BidDraft {
@@ -147,12 +164,22 @@ class BidDraft {
   double? get amountValue => double.tryParse(amount.trim());
 
   String? validate() {
-    if (amountValue == null || amountValue! <= 0) return 'Enter a bid amount greater than RM0.';
+    if (amountValue == null || amountValue! <= 0) {
+      return 'Enter a bid amount greater than RM0.';
+    }
     if (inclusions.trim().isEmpty) return 'Explain what your bid includes.';
-    if (inclusions.trim().length > 2000) return 'Keep inclusions under 2,000 characters.';
-    if (exclusions.trim().length > 2000) return 'Keep exclusions under 2,000 characters.';
-    if (materialsNote.trim().length > 500) return 'Keep the materials note under 500 characters.';
-    if (message.trim().length > 1000) return 'Keep the additional note under 1,000 characters.';
+    if (inclusions.trim().length > 2000) {
+      return 'Keep inclusions under 2,000 characters.';
+    }
+    if (exclusions.trim().length > 2000) {
+      return 'Keep exclusions under 2,000 characters.';
+    }
+    if (materialsNote.trim().length > 500) {
+      return 'Keep the materials note under 500 characters.';
+    }
+    if (message.trim().length > 1000) {
+      return 'Keep the additional note under 1,000 characters.';
+    }
     return null;
   }
 }
@@ -171,6 +198,7 @@ class ProviderJobState {
     this.isSubmitting = false,
     this.jobs = const [],
     this.myBids = const [],
+    this.assignedJobs = const [],
     this.filters = const ProviderJobFilters(),
     this.error,
   });
@@ -180,6 +208,7 @@ class ProviderJobState {
   final bool isSubmitting;
   final List<Job> jobs;
   final List<ProviderBid> myBids;
+  final List<Job> assignedJobs;
   final ProviderJobFilters filters;
   final String? error;
 
@@ -191,6 +220,7 @@ class ProviderJobState {
     bool? isSubmitting,
     List<Job>? jobs,
     List<ProviderBid>? myBids,
+    List<Job>? assignedJobs,
     ProviderJobFilters? filters,
     String? error,
     bool clearError = false,
@@ -201,6 +231,7 @@ class ProviderJobState {
       isSubmitting: isSubmitting ?? this.isSubmitting,
       jobs: jobs ?? this.jobs,
       myBids: myBids ?? this.myBids,
+      assignedJobs: assignedJobs ?? this.assignedJobs,
       filters: filters ?? this.filters,
       error: clearError ? null : error ?? this.error,
     );

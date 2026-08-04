@@ -20,10 +20,13 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 - Step 6 appends category/area labels and private Storage paths to `public_job_feed`; the mobile repository exchanges authorized job-photo paths for short-lived signed URLs.
 - `accept_bid`, `start_job`, `complete_job`, and `cancel_job` are `SECURITY DEFINER` transaction functions with explicit actor checks.
 - `submit_provider_application` is a `SECURITY DEFINER` transaction function that owns the pending transition and rewrites the provider's category/area selections.
+- `accept_bid` locks the job row, accepts one pending bid, rejects the other pending bids, writes `accepted_bid_id`, and creates job-event/notification rows before returning the assigned state.
 
 ## Privacy shape
 
 `public_location_text` is feed-safe. `full_address`, phone, WhatsApp, and precise location are protected fields and are not part of the public feed response.
+
+The provider assigned-job adapter queries accepted bids first, then reads the full job row; public feed mapping never includes `full_address`, phone, or WhatsApp.
 
 ## Local fixtures
 

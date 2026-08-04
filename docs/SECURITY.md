@@ -24,6 +24,8 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 - Storage policies keep verification and report evidence private.
 - `accept_bid` locks the job row before accepting one bid and rejecting the rest.
 - RPC functions write `job_events` and notifications inside the same transaction.
+- The customer UI invokes `accept_bid` rather than issuing independent bid/job updates; fake mode mirrors the same all-or-nothing transition for local testing.
+- Provider address/contact reads use the accepted-provider job path; the provider feed and bid cards only receive public job fields.
 
 ## Environment contract
 

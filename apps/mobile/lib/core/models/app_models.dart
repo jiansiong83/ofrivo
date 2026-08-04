@@ -1,10 +1,52 @@
 enum AppMode { customer, provider }
 
-enum JobStatus { draft, open, assigned, inProgress, completed, cancelled, expired }
+enum JobStatus {
+  draft,
+  open,
+  assigned,
+  inProgress,
+  completed,
+  cancelled,
+  expired
+}
 
 enum BidStatus { pending, accepted, rejected, withdrawn, expired }
 
 enum VerificationStatus { notApplied, pending, approved, rejected, suspended }
+
+enum NotificationType {
+  newBid,
+  bidAccepted,
+  jobAssigned,
+  providerApproved,
+  jobStarted,
+  jobCompleted,
+  jobCancelled,
+  generic
+}
+
+extension NotificationTypeLabel on NotificationType {
+  String get label {
+    switch (this) {
+      case NotificationType.newBid:
+        return 'New offer';
+      case NotificationType.bidAccepted:
+        return 'Offer accepted';
+      case NotificationType.jobAssigned:
+        return 'Job assigned';
+      case NotificationType.providerApproved:
+        return 'Provider approved';
+      case NotificationType.jobStarted:
+        return 'Job started';
+      case NotificationType.jobCompleted:
+        return 'Job completed';
+      case NotificationType.jobCancelled:
+        return 'Job cancelled';
+      case NotificationType.generic:
+        return 'Notification';
+    }
+  }
+}
 
 class Job {
   const Job({
@@ -27,6 +69,7 @@ class Job {
     this.createdAt,
     this.scheduledAt,
     this.expiresAt,
+    this.acceptedBidId,
   });
 
   final String id;
@@ -48,8 +91,16 @@ class Job {
   final DateTime? createdAt;
   final DateTime? scheduledAt;
   final DateTime? expiresAt;
+  final String? acceptedBidId;
 
-  Job copyWith({JobStatus? status, int? bidCount, DateTime? createdAt, DateTime? scheduledAt, DateTime? expiresAt}) => Job(
+  Job copyWith(
+          {JobStatus? status,
+          int? bidCount,
+          DateTime? createdAt,
+          DateTime? scheduledAt,
+          DateTime? expiresAt,
+          String? acceptedBidId}) =>
+      Job(
         id: id,
         title: title,
         category: category,
@@ -69,6 +120,7 @@ class Job {
         createdAt: createdAt ?? this.createdAt,
         scheduledAt: scheduledAt ?? this.scheduledAt,
         expiresAt: expiresAt ?? this.expiresAt,
+        acceptedBidId: acceptedBidId ?? this.acceptedBidId,
       );
 }
 
@@ -129,7 +181,8 @@ class Bid {
     String? message,
     DateTime? availableAtDate,
     DateTime? createdAt,
-  }) => Bid(
+  }) =>
+      Bid(
         id: id ?? this.id,
         jobId: jobId ?? this.jobId,
         providerName: providerName ?? this.providerName,
@@ -159,8 +212,12 @@ class ProviderProfile {
     required this.completedJobs,
     required this.bio,
     required this.verification,
+    this.id,
+    this.avatarPath,
+    this.isAvailable = true,
   });
 
+  final String? id;
   final String name;
   final String category;
   final String area;
@@ -168,4 +225,39 @@ class ProviderProfile {
   final int completedJobs;
   final String bio;
   final VerificationStatus verification;
+  final String? avatarPath;
+  final bool isAvailable;
+}
+
+class AppNotification {
+  const AppNotification({
+    required this.id,
+    required this.type,
+    required this.title,
+    required this.body,
+    required this.isRead,
+    required this.createdAt,
+    this.referenceType,
+    this.referenceId,
+  });
+
+  final String id;
+  final NotificationType type;
+  final String title;
+  final String body;
+  final bool isRead;
+  final DateTime createdAt;
+  final String? referenceType;
+  final String? referenceId;
+
+  AppNotification copyWith({bool? isRead}) => AppNotification(
+        id: id,
+        type: type,
+        title: title,
+        body: body,
+        isRead: isRead ?? this.isRead,
+        createdAt: createdAt,
+        referenceType: referenceType,
+        referenceId: referenceId,
+      );
 }

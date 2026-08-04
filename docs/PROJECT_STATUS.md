@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 6 Provider Job Feed and Bid (runtime connection optional; Flutter Android validation is enabled).
+Step 7 transactional accept_bid (runtime connection optional; Flutter Android validation is enabled).
 
 ## Current objective
 
-Complete the approved-provider Job Feed and Bid workflow while preserving public-feed privacy and runtime-only Supabase configuration.
+Complete the customer offer-selection workflow while preserving public-feed privacy, transactional state changes, and runtime-only Supabase configuration.
 
 ## Completed
 
@@ -31,6 +31,11 @@ Complete the approved-provider Job Feed and Bid workflow while preserving public
 - Android platform host generated with `flutter create --platforms=android .`; Kotlin incremental compilation disabled for the Windows cross-drive cache layout.
 - Step 6 provider feed/bid models, repository/controller, safe feed view migration, filters, job detail, bid submit/edit/withdraw, and My Bids screens added.
 - Step 6 fake lifecycle tests and static contract validation added.
+- Step 7 customer Received Bids, Provider Profile, fake/Supabase bid repositories, and transactional acceptance controller added.
+- Customer acceptance updates the selected bid to accepted, rejects other pending bids, updates the job to assigned, and refreshes the customer Job Detail state.
+- Provider Assigned Jobs now load only accepted-provider jobs and reveal full address/contact fields through the authorized assigned-job query.
+- Notification repository/controller and read-state UI added for fake data and the Supabase `notifications` table.
+- Step 7 fake acceptance/concurrency guard tests and static RPC/mobile contract validation added.
 
 ## Not completed yet
 
@@ -51,7 +56,7 @@ Complete the approved-provider Job Feed and Bid workflow while preserving public
 - Admin production build: PASS (static `/` output).
 - Admin Step 2 regression lint/build: PASS.
 - Flutter analyze: PASS — `No issues found!` (Flutter 3.44.8).
-- Flutter test: PASS — 15 tests passed.
+- Flutter test: PASS — 18 tests passed.
 - Android debug build: PASS — `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
@@ -59,12 +64,13 @@ Complete the approved-provider Job Feed and Bid workflow while preserving public
 - Auth, customer job, provider application, and onboarding widget tests: PASS — 10 tests passed.
 - Provider feed filters, bid edit/withdraw, and bid validation tests: PASS — 5 additional tests.
 - Step 6 SQL/mobile static contract validation: PASS (`node supabase/tests/validate_step6.mjs`).
+- Step 7 RPC/mobile static contract validation: PASS (`node supabase/tests/validate_step7.mjs`).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 6 commit: `ff9fca1` (`feat: add provider job feed and bid flow`). Rollback point is the Step 5 commit `9496274`.
+Step 7 commit: `ef6dce8` (`feat: add transactional bid acceptance flow`). Rollback point is the Step 6 commit `ff9fca1`.
 
 ## Next step
 
-After this round is accepted: Step 7 transactional `accept_bid`.
+After this round is accepted: Step 8 Job Completion, Review, and Report.

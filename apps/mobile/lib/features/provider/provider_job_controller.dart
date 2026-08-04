@@ -22,10 +22,13 @@ final providerJobRepositoryProvider = Provider<ProviderJobRepository>((ref) {
   return SupabaseProviderJobRepository(client, auth.user!.id);
 });
 
-final providerJobControllerProvider = StateNotifierProvider<ProviderJobController, ProviderJobState>((ref) {
-  final controller = ProviderJobController(ref.watch(providerJobRepositoryProvider));
+final providerJobControllerProvider =
+    StateNotifierProvider<ProviderJobController, ProviderJobState>((ref) {
+  final controller =
+      ProviderJobController(ref.watch(providerJobRepositoryProvider));
   controller.loadFeed();
   controller.loadMyBids();
+  controller.loadAssignedJobs();
   return controller;
 });
 
@@ -40,7 +43,10 @@ class ProviderJobController extends StateNotifier<ProviderJobState> {
       final jobs = await repository.loadFeed(filters: state.filters);
       state = state.copyWith(initialized: true, isLoading: false, jobs: jobs);
     } catch (_) {
-      state = state.copyWith(initialized: true, isLoading: false, error: 'Unable to load the job feed. Check your connection.');
+      state = state.copyWith(
+          initialized: true,
+          isLoading: false,
+          error: 'Unable to load the job feed. Check your connection.');
     }
   }
 
@@ -49,8 +55,33 @@ class ProviderJobController extends StateNotifier<ProviderJobState> {
       final bids = await repository.loadMyBids();
       state = state.copyWith(myBids: bids);
     } catch (_) {
-      state = state.copyWith(error: 'Unable to load your bids. Check your connection.');
+      state = state.copyWith(
+          error: 'Unable to load your bids. Check your connection.');
     }
+  }
+
+  Future<void> loadAssignedJobs() async {
+    try {
+      final jobs = await repository.loadAssignedJobs();
+      state = state.copyWith(assignedJobs: jobs);
+    } catch (_) {
+      state = state.copyWith(
+          error: 'Unable to load assigned jobs. Check your connection.');
+    }
+  }
+
+  Future<Job?> loadAssignedJob(String jobId) async {
+    for (final job in state.assignedJobs) {
+      if (job.id == jobId) return job;
+    }
+    final loaded = await repository.loadAssignedJob(jobId);
+    if (loaded != null) {
+      state = state.copyWith(assignedJobs: [
+        loaded,
+        ...state.assignedJobs.where((job) => job.id != loaded.id)
+      ]);
+    }
+    return loaded;
   }
 
   Future<void> setFilters(ProviderJobFilters filters) async {
@@ -62,13 +93,18 @@ class ProviderJobController extends StateNotifier<ProviderJobState> {
 
   Future<ProviderBid?> myBidForJob(String jobId) async {
     for (final providerBid in state.myBids) {
-      if (providerBid.bid.jobId == jobId && (providerBid.bid.status == BidStatus.pending || providerBid.bid.status == BidStatus.accepted)) {
+      if (providerBid.bid.jobId == jobId &&
+          (providerBid.bid.status == BidStatus.pending ||
+              providerBid.bid.status == BidStatus.accepted)) {
         return providerBid;
       }
     }
     final loaded = await repository.loadMyBidForJob(jobId);
     if (loaded != null) {
-      final bids = [loaded, ...state.myBids.where((item) => item.bid.id != loaded.bid.id)];
+      final bids = [
+        loaded,
+        ...state.myBids.where((item) => item.bid.id != loaded.bid.id)
+      ];
       state = state.copyWith(myBids: bids);
     }
     return loaded;
@@ -83,12 +119,17 @@ class ProviderJobController extends StateNotifier<ProviderJobState> {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
       final saved = await repository.saveBid(draft);
-      final bids = [saved, ...state.myBids.where((item) => item.bid.id != saved.bid.id)];
+      final bids = [
+        saved,
+        ...state.myBids.where((item) => item.bid.id != saved.bid.id)
+      ];
       state = state.copyWith(isSubmitting: false, myBids: bids);
       await loadFeed();
       return saved;
     } catch (error) {
-      state = state.copyWith(isSubmitting: false, error: error.toString().replaceFirst('Bad state: ', ''));
+      state = state.copyWith(
+          isSubmitting: false,
+          error: error.toString().replaceFirst('Bad state: ', ''));
       return null;
     }
   }
@@ -101,13 +142,20 @@ class ProviderJobController extends StateNotifier<ProviderJobState> {
         isSubmitting: false,
         myBids: [
           for (final item in state.myBids)
-            if (item.bid.id == bidId) ProviderBid(bid: item.bid.copyWith(status: BidStatus.withdrawn), job: item.job) else item,
+            if (item.bid.id == bidId)
+              ProviderBid(
+                  bid: item.bid.copyWith(status: BidStatus.withdrawn),
+                  job: item.job)
+            else
+              item,
         ],
       );
       await loadFeed();
       return true;
     } catch (error) {
-      state = state.copyWith(isSubmitting: false, error: error.toString().replaceFirst('Bad state: ', ''));
+      state = state.copyWith(
+          isSubmitting: false,
+          error: error.toString().replaceFirst('Bad state: ', ''));
       return false;
     }
   }

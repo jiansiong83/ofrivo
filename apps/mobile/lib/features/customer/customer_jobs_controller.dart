@@ -10,12 +10,16 @@ import 'customer_job_repository.dart';
 final customerJobRepositoryProvider = Provider<CustomerJobRepository>((ref) {
   final auth = ref.watch(authControllerProvider);
   final client = AppBootstrap.client;
-  if (client == null || auth.user == null) return FakeCustomerJobRepository(ref.watch(fakeJobsProvider));
+  if (client == null || auth.user == null) {
+    return FakeCustomerJobRepository(ref.watch(fakeJobsProvider));
+  }
   return SupabaseCustomerJobRepository(client, auth.user!.id);
 });
 
-final customerJobsControllerProvider = StateNotifierProvider<CustomerJobsController, CustomerJobsState>((ref) {
-  final controller = CustomerJobsController(ref.watch(customerJobRepositoryProvider));
+final customerJobsControllerProvider =
+    StateNotifierProvider<CustomerJobsController, CustomerJobsState>((ref) {
+  final controller =
+      CustomerJobsController(ref.watch(customerJobRepositoryProvider));
   controller.load();
   return controller;
 });
@@ -31,7 +35,10 @@ class CustomerJobsController extends StateNotifier<CustomerJobsState> {
       final jobs = await repository.loadMyJobs();
       state = CustomerJobsState(initialized: true, jobs: jobs);
     } catch (_) {
-      state = state.copyWith(initialized: true, isLoading: false, error: 'Unable to load your jobs. Check your connection.');
+      state = state.copyWith(
+          initialized: true,
+          isLoading: false,
+          error: 'Unable to load your jobs. Check your connection.');
     }
   }
 
@@ -52,7 +59,10 @@ class CustomerJobsController extends StateNotifier<CustomerJobsState> {
       state = CustomerJobsState(initialized: true, jobs: jobs);
       return job;
     } catch (error) {
-      state = state.copyWith(initialized: true, isLoading: false, error: error.toString().replaceFirst('Bad state: ', ''));
+      state = state.copyWith(
+          initialized: true,
+          isLoading: false,
+          error: error.toString().replaceFirst('Bad state: ', ''));
       return null;
     }
   }
@@ -61,11 +71,34 @@ class CustomerJobsController extends StateNotifier<CustomerJobsState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       await repository.cancelJob(jobId, reason: reason);
-      state = CustomerJobsState(initialized: true, jobs: [for (final job in state.jobs) if (job.id == jobId) job.copyWith(status: JobStatus.cancelled) else job]);
+      state = CustomerJobsState(initialized: true, jobs: [
+        for (final job in state.jobs)
+          if (job.id == jobId)
+            job.copyWith(status: JobStatus.cancelled)
+          else
+            job
+      ]);
       return true;
     } catch (error) {
-      state = state.copyWith(initialized: true, isLoading: false, error: error.toString().replaceFirst('Bad state: ', ''));
+      state = state.copyWith(
+          initialized: true,
+          isLoading: false,
+          error: error.toString().replaceFirst('Bad state: ', ''));
       return false;
     }
+  }
+
+  void applyJobUpdate(String jobId, JobStatus status, String? acceptedBidId) {
+    state = state.copyWith(
+      jobs: [
+        for (final job in state.jobs)
+          if (job.id == jobId)
+            job.copyWith(status: status, acceptedBidId: acceptedBidId)
+          else
+            job,
+      ],
+      initialized: true,
+      isLoading: false,
+    );
   }
 }

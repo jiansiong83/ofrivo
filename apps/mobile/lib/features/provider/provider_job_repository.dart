@@ -16,6 +16,10 @@ abstract interface class ProviderJobRepository {
   Future<ProviderBid> saveBid(BidDraft draft);
 
   Future<void> withdrawBid(String bidId);
+
+  Future<List<Job>> loadAssignedJobs();
+
+  Future<Job?> loadAssignedJob(String jobId);
 }
 
 class FakeProviderJobRepository implements ProviderJobRepository {
@@ -35,7 +39,8 @@ class FakeProviderJobRepository implements ProviderJobRepository {
 
   @override
   Future<List<Job>> loadFeed({required ProviderJobFilters filters}) async {
-    return List<Job>.unmodifiable(filters.apply(_jobs.where((job) => job.status == JobStatus.open).toList()));
+    return List<Job>.unmodifiable(filters
+        .apply(_jobs.where((job) => job.status == JobStatus.open).toList()));
   }
 
   @override
@@ -48,13 +53,17 @@ class FakeProviderJobRepository implements ProviderJobRepository {
 
   @override
   Future<List<ProviderBid>> loadMyBids() async {
-    return List<ProviderBid>.unmodifiable(_bids.where(_belongsToProvider).map(_toProviderBid));
+    return List<ProviderBid>.unmodifiable(
+        _bids.where(_belongsToProvider).map(_toProviderBid));
   }
 
   @override
   Future<ProviderBid?> loadMyBidForJob(String jobId) async {
     for (final bid in _bids) {
-      if (bid.jobId == jobId && _belongsToProvider(bid) && (bid.status == BidStatus.pending || bid.status == BidStatus.accepted)) {
+      if (bid.jobId == jobId &&
+          _belongsToProvider(bid) &&
+          (bid.status == BidStatus.pending ||
+              bid.status == BidStatus.accepted)) {
         return _toProviderBid(bid);
       }
     }
@@ -66,14 +75,22 @@ class FakeProviderJobRepository implements ProviderJobRepository {
     final validationError = draft.validate();
     if (validationError != null) throw StateError(validationError);
     final job = await loadJob(draft.jobId);
-    if (job == null || job.status != JobStatus.open) throw StateError('This job is no longer open for bids.');
+    if (job == null || job.status != JobStatus.open) {
+      throw StateError('This job is no longer open for bids.');
+    }
 
     final existingIndex = draft.bidId == null
-        ? _bids.indexWhere((bid) => bid.jobId == draft.jobId && _belongsToProvider(bid) && bid.status == BidStatus.pending)
-        : _bids.indexWhere((bid) => bid.id == draft.bidId && _belongsToProvider(bid));
+        ? _bids.indexWhere((bid) =>
+            bid.jobId == draft.jobId &&
+            _belongsToProvider(bid) &&
+            bid.status == BidStatus.pending)
+        : _bids.indexWhere(
+            (bid) => bid.id == draft.bidId && _belongsToProvider(bid));
     if (existingIndex >= 0) {
       final existing = _bids[existingIndex];
-      if (existing.status != BidStatus.pending) throw StateError('An accepted bid cannot be edited.');
+      if (existing.status != BidStatus.pending) {
+        throw StateError('An accepted bid cannot be edited.');
+      }
       final updated = existing.copyWith(
         amount: draft.amountValue,
         availableAt: _displayDate(draft.availableAt),
@@ -112,16 +129,54 @@ class FakeProviderJobRepository implements ProviderJobRepository {
 
   @override
   Future<void> withdrawBid(String bidId) async {
-    final index = _bids.indexWhere((bid) => bid.id == bidId && _belongsToProvider(bid));
+    final index =
+        _bids.indexWhere((bid) => bid.id == bidId && _belongsToProvider(bid));
     if (index < 0) throw StateError('Bid not found.');
     final current = _bids[index];
-    if (current.status != BidStatus.pending) throw StateError('Only a pending bid can be withdrawn.');
+    if (current.status != BidStatus.pending) {
+      throw StateError('Only a pending bid can be withdrawn.');
+    }
     _bids[index] = current.copyWith(status: BidStatus.withdrawn);
     final job = await loadJob(current.jobId);
-    if (job != null) _replaceJob(job.copyWith(bidCount: job.bidCount > 0 ? job.bidCount - 1 : 0));
+    if (job != null) {
+      _replaceJob(
+          job.copyWith(bidCount: job.bidCount > 0 ? job.bidCount - 1 : 0));
+    }
   }
 
-  bool _belongsToProvider(Bid bid) => bid.providerId == providerId || (bid.providerId == null && bid.providerName == providerName);
+  @override
+  Future<List<Job>> loadAssignedJobs() async {
+    final assigned = <Job>[];
+    for (final job in _jobs) {
+      if (job.status != JobStatus.assigned &&
+          job.status != JobStatus.inProgress &&
+          job.status != JobStatus.completed) {
+        continue;
+      }
+      Bid? accepted;
+      for (final bid in _bids) {
+        if (bid.id == job.acceptedBidId && bid.status == BidStatus.accepted) {
+          accepted = bid;
+          break;
+        }
+      }
+      if (accepted != null && _belongsToProvider(accepted)) assigned.add(job);
+    }
+    return List<Job>.unmodifiable(assigned);
+  }
+
+  @override
+  Future<Job?> loadAssignedJob(String jobId) async {
+    final jobs = await loadAssignedJobs();
+    for (final job in jobs) {
+      if (job.id == jobId) return job;
+    }
+    return null;
+  }
+
+  bool _belongsToProvider(Bid bid) =>
+      bid.providerId == providerId ||
+      (bid.providerId == null && bid.providerName == providerName);
 
   ProviderBid _toProviderBid(Bid bid) {
     Job? job;
@@ -148,7 +203,10 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
 
   @override
   Future<List<Job>> loadFeed({required ProviderJobFilters filters}) async {
-    final rows = await client.from('public_job_feed').select().order('created_at', ascending: false);
+    final rows = await client
+        .from('public_job_feed')
+        .select()
+        .order('created_at', ascending: false);
     final jobs = await Future.wait(
       (rows as List).whereType<Map<String, dynamic>>().map(_mapFeedJob),
     );
@@ -157,19 +215,29 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
 
   @override
   Future<Job?> loadJob(String jobId) async {
-    final row = await client.from('public_job_feed').select().eq('id', jobId).maybeSingle();
+    final row = await client
+        .from('public_job_feed')
+        .select()
+        .eq('id', jobId)
+        .maybeSingle();
     return row == null ? null : _mapFeedJob(Map<String, dynamic>.from(row));
   }
 
   @override
   Future<List<ProviderBid>> loadMyBids() async {
-    final rows = await _bidsQuery().eq('provider_id', userId).order('created_at', ascending: false);
-    return List<ProviderBid>.unmodifiable((rows as List).whereType<Map<String, dynamic>>().map(_mapProviderBid));
+    final rows = await _bidsQuery()
+        .eq('provider_id', userId)
+        .order('created_at', ascending: false);
+    return List<ProviderBid>.unmodifiable(
+        (rows as List).whereType<Map<String, dynamic>>().map(_mapProviderBid));
   }
 
   @override
   Future<ProviderBid?> loadMyBidForJob(String jobId) async {
-    final row = await _bidsQuery().eq('provider_id', userId).eq('job_id', jobId).inFilter('status', ['pending', 'accepted']).maybeSingle();
+    final row = await _bidsQuery()
+        .eq('provider_id', userId)
+        .eq('job_id', jobId)
+        .inFilter('status', ['pending', 'accepted']).maybeSingle();
     return row == null ? null : _mapProviderBid(Map<String, dynamic>.from(row));
   }
 
@@ -183,14 +251,18 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       'amount': draft.amountValue,
       'available_at': draft.availableAt.toUtc().toIso8601String(),
       'inclusions': draft.inclusions.trim(),
-      'exclusions': draft.exclusions.trim().isEmpty ? null : draft.exclusions.trim(),
-      'materials_note': draft.materialsNote.trim().isEmpty ? null : draft.materialsNote.trim(),
+      'exclusions':
+          draft.exclusions.trim().isEmpty ? null : draft.exclusions.trim(),
+      'materials_note': draft.materialsNote.trim().isEmpty
+          ? null
+          : draft.materialsNote.trim(),
       'message': draft.message.trim().isEmpty ? null : draft.message.trim(),
       'status': 'pending',
     };
     Map<String, dynamic> row;
     if (draft.bidId == null) {
-      final inserted = await client.from('bids').insert(payload).select().single();
+      final inserted =
+          await client.from('bids').insert(payload).select().single();
       row = Map<String, dynamic>.from(inserted);
     } else {
       final updated = await client
@@ -209,20 +281,82 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
 
   @override
   Future<void> withdrawBid(String bidId) async {
-    await client.from('bids').update({'status': 'withdrawn'}).eq('id', bidId).eq('provider_id', userId).eq('status', 'pending');
+    await client
+        .from('bids')
+        .update({'status': 'withdrawn'})
+        .eq('id', bidId)
+        .eq('provider_id', userId)
+        .eq('status', 'pending');
   }
 
-  dynamic _bidsQuery() => client.from('bids').select('*, jobs!inner(id, category_id, area_id, title, description, public_location_text, budget_amount, time_window, urgency, status, created_at, service_categories(name_en), areas(area_name))');
+  @override
+  Future<List<Job>> loadAssignedJobs() async {
+    final acceptedRows = await client
+        .from('bids')
+        .select('id')
+        .eq('provider_id', userId)
+        .eq('status', 'accepted');
+    final acceptedIds = (acceptedRows as List)
+        .whereType<Map<String, dynamic>>()
+        .map((row) => row['id'] as String?)
+        .whereType<String>()
+        .toList();
+    if (acceptedIds.isEmpty) return const [];
+    final rows = await client
+        .from('jobs')
+        .select('*, service_categories(name_en), areas(area_name)')
+        .inFilter('accepted_bid_id', acceptedIds)
+        .inFilter('status', ['assigned', 'in_progress', 'completed']).order(
+            'scheduled_at');
+    final jobs = <Job>[];
+    for (final row in (rows as List).whereType<Map<String, dynamic>>()) {
+      jobs.add(await _mapAssignedJob(row));
+    }
+    return List<Job>.unmodifiable(jobs);
+  }
+
+  @override
+  Future<Job?> loadAssignedJob(String jobId) async {
+    final acceptedRows = await client
+        .from('bids')
+        .select('id')
+        .eq('provider_id', userId)
+        .eq('status', 'accepted');
+    final acceptedIds = (acceptedRows as List)
+        .whereType<Map<String, dynamic>>()
+        .map((row) => row['id'] as String?)
+        .whereType<String>()
+        .toList();
+    if (acceptedIds.isEmpty) return null;
+    final row = await client
+        .from('jobs')
+        .select('*, service_categories(name_en), areas(area_name)')
+        .eq('id', jobId)
+        .inFilter('accepted_bid_id', acceptedIds)
+        .maybeSingle();
+    return row == null ? null : _mapAssignedJob(Map<String, dynamic>.from(row));
+  }
+
+  dynamic _bidsQuery() => client.from('bids').select(
+      '*, jobs!inner(id, category_id, area_id, title, description, public_location_text, budget_amount, time_window, urgency, status, created_at, service_categories(name_en), areas(area_name))');
 
   Future<Job> _mapFeedJob(Map<String, dynamic> row) async {
     final rawPhotoPaths = row['photo_paths'];
-    final paths = rawPhotoPaths is List ? rawPhotoPaths.whereType<dynamic>().map((item) => item is Map ? item['path'] : item).whereType<String>().toList() : <String>[];
+    final paths = rawPhotoPaths is List
+        ? rawPhotoPaths
+            .whereType<dynamic>()
+            .map((item) => item is Map ? item['path'] : item)
+            .whereType<String>()
+            .toList()
+        : <String>[];
     final signedPaths = await Future.wait(paths.map(_signPhoto));
     return Job(
       id: row['id'] as String,
       title: row['title'] as String? ?? 'Untitled job',
-      category: row['category_name'] as String? ?? _categoryLabel(row['category_id'] as String?),
-      area: row['area_name'] as String? ?? _areaLabel(row['area_id'] as String?),
+      category: row['category_name'] as String? ??
+          _categoryLabel(row['category_id'] as String?),
+      area:
+          row['area_name'] as String? ?? _areaLabel(row['area_id'] as String?),
       budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
       time: row['time_window'] as String? ?? 'Flexible',
       status: JobStatus.open,
@@ -238,6 +372,51 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
     );
   }
 
+  Future<Job> _mapAssignedJob(Map<String, dynamic> row) async {
+    final category = _asMap(row['service_categories']);
+    final area = _asMap(row['areas']);
+    final statusValue = row['status'] as String? ?? 'assigned';
+    final status = JobStatus.values.firstWhere(
+        (item) =>
+            item.name == statusValue ||
+            (item == JobStatus.inProgress && statusValue == 'in_progress'),
+        orElse: () => JobStatus.assigned);
+    final rawPhotoPaths = row['photo_paths'];
+    final paths = rawPhotoPaths is List
+        ? rawPhotoPaths
+            .whereType<dynamic>()
+            .map((item) => item is Map ? item['path'] : item)
+            .whereType<String>()
+            .toList()
+        : <String>[];
+    final signedPaths = await Future.wait(paths.map(_signPhoto));
+    return Job(
+      id: row['id'] as String,
+      title: row['title'] as String? ?? 'Untitled job',
+      category: category?['name_en'] as String? ??
+          _categoryLabel(row['category_id'] as String?),
+      area: area?['area_name'] as String? ??
+          row['public_location_text'] as String? ??
+          _areaLabel(row['area_id'] as String?),
+      budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
+      time: row['time_window'] as String? ?? 'Flexible',
+      status: status,
+      bidCount: 0,
+      description: row['description'] as String? ?? '',
+      urgent: row['urgency'] == 'urgent',
+      categoryId: row['category_id'] as String?,
+      areaId: row['area_id'] as String?,
+      fullAddress: row['full_address'] as String?,
+      contactPhone: row['contact_phone'] as String?,
+      contactWhatsapp: row['contact_whatsapp'] as String?,
+      photoPaths: signedPaths.where((path) => path.isNotEmpty).toList(),
+      createdAt: _parseDate(row['created_at']),
+      scheduledAt: _parseDate(row['scheduled_at']),
+      expiresAt: _parseDate(row['expires_at']),
+      acceptedBidId: row['accepted_bid_id'] as String?,
+    );
+  }
+
   ProviderBid _mapProviderBid(Map<String, dynamic> row) {
     final nested = _asMap(row['jobs']);
     final job = nested == null ? null : _mapNestedJob(nested);
@@ -249,14 +428,19 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
     final area = _asMap(row['areas']);
     final statusValue = row['status'] as String? ?? 'open';
     final status = JobStatus.values.firstWhere(
-      (item) => item.name == statusValue || (item == JobStatus.inProgress && statusValue == 'in_progress'),
+      (item) =>
+          item.name == statusValue ||
+          (item == JobStatus.inProgress && statusValue == 'in_progress'),
       orElse: () => JobStatus.open,
     );
     return Job(
       id: row['id'] as String,
       title: row['title'] as String? ?? 'Untitled job',
-      category: category?['name_en'] as String? ?? _categoryLabel(row['category_id'] as String?),
-      area: area?['area_name'] as String? ?? row['public_location_text'] as String? ?? _areaLabel(row['area_id'] as String?),
+      category: category?['name_en'] as String? ??
+          _categoryLabel(row['category_id'] as String?),
+      area: area?['area_name'] as String? ??
+          row['public_location_text'] as String? ??
+          _areaLabel(row['area_id'] as String?),
       budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
       time: row['time_window'] as String? ?? 'Flexible',
       status: status,
@@ -271,7 +455,9 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
 
   Bid _mapBid(Map<String, dynamic> row) {
     final statusValue = row['status'] as String? ?? 'pending';
-    final status = BidStatus.values.firstWhere((item) => item.name == statusValue, orElse: () => BidStatus.pending);
+    final status = BidStatus.values.firstWhere(
+        (item) => item.name == statusValue,
+        orElse: () => BidStatus.pending);
     final availableAt = _parseDate(row['available_at']);
     return Bid(
       id: row['id'] as String,
@@ -295,16 +481,20 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
 
   Future<String> _signPhoto(String path) async {
     try {
-      return await client.storage.from('job-photos').createSignedUrl(path, 3600);
+      return await client.storage
+          .from('job-photos')
+          .createSignedUrl(path, 3600);
     } catch (_) {
       return '';
     }
   }
 }
 
-Map<String, dynamic>? _asMap(dynamic value) => value is Map ? Map<String, dynamic>.from(value) : null;
+Map<String, dynamic>? _asMap(dynamic value) =>
+    value is Map ? Map<String, dynamic>.from(value) : null;
 
-DateTime? _parseDate(dynamic value) => value is String ? DateTime.tryParse(value)?.toLocal() : null;
+DateTime? _parseDate(dynamic value) =>
+    value is String ? DateTime.tryParse(value)?.toLocal() : null;
 
 String _displayDate(DateTime date) {
   final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;

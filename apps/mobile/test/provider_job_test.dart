@@ -47,7 +47,7 @@ void main() {
   });
 
   test('provider can submit and withdraw a new bid', () async {
-    final job = Job(
+    const job = Job(
       id: 'job-new',
       title: 'Repair a leaking pipe',
       category: 'Plumbing / Toilet',

@@ -57,3 +57,12 @@
 - Added safe job detail with private address/contact boundary and signed job-photo support.
 - Added bid submission, pending-bid edit, pending-bid withdrawal, and provider-scoped My Bids UI.
 - Added the Step 6 feed/view migration, static contract validator, and five fake lifecycle/filter tests.
+
+## Step 7 — Transactional Accept Bid
+
+- Added customer Received Bids and Provider Profile flows with provider-directory mapping.
+- Wired customer acceptance to the existing PostgreSQL `accept_bid` RPC; the fake adapter mirrors the atomic state transition for local preview.
+- Added selected-bid acceptance, automatic rejection of other pending bids, assigned-job refresh, and concurrency guard tests.
+- Added accepted-provider assigned-job loading with full address/contact reveal only after authorization.
+- Added notification repository/controller, unread styling, mark-read behavior, and fake/Supabase adapters.
+- Added Step 7 RPC/mobile contract validation; Flutter analyze, 18 tests, and Android debug build pass.

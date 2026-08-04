@@ -48,6 +48,15 @@
 - Fake repository covers a provider's active bid edit, new bid submission, and pending bid withdrawal without exposing another provider's bid amount.
 - Widget flow exposes protected address messaging, submit/edit actions, and My Bids status/action states.
 
+## Step 7 Transactional Accept Bid checks
+
+- Received Bids loads all offers for a customer-owned job and links each offer to its public provider profile.
+- Customer acceptance calls `accept_bid`; the selected bid becomes accepted, competing pending bids become rejected, and the job becomes assigned.
+- A second acceptance is rejected after the job leaves `open`, matching the row-lock/transaction contract.
+- Assigned provider queries return full address/contact only for the accepted provider; public feed mapping remains address-safe.
+- Notifications load unread/read state, mark items read, and route job references to the relevant job detail.
+- Run `node supabase/tests/validate_step7.mjs`, Flutter analyze/test, and Android debug build.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

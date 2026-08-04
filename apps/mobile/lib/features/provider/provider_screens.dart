@@ -21,7 +21,8 @@ class BecomeProviderScreen extends ConsumerStatefulWidget {
   const BecomeProviderScreen({super.key});
 
   @override
-  ConsumerState<BecomeProviderScreen> createState() => _BecomeProviderScreenState();
+  ConsumerState<BecomeProviderScreen> createState() =>
+      _BecomeProviderScreenState();
 }
 
 class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
@@ -74,7 +75,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
       );
 
   Future<void> _pickIdentity(String kind) async {
-    final file = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 82, maxWidth: 1600);
+    final file = await imagePicker.pickImage(
+        source: ImageSource.gallery, imageQuality: 82, maxWidth: 1600);
     if (!mounted || file == null) return;
     setState(() {
       if (kind == 'front') icFrontPath = file.path;
@@ -85,29 +87,38 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
   }
 
   Future<void> _pickCertificates() async {
-    final files = await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
+    final files =
+        await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
-    setState(() => certificatePaths = files.take(5).map((file) => file.path).toList());
+    setState(() =>
+        certificatePaths = files.take(5).map((file) => file.path).toList());
   }
 
   Future<void> _pickWorkPhotos() async {
-    final files = await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
+    final files =
+        await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
-    setState(() => workPhotoPaths = files.take(6).map((file) => file.path).toList());
+    setState(
+        () => workPhotoPaths = files.take(6).map((file) => file.path).toList());
   }
 
   Future<void> _submit() async {
-    final application = await ref.read(providerApplicationControllerProvider.notifier).submit(_draft());
+    final application = await ref
+        .read(providerApplicationControllerProvider.notifier)
+        .submit(_draft());
     if (!mounted) return;
     if (application == null) {
-      final error = ref.read(providerApplicationControllerProvider).error ?? 'Unable to submit your application.';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      final error = ref.read(providerApplicationControllerProvider).error ??
+          'Unable to submit your application.';
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error)));
       return;
     }
     context.go('/provider/verification');
   }
 
-  void _toggleCategory(ServiceCategoryOption option, bool selected) => setState(() {
+  void _toggleCategory(ServiceCategoryOption option, bool selected) =>
+      setState(() {
         selectedCategories.removeWhere((item) => item.id == option.id);
         if (selected) selectedCategories.add(option);
       });
@@ -128,16 +139,34 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
         children: [const LoadingSkeleton()],
       );
     }
-    if (state.error != null && state.application == null && !hydrated) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerApplicationControllerProvider.notifier).load())]);
-    if (state.status == ProviderApplicationStatus.pending || state.status == ProviderApplicationStatus.approved || state.status == ProviderApplicationStatus.suspended) {
+    if (state.error != null && state.application == null && !hydrated) {
+      return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          children: [
+            ErrorState(
+                onRetry: () => ref
+                    .read(providerApplicationControllerProvider.notifier)
+                    .load())
+          ]);
+    }
+    if (state.status == ProviderApplicationStatus.pending ||
+        state.status == ProviderApplicationStatus.approved ||
+        state.status == ProviderApplicationStatus.suspended) {
       final approved = state.status == ProviderApplicationStatus.approved;
       final suspended = state.status == ProviderApplicationStatus.suspended;
       return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
           Text(
-            approved ? 'Provider approved' : (suspended ? 'Provider access suspended' : 'Application submitted'),
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            approved
+                ? 'Provider approved'
+                : (suspended
+                    ? 'Provider access suspended'
+                    : 'Application submitted'),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text(
@@ -157,7 +186,9 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
                   Icon(
                     approved
                         ? Icons.verified_rounded
-                        : (suspended ? Icons.error_outline : Icons.hourglass_top_rounded),
+                        : (suspended
+                            ? Icons.error_outline
+                            : Icons.hourglass_top_rounded),
                     size: 34,
                     color: approved
                         ? AppColors.success
@@ -169,8 +200,11 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          approved ? 'Approved' : (suspended ? 'Suspended' : 'Pending review'),
-                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                          approved
+                              ? 'Approved'
+                              : (suspended ? 'Suspended' : 'Pending review'),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w800, fontSize: 18),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -195,44 +229,123 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
         ],
       );
     }
-    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [
-      Text(state.status == ProviderApplicationStatus.rejected ? 'Update your provider application' : 'Become a provider', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-      const SizedBox(height: 8),
-      Text(state.status == ProviderApplicationStatus.rejected ? 'Make the requested changes and submit again.' : 'Apply once and, after approval, switch between customer and provider modes.'),
-      if (state.application?.adminNote != null) ...[const SizedBox(height: 14), Card(color: AppColors.danger.withValues(alpha: 0.08), child: Padding(padding: const EdgeInsets.all(14), child: Text('Admin note: ${state.application!.adminNote}', style: const TextStyle(color: AppColors.danger))))],
-      const SizedBox(height: 22),
-      TextField(controller: displayNameController, enabled: !busy, decoration: const InputDecoration(labelText: 'Business or display name', prefixIcon: Icon(Icons.storefront_outlined))),
-      const SizedBox(height: 14),
-      TextField(controller: bioController, enabled: !busy, maxLines: 4, decoration: const InputDecoration(labelText: 'Tell customers about your work', hintText: 'Experience, specialties, and what customers can expect.')),
-      const SizedBox(height: 18),
-      const Text('Services', style: TextStyle(fontWeight: FontWeight.w700)),
-      const SizedBox(height: 8),
-      Wrap(spacing: 8, runSpacing: 8, children: [for (final option in serviceCategoryOptions) FilterChip(label: Text(option.label), selected: selectedCategories.any((item) => item.id == option.id), onSelected: busy ? null : (selected) => _toggleCategory(option, selected))]),
-      const SizedBox(height: 18),
-      const Text('Service areas', style: TextStyle(fontWeight: FontWeight.w700)),
-      const SizedBox(height: 8),
-      Wrap(spacing: 8, runSpacing: 8, children: [for (final option in serviceAreaOptions) FilterChip(label: Text(option.label), selected: selectedAreas.any((item) => item.id == option.id), onSelected: busy ? null : (selected) => _toggleArea(option, selected))]),
-      const SizedBox(height: 22),
-      const Text('Verification documents', style: TextStyle(fontWeight: FontWeight.w700)),
-      const SizedBox(height: 8),
-      _EvidenceTile(label: 'ID front', path: icFrontPath, required: true, onPick: busy ? null : () => _pickIdentity('front')),
-      _EvidenceTile(label: 'ID back', path: icBackPath, required: true, onPick: busy ? null : () => _pickIdentity('back')),
-      _EvidenceTile(label: 'Verification selfie', path: selfiePath, required: true, onPick: busy ? null : () => _pickIdentity('selfie')),
-      _EvidenceTile(label: 'SSM / business document (optional)', path: ssmPath, onPick: busy ? null : () => _pickIdentity('ssm')),
-      SecondaryButton(label: certificatePaths.isEmpty ? 'Add certificates (optional)' : '${certificatePaths.length} certificates selected', onPressed: busy ? null : _pickCertificates),
-      const SizedBox(height: 14),
-      const Text('Work photos', style: TextStyle(fontWeight: FontWeight.w700)),
-      const SizedBox(height: 8),
-      PhotoUploader(paths: workPhotoPaths, onPick: busy ? null : _pickWorkPhotos),
-      if (state.error != null) ...[const SizedBox(height: 12), Text(state.error!, style: const TextStyle(color: AppColors.danger))],
-      const SizedBox(height: 22),
-      PrimaryButton(label: busy ? 'Submitting…' : 'Submit application', onPressed: busy ? null : _submit),
-    ]);
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [
+          Text(
+              state.status == ProviderApplicationStatus.rejected
+                  ? 'Update your provider application'
+                  : 'Become a provider',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          Text(state.status == ProviderApplicationStatus.rejected
+              ? 'Make the requested changes and submit again.'
+              : 'Apply once and, after approval, switch between customer and provider modes.'),
+          if (state.application?.adminNote != null) ...[
+            const SizedBox(height: 14),
+            Card(
+                color: AppColors.danger.withValues(alpha: 0.08),
+                child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Text('Admin note: ${state.application!.adminNote}',
+                        style: const TextStyle(color: AppColors.danger))))
+          ],
+          const SizedBox(height: 22),
+          TextField(
+              controller: displayNameController,
+              enabled: !busy,
+              decoration: const InputDecoration(
+                  labelText: 'Business or display name',
+                  prefixIcon: Icon(Icons.storefront_outlined))),
+          const SizedBox(height: 14),
+          TextField(
+              controller: bioController,
+              enabled: !busy,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                  labelText: 'Tell customers about your work',
+                  hintText:
+                      'Experience, specialties, and what customers can expect.')),
+          const SizedBox(height: 18),
+          const Text('Services', style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final option in serviceCategoryOptions)
+              FilterChip(
+                  label: Text(option.label),
+                  selected:
+                      selectedCategories.any((item) => item.id == option.id),
+                  onSelected: busy
+                      ? null
+                      : (selected) => _toggleCategory(option, selected))
+          ]),
+          const SizedBox(height: 18),
+          const Text('Service areas',
+              style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final option in serviceAreaOptions)
+              FilterChip(
+                  label: Text(option.label),
+                  selected: selectedAreas.any((item) => item.id == option.id),
+                  onSelected:
+                      busy ? null : (selected) => _toggleArea(option, selected))
+          ]),
+          const SizedBox(height: 22),
+          const Text('Verification documents',
+              style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          _EvidenceTile(
+              label: 'ID front',
+              path: icFrontPath,
+              required: true,
+              onPick: busy ? null : () => _pickIdentity('front')),
+          _EvidenceTile(
+              label: 'ID back',
+              path: icBackPath,
+              required: true,
+              onPick: busy ? null : () => _pickIdentity('back')),
+          _EvidenceTile(
+              label: 'Verification selfie',
+              path: selfiePath,
+              required: true,
+              onPick: busy ? null : () => _pickIdentity('selfie')),
+          _EvidenceTile(
+              label: 'SSM / business document (optional)',
+              path: ssmPath,
+              onPick: busy ? null : () => _pickIdentity('ssm')),
+          SecondaryButton(
+              label: certificatePaths.isEmpty
+                  ? 'Add certificates (optional)'
+                  : '${certificatePaths.length} certificates selected',
+              onPressed: busy ? null : _pickCertificates),
+          const SizedBox(height: 14),
+          const Text('Work photos',
+              style: TextStyle(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          PhotoUploader(
+              paths: workPhotoPaths, onPick: busy ? null : _pickWorkPhotos),
+          if (state.error != null) ...[
+            const SizedBox(height: 12),
+            Text(state.error!, style: const TextStyle(color: AppColors.danger))
+          ],
+          const SizedBox(height: 22),
+          PrimaryButton(
+              label: busy ? 'Submitting…' : 'Submit application',
+              onPressed: busy ? null : _submit),
+        ]);
   }
 }
 
 class _EvidenceTile extends StatelessWidget {
-  const _EvidenceTile({required this.label, required this.path, required this.onPick, this.required = false});
+  const _EvidenceTile(
+      {required this.label,
+      required this.path,
+      required this.onPick,
+      this.required = false});
 
   final String label;
   final String? path;
@@ -240,7 +353,21 @@ class _EvidenceTile extends StatelessWidget {
   final bool required;
 
   @override
-  Widget build(BuildContext context) => Card(child: ListTile(leading: Icon(path == null ? Icons.upload_file_outlined : Icons.check_circle_outline, color: path == null ? AppColors.textSecondary : AppColors.success), title: Text(label), subtitle: Text(path == null ? (required ? 'Required' : 'Not added') : 'File selected'), trailing: OutlinedButton(onPressed: onPick, child: Text(path == null ? 'Choose' : 'Change'))));
+  Widget build(BuildContext context) => Card(
+      child: ListTile(
+          leading: Icon(
+              path == null
+                  ? Icons.upload_file_outlined
+                  : Icons.check_circle_outline,
+              color:
+                  path == null ? AppColors.textSecondary : AppColors.success),
+          title: Text(label),
+          subtitle: Text(path == null
+              ? (required ? 'Required' : 'Not added')
+              : 'File selected'),
+          trailing: OutlinedButton(
+              onPressed: onPick,
+              child: Text(path == null ? 'Choose' : 'Change'))));
 }
 
 class VerificationStatusScreen extends ConsumerWidget {
@@ -255,18 +382,133 @@ class VerificationStatusScreen extends ConsumerWidget {
         children: [const LoadingSkeleton()],
       );
     }
-    if (state.error != null && state.application == null) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerApplicationControllerProvider.notifier).load())]);
+    if (state.error != null && state.application == null) {
+      return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          children: [
+            ErrorState(
+                onRetry: () => ref
+                    .read(providerApplicationControllerProvider.notifier)
+                    .load())
+          ]);
+    }
     final application = state.application;
-    if (application == null) return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Verification status', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), const EmptyState(title: 'No application yet', message: 'Complete your provider information and verification documents to apply.'), PrimaryButton(label: 'Start application', onPressed: () => context.go('/provider/apply'))]);
+    if (application == null) {
+      return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          children: [
+            Text('Verification status',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 18),
+            const EmptyState(
+                title: 'No application yet',
+                message:
+                    'Complete your provider information and verification documents to apply.'),
+            PrimaryButton(
+                label: 'Start application',
+                onPressed: () => context.go('/provider/apply'))
+          ]);
+    }
     final status = application.status;
     final approved = status == ProviderApplicationStatus.approved;
     final rejected = status == ProviderApplicationStatus.rejected;
     final suspended = status == ProviderApplicationStatus.suspended;
-    final color = approved ? AppColors.success : (rejected || suspended ? AppColors.danger : AppColors.warning);
-    final icon = approved ? Icons.verified_rounded : (rejected || suspended ? Icons.error_outline : Icons.hourglass_top_rounded);
-    final title = approved ? 'Approved' : (rejected ? 'Changes requested' : (suspended ? 'Provider access suspended' : 'Pending review'));
-    final message = approved ? 'Your provider profile is approved. You can switch to Provider Mode.' : (rejected ? 'Update the application using the admin note below and submit again.' : (suspended ? 'Provider features are temporarily unavailable. Contact support if you need help.' : 'Your documents are waiting for an admin review.'));
-    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Verification status', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [Icon(icon, size: 34, color: color), const SizedBox(width: 14), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), const SizedBox(height: 4), Text(message)])), StatusBadge(label: status.name)]))), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(application.displayName, style: const TextStyle(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text('${application.categories.length} services · ${application.areas.length} service areas'), Text('${application.workPhotoPaths.length} work photos · ${application.certificatePaths.length} certificates'), if (application.submittedAt != null) Text('Submitted ${application.submittedAt!.toLocal().toString().split('.').first}', style: const TextStyle(color: AppColors.textSecondary)), if (application.adminNote != null) ...[const SizedBox(height: 12), Text('Admin note: ${application.adminNote}', style: const TextStyle(color: AppColors.danger))]]))), if (rejected) ...[const SizedBox(height: 18), SecondaryButton(label: 'Edit and resubmit', onPressed: () => context.go('/provider/apply'))], if (approved) ...[const SizedBox(height: 18), PrimaryButton(label: 'Open Provider Mode', onPressed: () { ref.read(appModeProvider.notifier).state = AppMode.provider; context.go('/provider/feed'); })], const SizedBox(height: 12), const Text('Identity documents are stored in a private bucket and are visible only to you and authorized admins.', style: TextStyle(color: AppColors.textSecondary))]);
+    final color = approved
+        ? AppColors.success
+        : (rejected || suspended ? AppColors.danger : AppColors.warning);
+    final icon = approved
+        ? Icons.verified_rounded
+        : (rejected || suspended
+            ? Icons.error_outline
+            : Icons.hourglass_top_rounded);
+    final title = approved
+        ? 'Approved'
+        : (rejected
+            ? 'Changes requested'
+            : (suspended ? 'Provider access suspended' : 'Pending review'));
+    final message = approved
+        ? 'Your provider profile is approved. You can switch to Provider Mode.'
+        : (rejected
+            ? 'Update the application using the admin note below and submit again.'
+            : (suspended
+                ? 'Provider features are temporarily unavailable. Contact support if you need help.'
+                : 'Your documents are waiting for an admin review.'));
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [
+          Text('Verification status',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 18),
+          Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Row(children: [
+                    Icon(icon, size: 34, color: color),
+                    const SizedBox(width: 14),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w800, fontSize: 18)),
+                          const SizedBox(height: 4),
+                          Text(message)
+                        ])),
+                    StatusBadge(label: status.name)
+                  ]))),
+          const SizedBox(height: 18),
+          Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(application.displayName,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 8),
+                        Text(
+                            '${application.categories.length} services · ${application.areas.length} service areas'),
+                        Text(
+                            '${application.workPhotoPaths.length} work photos · ${application.certificatePaths.length} certificates'),
+                        if (application.submittedAt != null)
+                          Text(
+                              'Submitted ${application.submittedAt!.toLocal().toString().split('.').first}',
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary)),
+                        if (application.adminNote != null) ...[
+                          const SizedBox(height: 12),
+                          Text('Admin note: ${application.adminNote}',
+                              style: const TextStyle(color: AppColors.danger))
+                        ]
+                      ]))),
+          if (rejected) ...[
+            const SizedBox(height: 18),
+            SecondaryButton(
+                label: 'Edit and resubmit',
+                onPressed: () => context.go('/provider/apply'))
+          ],
+          if (approved) ...[
+            const SizedBox(height: 18),
+            PrimaryButton(
+                label: 'Open Provider Mode',
+                onPressed: () {
+                  ref.read(appModeProvider.notifier).state = AppMode.provider;
+                  context.go('/provider/feed');
+                })
+          ],
+          const SizedBox(height: 12),
+          const Text(
+              'Identity documents are stored in a private bucket and are visible only to you and authorized admins.',
+              style: TextStyle(color: AppColors.textSecondary))
+        ]);
   }
 }
 
@@ -279,23 +521,34 @@ class ProviderFeedScreen extends ConsumerWidget {
     if (!state.initialized && state.isLoading) {
       return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        children: const [LoadingSkeleton(), SizedBox(height: 12), LoadingSkeleton()],
+        children: const [
+          LoadingSkeleton(),
+          SizedBox(height: 12),
+          LoadingSkeleton()
+        ],
       );
     }
     if (state.error != null && state.jobs.isEmpty) {
       return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        children: [ErrorState(onRetry: () => ref.read(providerJobControllerProvider.notifier).loadFeed())],
+        children: [
+          ErrorState(
+              onRetry: () =>
+                  ref.read(providerJobControllerProvider.notifier).loadFeed())
+        ],
       );
     }
     final jobs = state.visibleJobs;
     return RefreshIndicator(
-      onRefresh: () => ref.read(providerJobControllerProvider.notifier).loadFeed(),
+      onRefresh: () =>
+          ref.read(providerJobControllerProvider.notifier).loadFeed(),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          const PageHeader(title: 'Job feed', subtitle: 'Open requests near your selected service areas.'),
+          const PageHeader(
+              title: 'Job feed',
+              subtitle: 'Open requests near your selected service areas.'),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
@@ -303,7 +556,10 @@ class ProviderFeedScreen extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     '${jobs.length} jobs available',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 OutlinedButton.icon(
@@ -321,13 +577,19 @@ class ProviderFeedScreen extends ConsumerWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  if (state.filters.categoryLabel != null) CategoryChip(label: state.filters.categoryLabel!),
-                  if (state.filters.areaLabel != null) AreaChip(label: state.filters.areaLabel!),
-                  if (state.filters.urgentOnly) const StatusBadge(label: 'Urgent only'),
-                  if (state.filters.noBidsOnly) const StatusBadge(label: 'No bids'),
+                  if (state.filters.categoryLabel != null)
+                    CategoryChip(label: state.filters.categoryLabel!),
+                  if (state.filters.areaLabel != null)
+                    AreaChip(label: state.filters.areaLabel!),
+                  if (state.filters.urgentOnly)
+                    const StatusBadge(label: 'Urgent only'),
+                  if (state.filters.noBidsOnly)
+                    const StatusBadge(label: 'No bids'),
                   StatusBadge(label: state.filters.sort.label),
                   TextButton(
-                    onPressed: () => ref.read(providerJobControllerProvider.notifier).clearFilters(),
+                    onPressed: () => ref
+                        .read(providerJobControllerProvider.notifier)
+                        .clearFilters(),
                     child: const Text('Clear'),
                   ),
                 ],
@@ -347,7 +609,9 @@ class ProviderFeedScreen extends ConsumerWidget {
             for (final job in jobs)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: JobCard(job: job, onTap: () => context.go('/provider/jobs/${job.id}')),
+                child: JobCard(
+                    job: job,
+                    onTap: () => context.go('/provider/jobs/${job.id}')),
               ),
         ],
       ),
@@ -359,7 +623,8 @@ class ProviderFiltersScreen extends ConsumerStatefulWidget {
   const ProviderFiltersScreen({super.key});
 
   @override
-  ConsumerState<ProviderFiltersScreen> createState() => _ProviderFiltersScreenState();
+  ConsumerState<ProviderFiltersScreen> createState() =>
+      _ProviderFiltersScreenState();
 }
 
 class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
@@ -382,8 +647,10 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
     urgentOnly = filters.urgentOnly;
     noBidsOnly = filters.noBidsOnly;
     sort = filters.sort;
-    minBudgetController = TextEditingController(text: filters.minBudget?.toStringAsFixed(0) ?? '');
-    maxBudgetController = TextEditingController(text: filters.maxBudget?.toStringAsFixed(0) ?? '');
+    minBudgetController = TextEditingController(
+        text: filters.minBudget?.toStringAsFixed(0) ?? '');
+    maxBudgetController = TextEditingController(
+        text: filters.maxBudget?.toStringAsFixed(0) ?? '');
   }
 
   @override
@@ -406,16 +673,24 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
   Future<void> _apply() async {
     final min = double.tryParse(minBudgetController.text.trim());
     final max = double.tryParse(maxBudgetController.text.trim());
-    if (minBudgetController.text.trim().isNotEmpty && min == null || maxBudgetController.text.trim().isNotEmpty && max == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter valid budget values.')));
+    if (minBudgetController.text.trim().isNotEmpty && min == null ||
+        maxBudgetController.text.trim().isNotEmpty && max == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Enter valid budget values.')));
       return;
     }
     if (min != null && max != null && min > max) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Minimum budget cannot exceed maximum budget.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Minimum budget cannot exceed maximum budget.')));
       return;
     }
-    final category = categoryId == null ? null : serviceCategoryOptions.firstWhere((option) => option.id == categoryId);
-    final area = areaId == null ? null : serviceAreaOptions.firstWhere((option) => option.id == areaId);
+    final category = categoryId == null
+        ? null
+        : serviceCategoryOptions
+            .firstWhere((option) => option.id == categoryId);
+    final area = areaId == null
+        ? null
+        : serviceAreaOptions.firstWhere((option) => option.id == areaId);
     await ref.read(providerJobControllerProvider.notifier).setFilters(
           ProviderJobFilters(
             categoryId: category?.id,
@@ -453,7 +728,11 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text('Job filters', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        Text('Job filters',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
         const Text('Narrow the feed to jobs you can serve next.'),
         const SizedBox(height: 22),
@@ -467,7 +746,8 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
               FilterChip(
                 label: Text(option.label),
                 selected: categoryId == option.id,
-                onSelected: (selected) => setState(() => categoryId = selected ? option.id : null),
+                onSelected: (selected) =>
+                    setState(() => categoryId = selected ? option.id : null),
               ),
           ],
         ),
@@ -482,16 +762,29 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
               FilterChip(
                 label: Text(option.label),
                 selected: areaId == option.id,
-                onSelected: (selected) => setState(() => areaId = selected ? option.id : null),
+                onSelected: (selected) =>
+                    setState(() => areaId = selected ? option.id : null),
               ),
           ],
         ),
         const SizedBox(height: 18),
         Row(
           children: [
-            Expanded(child: TextFormField(controller: minBudgetController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Min budget', prefixText: 'RM '))),
+            Expanded(
+                child: TextFormField(
+                    controller: minBudgetController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                        labelText: 'Min budget', prefixText: 'RM '))),
             const SizedBox(width: 12),
-            Expanded(child: TextFormField(controller: maxBudgetController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Max budget', prefixText: 'RM '))),
+            Expanded(
+                child: TextFormField(
+                    controller: maxBudgetController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: const InputDecoration(
+                        labelText: 'Max budget', prefixText: 'RM '))),
           ],
         ),
         const SizedBox(height: 8),
@@ -499,8 +792,14 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.event_outlined),
           title: const Text('Service date'),
-          subtitle: Text(serviceDate == null ? 'Any date' : DateFormat('EEE, d MMM yyyy').format(serviceDate!)),
-          trailing: TextButton(onPressed: serviceDate == null ? null : () => setState(() => serviceDate = null), child: const Text('Clear')),
+          subtitle: Text(serviceDate == null
+              ? 'Any date'
+              : DateFormat('EEE, d MMM yyyy').format(serviceDate!)),
+          trailing: TextButton(
+              onPressed: serviceDate == null
+                  ? null
+                  : () => setState(() => serviceDate = null),
+              child: const Text('Clear')),
           onTap: _pickDate,
         ),
         SwitchListTile(
@@ -508,7 +807,8 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
           value: urgentOnly,
           onChanged: (value) => setState(() => urgentOnly = value),
           title: const Text('Urgent jobs only'),
-          subtitle: const Text('Prioritise requests that need a fast response.'),
+          subtitle:
+              const Text('Prioritise requests that need a fast response.'),
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -521,8 +821,12 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
         DropdownButtonFormField<ProviderJobSort>(
           initialValue: sort,
           decoration: const InputDecoration(labelText: 'Sort by'),
-          items: [for (final option in ProviderJobSort.values) DropdownMenuItem(value: option, child: Text(option.label))],
-          onChanged: (value) => setState(() => sort = value ?? ProviderJobSort.newest),
+          items: [
+            for (final option in ProviderJobSort.values)
+              DropdownMenuItem(value: option, child: Text(option.label))
+          ],
+          onChanged: (value) =>
+              setState(() => sort = value ?? ProviderJobSort.newest),
         ),
         const SizedBox(height: 22),
         PrimaryButton(label: 'Apply filters', onPressed: _apply),
@@ -551,24 +855,44 @@ class ProviderJobDetailScreen extends ConsumerWidget {
       }
     }
     if (job == null) {
-      return const EmptyState(title: 'Job unavailable', message: 'This request may have expired or been removed.', icon: Icons.work_off_outlined);
+      return const EmptyState(
+          title: 'Job unavailable',
+          message: 'This request may have expired or been removed.',
+          icon: Icons.work_off_outlined);
     }
     final selectedJob = job;
     ProviderBid? existingBid;
     for (final candidate in state.myBids) {
-      if (candidate.bid.jobId == job.id && (candidate.bid.status == BidStatus.pending || candidate.bid.status == BidStatus.accepted)) existingBid = candidate;
+      if (candidate.bid.jobId == job.id &&
+          (candidate.bid.status == BidStatus.pending ||
+              candidate.bid.status == BidStatus.accepted)) {
+        existingBid = candidate;
+      }
     }
     final canEdit = existingBid?.bid.status == BidStatus.pending;
-    final bidLabel = existingBid == null ? 'Submit a bid' : (canEdit ? 'Edit your bid' : 'View your accepted bid');
+    final bidLabel = existingBid == null
+        ? 'Submit a bid'
+        : (canEdit ? 'Edit your bid' : 'View your accepted bid');
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text(job.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        Text(job.title,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 10),
-        Wrap(spacing: 8, runSpacing: 8, children: [if (job.urgent) const StatusBadge(label: 'Urgent'), CategoryChip(label: job.category), AreaChip(label: job.area)]),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          if (job.urgent) const StatusBadge(label: 'Urgent'),
+          CategoryChip(label: job.category),
+          AreaChip(label: job.area)
+        ]),
         const SizedBox(height: 18),
         Text(job.description, style: Theme.of(context).textTheme.bodyLarge),
-        if (job.photoPaths.isNotEmpty) ...[const SizedBox(height: 18), JobPhotoGallery(paths: job.photoPaths)],
+        if (job.photoPaths.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          JobPhotoGallery(paths: job.photoPaths)
+        ],
         const SizedBox(height: 18),
         Card(
           child: Padding(
@@ -576,12 +900,16 @@ class ProviderJobDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Customer budget', style: TextStyle(color: AppColors.textSecondary)),
-                Text('RM${job.budget.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)),
+                const Text('Customer budget',
+                    style: TextStyle(color: AppColors.textSecondary)),
+                Text('RM${job.budget.toStringAsFixed(0)}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: AppColors.primary, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
                 Text(job.time),
                 const SizedBox(height: 8),
-                Text('${job.bidCount} offers received', style: const TextStyle(color: AppColors.textSecondary)),
+                Text('${job.bidCount} offers received',
+                    style: const TextStyle(color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -591,7 +919,8 @@ class ProviderJobDetailScreen extends ConsumerWidget {
           child: ListTile(
             leading: Icon(Icons.lock_outline, color: AppColors.primary),
             title: Text('Address protected'),
-            subtitle: Text('Full address, phone, WhatsApp, and exact GPS stay hidden until a bid is accepted.'),
+            subtitle: Text(
+                'Full address, phone, WhatsApp, and exact GPS stay hidden until a bid is accepted.'),
           ),
         ),
         if (existingBid != null) ...[
@@ -599,7 +928,8 @@ class ProviderJobDetailScreen extends ConsumerWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.request_quote_outlined),
-              title: Text('Your bid: RM${existingBid.bid.amount.toStringAsFixed(0)}'),
+              title: Text(
+                  'Your bid: RM${existingBid.bid.amount.toStringAsFixed(0)}'),
               subtitle: Text('Available ${existingBid.bid.availableAt}'),
               trailing: StatusBadge(label: existingBid.bid.status.name),
             ),
@@ -610,7 +940,8 @@ class ProviderJobDetailScreen extends ConsumerWidget {
           label: bidLabel,
           onPressed: existingBid?.bid.status == BidStatus.accepted
               ? () => context.go('/provider/bids')
-              : () => context.go('/provider/jobs/${selectedJob.id}/bid', extra: existingBid?.bid),
+              : () => context.go('/provider/jobs/${selectedJob.id}/bid',
+                  extra: existingBid?.bid),
         ),
       ],
     );
@@ -641,7 +972,8 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
   void initState() {
     super.initState();
     final bid = widget.existingBid;
-    availableAt = bid?.availableAtDate ?? DateTime.now().add(const Duration(hours: 2));
+    availableAt =
+        bid?.availableAtDate ?? DateTime.now().add(const Duration(hours: 2));
     amountController.text = bid?.amount.toStringAsFixed(0) ?? '';
     inclusionsController.text = bid?.inclusions ?? '';
     exclusionsController.text = bid?.exclusions ?? '';
@@ -660,42 +992,56 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
   }
 
   Future<void> _pickAvailableAt() async {
-    final date = await showDatePicker(context: context, initialDate: availableAt, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 90)));
+    final date = await showDatePicker(
+        context: context,
+        initialDate: availableAt,
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(const Duration(days: 90)));
     if (!mounted || date == null) return;
-    final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(availableAt));
+    final time = await showTimePicker(
+        context: context, initialTime: TimeOfDay.fromDateTime(availableAt));
     if (!mounted || time == null) return;
-    setState(() => availableAt = DateTime(date.year, date.month, date.day, time.hour, time.minute));
+    setState(() => availableAt =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute));
   }
 
   Future<void> _save() async {
-    final saved = await ref.read(providerJobControllerProvider.notifier).submitBid(
-          BidDraft(
-            bidId: widget.existingBid?.id,
-            jobId: widget.jobId,
-            amount: amountController.text,
-            availableAt: availableAt,
-            inclusions: inclusionsController.text,
-            exclusions: exclusionsController.text,
-            materialsNote: materialsController.text,
-            message: messageController.text,
-          ),
-        );
+    final saved =
+        await ref.read(providerJobControllerProvider.notifier).submitBid(
+              BidDraft(
+                bidId: widget.existingBid?.id,
+                jobId: widget.jobId,
+                amount: amountController.text,
+                availableAt: availableAt,
+                inclusions: inclusionsController.text,
+                exclusions: exclusionsController.text,
+                materialsNote: materialsController.text,
+                message: messageController.text,
+              ),
+            );
     if (!mounted) return;
     if (saved == null) {
-      final error = ref.read(providerJobControllerProvider).error ?? 'Unable to save your bid.';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      final error = ref.read(providerJobControllerProvider).error ??
+          'Unable to save your bid.';
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error)));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your bid was saved.')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Your bid was saved.')));
     context.go('/provider/bids');
   }
 
   Future<void> _withdraw() async {
     final bid = widget.existingBid;
     if (bid == null) return;
-    final confirmed = await ConfirmationDialog.show(context, title: 'Withdraw bid?', message: 'The customer will no longer count this offer as active.');
+    final confirmed = await ConfirmationDialog.show(context,
+        title: 'Withdraw bid?',
+        message: 'The customer will no longer count this offer as active.');
     if (!confirmed || !mounted) return;
-    final success = await ref.read(providerJobControllerProvider.notifier).withdrawBid(bid.id);
+    final success = await ref
+        .read(providerJobControllerProvider.notifier)
+        .withdrawBid(bid.id);
     if (!mounted) return;
     if (success) context.go('/provider/bids');
   }
@@ -707,29 +1053,71 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text(widget.existingBid == null ? 'Submit a bid' : 'Edit your bid', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        Text(widget.existingBid == null ? 'Submit a bid' : 'Edit your bid',
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        Text('Job ${widget.jobId}', style: const TextStyle(color: AppColors.textSecondary)),
+        Text('Job ${widget.jobId}',
+            style: const TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 20),
         BudgetInput(controller: amountController),
         const SizedBox(height: 14),
-        DateTimeSelector(value: DateFormat('EEE, d MMM, h:mm a').format(availableAt), onTap: locked || busy ? null : _pickAvailableAt),
+        DateTimeSelector(
+            value: DateFormat('EEE, d MMM, h:mm a').format(availableAt),
+            onTap: locked || busy ? null : _pickAvailableAt),
         const SizedBox(height: 14),
-        TextField(controller: inclusionsController, enabled: !locked && !busy, maxLines: 3, decoration: const InputDecoration(labelText: 'What is included?', hintText: 'Inspection and labour')),
+        TextField(
+            controller: inclusionsController,
+            enabled: !locked && !busy,
+            maxLines: 3,
+            decoration: const InputDecoration(
+                labelText: 'What is included?',
+                hintText: 'Inspection and labour')),
         const SizedBox(height: 14),
-        TextField(controller: exclusionsController, enabled: !locked && !busy, maxLines: 3, decoration: const InputDecoration(labelText: 'What is excluded?', hintText: 'Materials and wall hacking')),
+        TextField(
+            controller: exclusionsController,
+            enabled: !locked && !busy,
+            maxLines: 3,
+            decoration: const InputDecoration(
+                labelText: 'What is excluded?',
+                hintText: 'Materials and wall hacking')),
         const SizedBox(height: 14),
-        TextField(controller: materialsController, enabled: !locked && !busy, maxLines: 2, decoration: const InputDecoration(labelText: 'Materials note', hintText: 'Materials are charged separately')),
+        TextField(
+            controller: materialsController,
+            enabled: !locked && !busy,
+            maxLines: 2,
+            decoration: const InputDecoration(
+                labelText: 'Materials note',
+                hintText: 'Materials are charged separately')),
         const SizedBox(height: 14),
-        TextField(controller: messageController, enabled: !locked && !busy, maxLines: 3, decoration: const InputDecoration(labelText: 'Additional note')),
-        if (state.error != null) ...[const SizedBox(height: 12), Text(state.error!, style: const TextStyle(color: AppColors.danger))],
+        TextField(
+            controller: messageController,
+            enabled: !locked && !busy,
+            maxLines: 3,
+            decoration: const InputDecoration(labelText: 'Additional note')),
+        if (state.error != null) ...[
+          const SizedBox(height: 12),
+          Text(state.error!, style: const TextStyle(color: AppColors.danger))
+        ],
         const SizedBox(height: 22),
-        if (!locked) PrimaryButton(label: busy ? 'Saving…' : (widget.existingBid == null ? 'Send bid' : 'Save changes'), onPressed: busy ? null : _save),
+        if (!locked)
+          PrimaryButton(
+              label: busy
+                  ? 'Saving…'
+                  : (widget.existingBid == null ? 'Send bid' : 'Save changes'),
+              onPressed: busy ? null : _save),
         if (widget.existingBid?.status == BidStatus.pending) ...[
           const SizedBox(height: 10),
-          SecondaryButton(label: busy ? 'Working…' : 'Withdraw bid', onPressed: busy ? null : _withdraw),
+          SecondaryButton(
+              label: busy ? 'Working…' : 'Withdraw bid',
+              onPressed: busy ? null : _withdraw),
         ],
-        if (locked) const Text('Accepted bids cannot be edited. The customer has selected this offer.', style: TextStyle(color: AppColors.textSecondary)),
+        if (locked)
+          const Text(
+              'Accepted bids cannot be edited. The customer has selected this offer.',
+              style: TextStyle(color: AppColors.textSecondary)),
       ],
     );
   }
@@ -742,28 +1130,57 @@ class MyBidsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(providerJobControllerProvider);
     if (!state.initialized && state.myBids.isEmpty) {
-      return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: const [LoadingSkeleton()]);
+      return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          children: const [LoadingSkeleton()]);
     }
     if (state.error != null && state.myBids.isEmpty) {
-      return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerJobControllerProvider.notifier).loadMyBids())]);
+      return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          children: [
+            ErrorState(
+                onRetry: () => ref
+                    .read(providerJobControllerProvider.notifier)
+                    .loadMyBids())
+          ]);
     }
     if (state.myBids.isEmpty) {
-      return ListView(children: const [PageHeader(title: 'My bids', subtitle: 'Keep track of your pending and accepted offers.'), EmptyState(title: 'No bids yet', message: 'Open a job from the feed and send your first offer.', icon: Icons.request_quote_outlined)]);
+      return ListView(children: const [
+        PageHeader(
+            title: 'My bids',
+            subtitle: 'Keep track of your pending and accepted offers.'),
+        EmptyState(
+            title: 'No bids yet',
+            message: 'Open a job from the feed and send your first offer.',
+            icon: Icons.request_quote_outlined)
+      ]);
     }
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const PageHeader(title: 'My bids', subtitle: 'Keep track of your pending and accepted offers.'),
+        const PageHeader(
+            title: 'My bids',
+            subtitle: 'Keep track of your pending and accepted offers.'),
         for (final item in state.myBids)
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: _MyBidCard(
               item: item,
-              onEdit: item.bid.status == BidStatus.pending ? () => context.go('/provider/jobs/${item.bid.jobId}/bid', extra: item.bid) : null,
+              onEdit: item.bid.status == BidStatus.pending
+                  ? () => context.go('/provider/jobs/${item.bid.jobId}/bid',
+                      extra: item.bid)
+                  : null,
               onWithdraw: item.bid.status == BidStatus.pending
                   ? () async {
-                      final confirmed = await ConfirmationDialog.show(context, title: 'Withdraw bid?', message: 'The customer will no longer count this offer as active.');
-                      if (confirmed && context.mounted) await ref.read(providerJobControllerProvider.notifier).withdrawBid(item.bid.id);
+                      final confirmed = await ConfirmationDialog.show(context,
+                          title: 'Withdraw bid?',
+                          message:
+                              'The customer will no longer count this offer as active.');
+                      if (confirmed && context.mounted) {
+                        await ref
+                            .read(providerJobControllerProvider.notifier)
+                            .withdrawBid(item.bid.id);
+                      }
                     }
                   : null,
             ),
@@ -791,31 +1208,56 @@ class _MyBidCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: Text(job?.title ?? 'Job ${item.bid.jobId}', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+                Expanded(
+                    child: Text(job?.title ?? 'Job ${item.bid.jobId}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800))),
                 StatusBadge(label: item.bid.status.name),
               ],
             ),
             const SizedBox(height: 6),
-            if (job != null) Text('${job.area} · Customer budget RM${job.budget.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.textSecondary)),
+            if (job != null)
+              Text(
+                  '${job.area} · Customer budget RM${job.budget.toStringAsFixed(0)}',
+                  style: const TextStyle(color: AppColors.textSecondary)),
             const SizedBox(height: 12),
             Row(
               children: [
-                Text('RM${item.bid.amount.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)),
+                Text('RM${item.bid.amount.toStringAsFixed(0)}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: AppColors.primary, fontWeight: FontWeight.w800)),
                 const Spacer(),
-                Text('Available ${item.bid.availableAt}', style: Theme.of(context).textTheme.bodySmall),
+                Text('Available ${item.bid.availableAt}',
+                    style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
             const SizedBox(height: 10),
             Text('Includes: ${item.bid.inclusions}'),
-            if (item.bid.exclusions.trim().isNotEmpty) Text('Excludes: ${item.bid.exclusions}', style: Theme.of(context).textTheme.bodySmall),
-            if (item.bid.materialsNote?.trim().isNotEmpty ?? false) Text('Materials: ${item.bid.materialsNote}', style: Theme.of(context).textTheme.bodySmall),
+            if (item.bid.exclusions.trim().isNotEmpty)
+              Text('Excludes: ${item.bid.exclusions}',
+                  style: Theme.of(context).textTheme.bodySmall),
+            if (item.bid.materialsNote?.trim().isNotEmpty ?? false)
+              Text('Materials: ${item.bid.materialsNote}',
+                  style: Theme.of(context).textTheme.bodySmall),
             if (onEdit != null || onWithdraw != null) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
-                  if (onEdit != null) Expanded(child: OutlinedButton(onPressed: onEdit, child: const Text('Edit bid'))),
-                  if (onEdit != null && onWithdraw != null) const SizedBox(width: 10),
-                  if (onWithdraw != null) Expanded(child: OutlinedButton(onPressed: onWithdraw, style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger), child: const Text('Withdraw'))),
+                  if (onEdit != null)
+                    Expanded(
+                        child: OutlinedButton(
+                            onPressed: onEdit, child: const Text('Edit bid'))),
+                  if (onEdit != null && onWithdraw != null)
+                    const SizedBox(width: 10),
+                  if (onWithdraw != null)
+                    Expanded(
+                        child: OutlinedButton(
+                            onPressed: onWithdraw,
+                            style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.danger),
+                            child: const Text('Withdraw'))),
                 ],
               ),
             ],
@@ -831,9 +1273,40 @@ class AssignedJobsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final jobs = ref.watch(fakeJobsProvider).where((job) => job.status == JobStatus.assigned || job.status == JobStatus.inProgress).toList();
-    if (jobs.isEmpty) return const EmptyState(title: 'No assigned jobs', message: 'Accepted bids will appear here.');
-    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [const PageHeader(title: 'Assigned jobs', subtitle: 'Your accepted work and next actions.'), for (final job in jobs) Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 12), child: JobCard(job: job, onTap: () => context.go('/provider/assigned/${job.id}')))]);
+    final state = ref.watch(providerJobControllerProvider);
+    if (!state.initialized && state.isLoading && state.assignedJobs.isEmpty) {
+      return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+        const PageHeader(
+            title: 'Assigned jobs',
+            subtitle: 'Your accepted work and next actions.'),
+        const Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: LoadingSkeleton())
+      ]);
+    }
+    if (state.error != null && state.assignedJobs.isEmpty) {
+      return ErrorState(
+          onRetry: () => ref
+              .read(providerJobControllerProvider.notifier)
+              .loadAssignedJobs());
+    }
+    if (state.assignedJobs.isEmpty) {
+      return const EmptyState(
+          title: 'No assigned jobs',
+          message:
+              'Accepted offers will appear here after a customer selects you.');
+    }
+    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+      const PageHeader(
+          title: 'Assigned jobs',
+          subtitle: 'Your accepted work and next actions.'),
+      for (final job in state.assignedJobs)
+        Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: JobCard(
+                job: job,
+                onTap: () => context.go('/provider/assigned/${job.id}')))
+    ]);
   }
 }
 
@@ -843,7 +1316,88 @@ class AssignedJobDetailScreen extends ConsumerWidget {
   final String jobId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Assigned job', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 16), const StatusBadge(label: 'assigned'), const SizedBox(height: 18), const Text('Full address and contact are visible in this fake-data assigned state.', style: TextStyle(color: AppColors.textSecondary)), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Job ID: $jobId', style: const TextStyle(fontWeight: FontWeight.w700)), const SizedBox(height: 8), const Text('12 Example Street, Johor Bahru'), const Text('+60 12 345 6789')]))), const SizedBox(height: 20), PrimaryButton(label: 'Mark as started', onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fake-data flow: start_job placeholder.')))), const SizedBox(height: 10), SecondaryButton(label: 'Mark as completed', onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fake-data flow: complete_job placeholder.'))))]);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(providerJobControllerProvider);
+    Job? job;
+    for (final candidate in state.assignedJobs) {
+      if (candidate.id == jobId) {
+        job = candidate;
+        break;
+      }
+    }
+    if (job == null && state.isLoading) {
+      return const Padding(
+          padding: EdgeInsets.all(20), child: LoadingSkeleton());
+    }
+    if (job == null) {
+      return const EmptyState(
+          title: 'Assigned job not found',
+          message: 'Only the accepted provider can reveal this job address.');
+    }
+    final assignedJob = job;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        Text(assignedJob.title,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 10),
+        Wrap(spacing: 8, children: [
+          StatusBadge(label: assignedJob.status.name),
+          AreaChip(label: assignedJob.area)
+        ]),
+        const SizedBox(height: 18),
+        Text(assignedJob.description),
+        const SizedBox(height: 18),
+        Card(
+          color: const Color(0xFFEAF5F3),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Row(children: [
+                Icon(Icons.lock_open_outlined, color: AppColors.primary),
+                SizedBox(width: 8),
+                Text('Private service details',
+                    style: TextStyle(fontWeight: FontWeight.w800))
+              ]),
+              const SizedBox(height: 12),
+              Text(assignedJob.fullAddress?.trim().isNotEmpty == true
+                  ? assignedJob.fullAddress!
+                  : 'Address not provided.'),
+              if (assignedJob.contactPhone?.trim().isNotEmpty == true) ...[
+                const SizedBox(height: 8),
+                Text('Phone: ${assignedJob.contactPhone}')
+              ],
+              if (assignedJob.contactWhatsapp?.trim().isNotEmpty == true) ...[
+                const SizedBox(height: 4),
+                Text('WhatsApp: ${assignedJob.contactWhatsapp}')
+              ],
+            ]),
+          ),
+        ),
+        if (assignedJob.photoPaths.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          JobPhotoGallery(paths: assignedJob.photoPaths)
+        ],
+        const SizedBox(height: 20),
+        PrimaryButton(
+            label: 'Mark as started',
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Fake-data flow: start_job placeholder.')))),
+        const SizedBox(height: 10),
+        SecondaryButton(
+            label: 'Mark as completed',
+            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content:
+                        Text('Fake-data flow: complete_job placeholder.')))),
+      ],
+    );
+  }
 }
 
 class ProviderProfileModeScreen extends ConsumerWidget {
@@ -852,6 +1406,32 @@ class ProviderProfileModeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = ref.watch(providerProfileProvider);
-    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [const PageHeader(title: 'Provider profile', subtitle: 'Your public profile and availability.'), ProviderCard(provider: provider), const SizedBox(height: 16), SwitchListTile(value: true, onChanged: (_) {}, title: const Text('Available for new jobs'), subtitle: const Text('Show matching requests in your feed')), ListTile(leading: const Icon(Icons.verified_outlined), title: const Text('Verification status'), subtitle: const Text('Approved'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/provider/verification')), ListTile(leading: const Icon(Icons.logout), title: const Text('Sign out'), onTap: () async { await ref.read(authControllerProvider.notifier).signOut(); if (context.mounted) context.go('/onboarding'); })]);
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [
+          const PageHeader(
+              title: 'Provider profile',
+              subtitle: 'Your public profile and availability.'),
+          ProviderCard(provider: provider),
+          const SizedBox(height: 16),
+          SwitchListTile(
+              value: true,
+              onChanged: (_) {},
+              title: const Text('Available for new jobs'),
+              subtitle: const Text('Show matching requests in your feed')),
+          ListTile(
+              leading: const Icon(Icons.verified_outlined),
+              title: const Text('Verification status'),
+              subtitle: const Text('Approved'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.go('/provider/verification')),
+          ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Sign out'),
+              onTap: () async {
+                await ref.read(authControllerProvider.notifier).signOut();
+                if (context.mounted) context.go('/onboarding');
+              })
+        ]);
   }
 }

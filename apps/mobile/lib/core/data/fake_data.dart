@@ -10,12 +10,16 @@ final fakeJobs = <Job>[
     time: 'Today, 2pm–6pm',
     status: JobStatus.open,
     bidCount: 3,
-    description: 'Water is draining slowly and the toilet is close to overflowing.',
+    description:
+        'Water is draining slowly and the toilet is close to overflowing.',
     urgent: true,
     categoryId: '00000000-0000-0000-0000-000000000201',
     areaId: '00000000-0000-0000-0000-000000000251',
     createdAt: DateTime(2026, 8, 4, 8),
     scheduledAt: DateTime(2026, 8, 4, 14),
+    fullAddress: '15 Example Street, Mount Austin, Johor Bahru',
+    contactPhone: '+60 12 000 0101',
+    contactWhatsapp: '+60 12 000 0101',
   ),
   Job(
     id: 'job-002',
@@ -26,11 +30,15 @@ final fakeJobs = <Job>[
     time: 'Tomorrow, 10am–1pm',
     status: JobStatus.open,
     bidCount: 1,
-    description: 'Install one new ceiling fan. Existing power point is available.',
+    description:
+        'Install one new ceiling fan. Existing power point is available.',
     categoryId: '00000000-0000-0000-0000-000000000202',
     areaId: '00000000-0000-0000-0000-000000000252',
     createdAt: DateTime(2026, 8, 3, 19),
     scheduledAt: DateTime(2026, 8, 5, 10),
+    fullAddress: '18 Example Street, Taman Molek, Johor Bahru',
+    contactPhone: '+60 12 000 0101',
+    contactWhatsapp: '+60 12 000 0101',
   ),
   Job(
     id: 'job-003',
@@ -41,11 +49,35 @@ final fakeJobs = <Job>[
     time: 'Sat, 9am–12pm',
     status: JobStatus.assigned,
     bidCount: 4,
-    description: 'Move one washing machine from a landed house to a nearby apartment.',
+    description:
+        'Move one washing machine from a landed house to a nearby apartment.',
     categoryId: '00000000-0000-0000-0000-000000000204',
     areaId: '00000000-0000-0000-0000-000000000253',
     createdAt: DateTime(2026, 8, 2, 12),
     scheduledAt: DateTime(2026, 8, 8, 9),
+    fullAddress: '22 Example Street, Permas Jaya, Johor Bahru',
+    contactPhone: '+60 12 000 0101',
+    contactWhatsapp: '+60 12 000 0101',
+    acceptedBidId: 'bid-003',
+  ),
+  Job(
+    id: 'job-004',
+    title: 'Repair kitchen sink pipe',
+    category: 'Plumbing / Toilet',
+    area: 'Mount Austin',
+    budget: 140,
+    time: 'Today, 6pm–8pm',
+    status: JobStatus.assigned,
+    bidCount: 2,
+    description: 'The kitchen sink pipe is leaking under the cabinet.',
+    categoryId: '00000000-0000-0000-0000-000000000201',
+    areaId: '00000000-0000-0000-0000-000000000251',
+    fullAddress: '8 Example Street, Mount Austin, Johor Bahru',
+    contactPhone: '+60 12 555 0101',
+    contactWhatsapp: '+60 12 555 0101',
+    acceptedBidId: 'bid-005',
+    createdAt: DateTime(2026, 8, 3, 10),
+    scheduledAt: DateTime(2026, 8, 4, 18),
   ),
 ];
 
@@ -106,9 +138,24 @@ final fakeBids = <Bid>[
     completedJobs: 121,
     providerId: 'provider-mover',
   ),
+  const Bid(
+    id: 'bid-005',
+    jobId: 'job-004',
+    providerName: 'Ahmad Plumbing',
+    providerCategory: 'Plumbing / Toilet',
+    amount: 125,
+    availableAt: 'Today, 6pm',
+    inclusions: 'Inspection, labour, and leak repair',
+    exclusions: 'Replacement pipe if required',
+    status: BidStatus.accepted,
+    rating: 4.9,
+    completedJobs: 86,
+    providerId: 'demo-user',
+  ),
 ];
 
 const fakeProvider = ProviderProfile(
+  id: 'demo-user',
   name: 'Ahmad Plumbing',
   category: 'Plumbing / Toilet',
   area: 'Johor Bahru',
@@ -119,3 +166,55 @@ const fakeProvider = ProviderProfile(
 );
 
 const fakeProviderProfileProvider = fakeProvider;
+
+const fakeProviderB = ProviderProfile(
+  id: 'provider-b',
+  name: 'JB Home Fix',
+  category: 'Handyman',
+  area: 'Johor Bahru',
+  rating: 4.7,
+  completedJobs: 42,
+  bio:
+      'A practical handyman team for quick household repairs and installations.',
+  verification: VerificationStatus.approved,
+);
+
+const fakeProviderMover = ProviderProfile(
+  id: 'provider-mover',
+  name: 'MoveRight JB',
+  category: 'Moving / Delivery',
+  area: 'Johor Bahru',
+  rating: 4.8,
+  completedJobs: 121,
+  bio: 'Careful local movers with trolleys and a flexible weekend crew.',
+  verification: VerificationStatus.approved,
+);
+
+final fakeProviderProfiles = <ProviderProfile>[
+  fakeProvider,
+  fakeProviderB,
+  fakeProviderMover
+];
+
+final fakeNotifications = <AppNotification>[
+  AppNotification(
+    id: 'notification-001',
+    type: NotificationType.newBid,
+    title: 'New offer received',
+    body: 'Your toilet blockage job has a new offer.',
+    isRead: false,
+    createdAt: DateTime(2026, 8, 4, 9),
+    referenceType: 'job',
+    referenceId: 'job-001',
+  ),
+  AppNotification(
+    id: 'notification-002',
+    type: NotificationType.providerApproved,
+    title: 'Provider verification approved',
+    body: 'You can now view matching jobs.',
+    isRead: true,
+    createdAt: DateTime(2026, 8, 3, 16),
+    referenceType: 'provider',
+    referenceId: 'demo-user',
+  ),
+];
