@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'auth_controller.dart';
 import '../../shared/widgets/app_widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -17,7 +19,7 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) => _AuthScreen(title: 'Create your account', buttonLabel: 'Register', footer: 'Already have an account?', footerAction: 'Log in', onFooter: () => context.go('/login'), includeName: true);
 }
 
-class _AuthScreen extends StatelessWidget {
+class _AuthScreen extends ConsumerStatefulWidget {
   const _AuthScreen({required this.title, required this.buttonLabel, required this.footer, required this.footerAction, required this.onFooter, this.includeName = false});
 
   final String title;
@@ -28,35 +30,101 @@ class _AuthScreen extends StatelessWidget {
   final bool includeName;
 
   @override
+  ConsumerState<_AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends ConsumerState<_AuthScreen> {
+  late final TextEditingController nameController;
+  late final TextEditingController emailController;
+  late final TextEditingController passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final controller = ref.read(authControllerProvider.notifier);
+    final success = widget.includeName
+        ? await controller.register(fullName: nameController.text, email: emailController.text, password: passwordController.text)
+        : await controller.signIn(email: emailController.text, password: passwordController.text);
+    if (!mounted) return;
+    final auth = ref.read(authControllerProvider);
+    if (success) {
+      context.go('/customer/home');
+    } else if (auth.info != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(auth.info!)));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = ref.watch(authControllerProvider);
     return Scaffold(
       appBar: AppBar(),
       body: ListView(padding: const EdgeInsets.all(24), children: [
         const SizedBox(height: 18),
         const CircleAvatar(radius: 32, child: Icon(Icons.handyman_outlined, size: 32)),
         const SizedBox(height: 24),
-        Text(title, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+        Text(widget.title, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
         const Text('A clear way to get local jobs done.', style: TextStyle(color: Color(0xFF5B6870))),
         const SizedBox(height: 28),
-        if (includeName) ...[const TextField(decoration: InputDecoration(labelText: 'Full name')), const SizedBox(height: 14)],
-        const TextField(decoration: InputDecoration(labelText: 'Email address'), keyboardType: TextInputType.emailAddress),
+        if (widget.includeName) ...[TextField(controller: nameController, textInputAction: TextInputAction.next, decoration: const InputDecoration(labelText: 'Full name')), const SizedBox(height: 14)],
+        TextField(controller: emailController, keyboardType: TextInputType.emailAddress, textInputAction: TextInputAction.next, decoration: const InputDecoration(labelText: 'Email address')),
         const SizedBox(height: 14),
-        const TextField(decoration: InputDecoration(labelText: 'Password'), obscureText: true),
+        TextField(controller: passwordController, obscureText: true, onSubmitted: (_) => _submit(), decoration: const InputDecoration(labelText: 'Password')),
+        if (auth.error != null) ...[const SizedBox(height: 12), Text(auth.error!, style: const TextStyle(color: Color(0xFFB42318)))],
         const SizedBox(height: 22),
-        PrimaryButton(label: buttonLabel, onPressed: () => context.go('/customer/home')),
-        if (!includeName) Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => context.push('/forgot-password'), child: const Text('Forgot password?'))),
+        PrimaryButton(label: auth.isLoading ? 'Please wait…' : widget.buttonLabel, onPressed: auth.isLoading ? null : _submit),
+        if (!widget.includeName) Align(alignment: Alignment.centerRight, child: TextButton(onPressed: auth.isLoading ? null : () => context.push('/forgot-password'), child: const Text('Forgot password?'))),
         const SizedBox(height: 20),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(footer), TextButton(onPressed: onFooter, child: Text(footerAction))]),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text(widget.footer), TextButton(onPressed: auth.isLoading ? null : widget.onFooter, child: Text(widget.footerAction))]),
+        const SizedBox(height: 12),
+        const Text('No Supabase keys? This build uses local demo mode and does not contact a backend.', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF5B6870), fontSize: 12)),
       ]),
     );
   }
 }
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => AppScaffold(title: 'Reset password', body: ListView(padding: const EdgeInsets.all(24), children: [const Text('Enter your email and we will send reset instructions.'), const SizedBox(height: 20), const TextField(decoration: InputDecoration(labelText: 'Email address')), const SizedBox(height: 20), PrimaryButton(label: 'Send instructions', onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fake-data flow: email not sent.')))]));
+  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
+  final emailController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    await ref.read(authControllerProvider.notifier).resetPassword(emailController.text);
+    if (!mounted) return;
+    final auth = ref.read(authControllerProvider);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(auth.error ?? auth.info ?? 'Reset instructions sent.')));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = ref.watch(authControllerProvider);
+    return AppScaffold(title: 'Reset password', body: ListView(padding: const EdgeInsets.all(24), children: [const Text('Enter your email and we will send reset instructions.'), const SizedBox(height: 20), TextField(controller: emailController, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'Email address')), const SizedBox(height: 20), PrimaryButton(label: auth.isLoading ? 'Please wait…' : 'Send instructions', onPressed: auth.isLoading ? null : _submit)]));
+  }
 }
 

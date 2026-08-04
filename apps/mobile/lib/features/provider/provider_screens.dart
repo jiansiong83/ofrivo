@@ -6,6 +6,7 @@ import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
 import '../../shared/widgets/app_widgets.dart';
+import '../auth/auth_controller.dart';
 import '../shell/shell_screen.dart';
 
 class BecomeProviderScreen extends StatelessWidget {
@@ -109,7 +110,6 @@ class ProviderProfileModeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = ref.watch(providerProfileProvider);
-    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [const PageHeader(title: 'Provider profile', subtitle: 'Your public profile and availability.'), ProviderCard(provider: provider), const SizedBox(height: 16), SwitchListTile(value: true, onChanged: (_) {}, title: const Text('Available for new jobs'), subtitle: const Text('Show matching requests in your feed')), ListTile(leading: const Icon(Icons.verified_outlined), title: const Text('Verification status'), subtitle: const Text('Approved'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/provider/verification'))]);
+    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [const PageHeader(title: 'Provider profile', subtitle: 'Your public profile and availability.'), ProviderCard(provider: provider), const SizedBox(height: 16), SwitchListTile(value: true, onChanged: (_) {}, title: const Text('Available for new jobs'), subtitle: const Text('Show matching requests in your feed')), ListTile(leading: const Icon(Icons.verified_outlined), title: const Text('Verification status'), subtitle: const Text('Approved'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/provider/verification')), ListTile(leading: const Icon(Icons.logout), title: const Text('Sign out'), onTap: () async { await ref.read(authControllerProvider.notifier).signOut(); if (context.mounted) context.go('/onboarding'); })]);
   }
 }
-

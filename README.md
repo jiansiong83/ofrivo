@@ -13,7 +13,7 @@ This repository contains the Step 0 + Step 1 foundation plus the local Step 2 Su
 - Product, screen, UI, data, security, test, release, and project-status documentation.
 - Supabase migration, seed, storage policy, RLS, and transaction-RPC source files. They are not applied to Supabase Cloud in this repository.
 
-The current round deliberately does not connect the apps to Supabase, implement client authentication, payments, chat, maps, AI pricing, or FCM.
+The current round adds the mobile authentication/profile adapter, but it only connects when explicit `--dart-define` values are supplied. Payments, chat, maps, AI pricing, and FCM remain deferred.
 
 ## Repository map
 
@@ -40,7 +40,7 @@ npm run lint
 npm run build
 ```
 
-Environment variables are documented in `docs/SECURITY.md`; no backend values are committed.
+Environment variables are documented in `docs/SECURITY.md`; no backend values are committed. Without the defines, the mobile app clearly runs in local demo mode.
 
 ## Source of truth
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../shared/widgets/app_widgets.dart';
 
@@ -16,3 +17,9 @@ class SuspendedAccountScreen extends StatelessWidget {
   Widget build(BuildContext context) => AppScaffold(title: 'Account suspended', body: const EmptyState(title: 'Account access is paused', message: 'Contact support if you believe this was a mistake.', icon: Icons.lock_outline));
 }
 
+class ProviderModeGuardScreen extends StatelessWidget {
+  const ProviderModeGuardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) => Center(child: Padding(padding: const EdgeInsets.all(24), child: Card(child: Padding(padding: const EdgeInsets.all(22), child: Column(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.verified_user_outlined, size: 44), const SizedBox(height: 14), Text('Provider approval required', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), const Text('Complete verification before viewing jobs or submitting bids.', textAlign: TextAlign.center), const SizedBox(height: 18), PrimaryButton(label: 'Start provider application', onPressed: () => context.go('/provider/apply'))]))));
+}

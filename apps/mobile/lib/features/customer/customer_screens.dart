@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
+import '../auth/auth_controller.dart';
 import '../../shared/widgets/app_widgets.dart';
 import '../shell/shell_screen.dart';
 
@@ -123,7 +124,18 @@ class CustomerProfileScreen extends ConsumerWidget {
   const CustomerProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [const PageHeader(title: 'Your profile', subtitle: 'Manage your shared account details.'), Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [const CircleAvatar(radius: 28, child: Text('A')), const SizedBox(width: 12), const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Alex Tan', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), Text('alex@example.com')])) , IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined))]))), const SizedBox(height: 16), ListTile(leading: const Icon(Icons.verified_user_outlined), title: const Text('Become a provider'), subtitle: const Text('Apply to receive local job requests'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/provider/apply')), ListTile(leading: const Icon(Icons.notifications_none), title: const Text('Notification centre'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/notifications'))]);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authControllerProvider);
+    final profile = auth.profile;
+    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [
+      const PageHeader(title: 'Your profile', subtitle: 'Manage your shared account details.'),
+      Card(child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [const CircleAvatar(radius: 28, child: Text('A')), const SizedBox(width: 12), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(profile?.fullName ?? 'Alex Tan', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)), Text(auth.user?.email ?? 'demo@ofrivo.local')])), IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined))]))),
+      const SizedBox(height: 16),
+      ListTile(leading: const Icon(Icons.verified_user_outlined), title: const Text('Become a provider'), subtitle: const Text('Apply to receive local job requests'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/provider/apply')),
+      ListTile(leading: const Icon(Icons.notifications_none), title: const Text('Notification centre'), trailing: const Icon(Icons.chevron_right), onTap: () => context.go('/notifications')),
+      ListTile(leading: const Icon(Icons.logout), title: const Text('Sign out'), onTap: () async { await ref.read(authControllerProvider.notifier).signOut(); if (context.mounted) context.go('/onboarding'); }),
+    ]);
+  }
 }
 
 class ProviderProfileScreen extends ConsumerWidget {
@@ -137,4 +149,3 @@ class ProviderProfileScreen extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Provider profile', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), ProviderCard(provider: provider), const SizedBox(height: 18), Text(provider.bio, style: Theme.of(context).textTheme.bodyLarge), const SizedBox(height: 18), const Text('Contact details are revealed only after a bid is accepted.', style: TextStyle(color: AppColors.textSecondary))]);
   }
 }
-

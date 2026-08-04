@@ -22,6 +22,14 @@
 - [ ] Concurrent `accept_bid` scenario passes.
 - [ ] Step 2 commit and rollback point recorded.
 
+## Step 3 authentication and profiles
+
+- [ ] Flutter Auth unit/widget tests pass once the SDK is available.
+- [ ] Runtime Supabase defines are supplied only through local/CI secrets.
+- [ ] Register/login/session restore works against `ofrivo-dev`.
+- [ ] Profile RLS tests pass.
+- [ ] Suspended account and Provider Mode guards pass.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

@@ -15,6 +15,14 @@
 - Run the scenarios in `supabase/tests/step2_security_and_concurrency.sql` with the listed test identities.
 - Confirm the two-device accept-bid scenario leaves exactly one accepted bid and one assigned job.
 
+## Step 3 Auth checks
+
+- Fake repository restores a demo session without network access.
+- Register, login, logout, forgot-password, and session-restore states expose loading/error/info feedback.
+- Runtime configuration never accepts or embeds a service-role key.
+- Suspended profile is blocked from normal app routes.
+- Non-approved provider cannot enter Provider Mode.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

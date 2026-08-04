@@ -23,6 +23,13 @@ The intended MVP covers registration, profiles, customer job creation, provider 
 - Safe public feed/provider views and transactional `accept_bid`, `start_job`, `complete_job`, and `cancel_job` RPCs.
 - Local fake auth users and marketplace seed data in `supabase/seed.sql`.
 
+## Step 3 delivered here
+
+- Email + Password sign-in, registration, sign-out, password reset, and session restore adapter.
+- Profile upsert/read on first authenticated session.
+- Auth loading/error/offline messaging, suspended-account guard, and approved-provider mode guard.
+- Runtime-only `SUPABASE_URL` / `SUPABASE_ANON_KEY` configuration with an explicit local demo fallback.
+
 ## Explicitly deferred
 
 App-side Supabase integration, authentication wiring, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.

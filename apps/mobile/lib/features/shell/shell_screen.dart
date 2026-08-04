@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
+import '../auth/auth_controller.dart';
+import '../auth/auth_screens.dart';
+import '../common/common_screens.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({required this.child, super.key});
@@ -13,8 +16,15 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authControllerProvider);
+    if (!auth.initialized) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (!auth.isAuthenticated) return const LoginScreen();
+    if (auth.isSuspended) return const SuspendedAccountScreen();
     final mode = ref.watch(appModeProvider);
     final isProvider = mode == AppMode.provider;
+    if (isProvider && !auth.isApprovedProvider) return const Scaffold(body: ProviderModeGuardScreen());
     final tabs = isProvider
         ? const [
             _NavItem('Job Feed', Icons.rss_feed_outlined, '/provider/feed'),
@@ -82,4 +92,3 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(padding: const EdgeInsets.fromLTRB(20, 20, 20, 16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800, color: AppColors.textPrimary)), const SizedBox(height: 6), Text(subtitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary))]));
 }
-
