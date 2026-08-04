@@ -21,6 +21,8 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 - `accept_bid`, `start_job`, `complete_job`, and `cancel_job` are `SECURITY DEFINER` transaction functions with explicit actor checks.
 - `submit_provider_application` is a `SECURITY DEFINER` transaction function that owns the pending transition and rewrites the provider's category/area selections.
 - `accept_bid` locks the job row, accepts one pending bid, rejects the other pending bids, writes `accepted_bid_id`, and creates job-event/notification rows before returning the assigned state.
+- Step 10 treats `notifications` as the durable user-scoped inbox/outbox. Published jobs, new bids, and verification results create rows through server-side triggers; `queue_job_expiring_notifications` is called by a scheduled server worker.
+- `device_tokens` is registered through `register_device_token` and removed through `unregister_device_token`; tokens are unique, platform-labelled, and always attached to the authenticated user.
 
 ## Privacy shape
 

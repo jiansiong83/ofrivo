@@ -36,6 +36,13 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 - Verification evidence and private job addresses are admin-only fields; serve evidence through short-lived signed URLs and never expose storage paths as public URLs.
 - Provider, account, and report actions must write an actor, target, action, and timestamp to the audit log in the same server-authorized operation.
 
+## Step 10 Push Notification controls
+
+- Device tokens are registered through authenticated RPCs, validated for platform and length, and can only be removed by their owning user.
+- Notification fan-out is server-side; clients can read/update only their own inbox rows through RLS and cannot create verification, bid, or expiry notifications directly.
+- `notifications` is the durable outbox for a later FCM worker. FCM credentials, scheduled-job credentials, and any provider access token remain server-only secrets.
+- Runtime `PUSH_DEVICE_TOKEN` is optional demo/bridge input and is never committed; an absent token leaves the app in inbox-only mode without failing sign-in.
+
 ## Environment contract
 
 Mobile: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `APP_ENV=development`, supplied with `--dart-define` or a CI secret. No values are committed.

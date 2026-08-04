@@ -82,3 +82,11 @@
 - Added approve/reject/suspend provider actions, suspend/restore account actions, report review/resolve/dismiss actions, and local audit-event append behavior.
 - Added private evidence and job-address admin detail boundaries with production signed-URL/server-guard guidance.
 - Added `supabase/tests/validate_step9.mjs`; Admin lint and Next.js production build pass.
+
+## Step 10 — Push Notification
+
+- Added device-token registration/unregistration RPCs, fake/Supabase repositories, runtime token source, and push-registration controller.
+- Added new matching job, new bid, bid accepted, verification result, job lifecycle, and job-expiry notification type coverage.
+- Added SQL fan-out triggers for published jobs, bids, and verification results plus a scheduled job-expiry queue function; notification rows remain the durable outbox.
+- Added unread notification badge, mark-all-read state, provider new-job routing, local demo token fixture, and notification tests.
+- Added `supabase/tests/validate_step10.mjs`; Flutter analyze, 23 tests, and Android debug build pass.

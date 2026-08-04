@@ -75,6 +75,15 @@
 - Reports cover reviewing, resolving, and dismissing; each moderation mutation appends an audit event.
 - Run `node supabase/tests/validate_step9.mjs`, `npm.cmd run lint`, and `npm.cmd run build` from `apps/admin`.
 
+## Step 10 Push Notification checks
+
+- Fake device-token registration stores a platform-labelled token and unregister removes only that token.
+- Runtime token input is optional; missing token does not block the authenticated app or inbox.
+- Notification mapping covers new job, new bid, bid accepted, job assigned, verification result, lifecycle, and job-expiry events.
+- Notification centre shows unread count, supports individual read and mark-all-read, and routes provider new-job references to the safe feed detail.
+- SQL fan-out creates user-scoped rows for matching providers/customers; expiry queue is idempotent within the scheduler window.
+- Run `node supabase/tests/validate_step10.mjs`, Flutter analyze/test, and Android debug build.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

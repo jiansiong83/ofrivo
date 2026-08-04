@@ -32,6 +32,10 @@ Assigned → Assigned Job Detail → Start / Complete / Cancel → Review / Repo
 
 Only the approved-provider concept is represented by fake state; real eligibility is Step 3+.
 
+## Notifications
+
+The authenticated shell exposes a notification centre from the bell icon. It shows an unread badge, supports individual/mark-all read state, and routes job references according to role; push delivery uses the runtime device-token bridge when configured.
+
 ## Admin web
 
 The Admin Web preview exposes Dashboard, Pending Providers, Provider Detail, Users, Jobs, Bids, Reports, Categories, Areas, Audit Log, and System Settings. Provider approval/rejection/suspension, account suspend/restore, and report review actions update local fake data and append an audit event; production data access remains behind Supabase Auth/RLS.

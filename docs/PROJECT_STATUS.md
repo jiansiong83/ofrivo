@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 9 Admin Web (local preview data; Flutter Android validation remains enabled).
+Step 10 Push Notification (push-ready outbox/token pipeline; Flutter Android validation is enabled).
 
 ## Current objective
 
-Deliver the Admin Web operations console while preserving participant privacy, auditable moderation actions, and runtime-only Supabase configuration.
+Deliver a push-ready notification pipeline while preserving user-scoped inbox privacy, server-owned event fan-out, and runtime-only delivery configuration.
 
 ## Completed
 
@@ -45,10 +45,14 @@ Deliver the Admin Web operations console while preserving participant privacy, a
 - Users supports suspend/restore; Jobs and Bids expose admin-scoped marketplace monitoring; Reports supports reviewing, resolving, and dismissing.
 - Categories, Areas, System Settings, and Audit Log views added; every moderation mutation appends an attributable local audit event.
 - Step 9 static Admin Web contract validator added.
+- Step 10 device-token repository/source/controller added with fake mode and Supabase `register_device_token`/`unregister_device_token` RPC adapters.
+- Notification event types expanded for new matching jobs, job expiry, and provider verification results; the mobile shell now shows an unread badge and supports mark-all-read.
+- Step 10 SQL migration adds new-job, new-bid, verification-result, and scheduled job-expiry notification fan-out with user-scoped device-token validation.
+- Step 10 seed fixture, notification tests, and static push contract validator added.
 
 ## Not completed yet
 
-- No Supabase Cloud project connection or FCM connection; app-side auth/jobs/provider application/feed/bids connect only when runtime defines are supplied.
+- No Supabase Cloud project connection or production FCM credentials/native delivery bridge; push tokens can be supplied at runtime and the notification rows remain the durable outbox.
 - Admin Web is intentionally a local fake-data preview until server-side Supabase Auth claims, RLS-backed queries, signed URLs, and audit writes are configured.
 
 ## Known issues / environment
@@ -66,7 +70,7 @@ Deliver the Admin Web operations console while preserving participant privacy, a
 - Admin production build: PASS (static `/` output).
 - Admin Step 2 regression lint/build: PASS.
 - Flutter analyze: PASS — `No issues found!` (Flutter 3.44.8).
-- Flutter test: PASS — 21 tests passed.
+- Flutter test: PASS — 23 tests passed.
 - Android debug build: PASS — `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
@@ -79,12 +83,16 @@ Deliver the Admin Web operations console while preserving participant privacy, a
 - Step 9 Admin Web static contract validation: PASS (`node supabase/tests/validate_step9.mjs`).
 - Step 9 Admin lint: PASS (`npm.cmd run lint`).
 - Step 9 Admin production build: PASS (`npm.cmd run build`, static `/` output).
+- Step 10 push static contract validation: PASS (`node supabase/tests/validate_step10.mjs`).
+- Step 10 Flutter analyze: PASS (`No issues found!`).
+- Step 10 Flutter test: PASS (23 tests passed).
+- Step 10 Android debug build: PASS (`apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 9 commit: `7176c96` (`feat: add admin operations console`). Rollback point is the Step 8 commit `bd5b669`.
+Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Rollback point is the Step 9 docs commit `63bb74c`.
 
 ## Next step
 
-Next: Step 10 Push Notification.
+Next: Step 11 Security and Testing.

@@ -68,6 +68,15 @@
 - [x] Admin lint and production build pass.
 - [ ] Production admin Auth claims, RLS-backed repositories, signed evidence URLs, and server-side audit writes are configured.
 
+## Step 10 Push Notification
+
+- [x] Device-token fake/Supabase repositories and authenticated registration RPCs exist.
+- [x] New job, new bid, verification result, lifecycle, and job-expiry notification contracts exist.
+- [x] Notification centre shows unread state and supports mark-all-read.
+- [x] Step 10 static contract validation passes.
+- [x] Flutter analyze, tests, and Android debug build pass.
+- [ ] Native FCM provider, scheduled expiry worker, and production delivery credentials are configured.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

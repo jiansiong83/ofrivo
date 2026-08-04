@@ -47,7 +47,7 @@ The intended MVP covers registration, profiles, customer job creation, provider 
 
 ## Explicitly deferred
 
-Provider feed/bids, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
+Provider feed/bids and push-ready notification inbox/token contracts are implemented; native FCM delivery, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
 
 ## Launch service categories
 
