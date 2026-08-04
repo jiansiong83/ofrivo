@@ -74,7 +74,7 @@ Complete the end-to-end job lifecycle while preserving participant privacy, tran
 
 ## Commit ID / rollback point
 
-Step 7 rollback point: `e7de83b` (`feat: add transactional bid acceptance flow`). Step 8 commit is recorded after this implementation round.
+Step 8 commit: `bd5b669` (`feat: add job completion review and report flow`). Rollback point is the Step 7 commit `e7de83b`.
 
 ## Next step
 
