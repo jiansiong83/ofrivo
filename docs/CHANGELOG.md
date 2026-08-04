@@ -24,3 +24,11 @@
 - Added Email + Password repository/controller for sign-in, registration, logout, reset, and session restore.
 - Added profile upsert/read, suspended-account guard, approved-provider mode guard, and local demo fallback.
 - Added Auth repository/profile parsing tests.
+
+## Step 4 — Customer Job Creation
+
+- Added customer job draft model and required-field validation.
+- Added category/area selection, private address/contact fields, urgency, service window, budget, and up-to-five photo selection.
+- Added fake and Supabase job repositories, private Storage photo upload, draft/preview/publish, My Jobs, Job Detail, and cancellation flow.
+- Added customer job controller loading/error states and lifecycle tests.
+- Flutter validation remains blocked because the SDK is unavailable in the environment.

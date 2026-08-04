@@ -18,6 +18,12 @@ class Job {
     required this.bidCount,
     required this.description,
     this.urgent = false,
+    this.categoryId,
+    this.areaId,
+    this.fullAddress,
+    this.contactPhone,
+    this.contactWhatsapp,
+    this.photoPaths = const [],
   });
 
   final String id;
@@ -30,6 +36,31 @@ class Job {
   final int bidCount;
   final String description;
   final bool urgent;
+  final String? categoryId;
+  final String? areaId;
+  final String? fullAddress;
+  final String? contactPhone;
+  final String? contactWhatsapp;
+  final List<String> photoPaths;
+
+  Job copyWith({JobStatus? status, int? bidCount}) => Job(
+        id: id,
+        title: title,
+        category: category,
+        area: area,
+        budget: budget,
+        time: time,
+        status: status ?? this.status,
+        bidCount: bidCount ?? this.bidCount,
+        description: description,
+        urgent: urgent,
+        categoryId: categoryId,
+        areaId: areaId,
+        fullAddress: fullAddress,
+        contactPhone: contactPhone,
+        contactWhatsapp: contactWhatsapp,
+        photoPaths: photoPaths,
+      );
 }
 
 class Bid {
@@ -81,4 +112,3 @@ class ProviderProfile {
   final String bio;
   final VerificationStatus verification;
 }
-

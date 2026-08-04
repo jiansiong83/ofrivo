@@ -30,9 +30,16 @@ The intended MVP covers registration, profiles, customer job creation, provider 
 - Auth loading/error/offline messaging, suspended-account guard, and approved-provider mode guard.
 - Runtime-only `SUPABASE_URL` / `SUPABASE_ANON_KEY` configuration with an explicit local demo fallback.
 
+## Step 4 delivered here
+
+- Customer job form with category, area, title, description, full address, contact phone, WhatsApp, budget, time window, urgency, and photo selection.
+- Draft save, preview, publish, My Jobs, Job Detail, and cancellation flow.
+- Supabase repository for jobs and private job-photo Storage uploads, with a fake repository for demo mode.
+- Job controller loading/error states and local tests for draft validation and lifecycle actions.
+
 ## Explicitly deferred
 
-App-side Supabase integration, authentication wiring, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
+Provider application/feed/bids, FCM, payments, escrow, wallet, chat, live GPS, auto-dispatch, maps, AI pricing, membership, referrals, iOS production release, and multi-city launch are later steps.
 
 ## Launch service categories
 

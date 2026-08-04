@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/auth_screens.dart';
 import '../../features/common/common_screens.dart';
 import '../../features/customer/customer_screens.dart';
+import '../../features/customer/customer_job_models.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/provider/provider_screens.dart';
 import '../../features/shell/shell_screen.dart';
@@ -22,7 +23,7 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(path: '/customer/home', builder: (context, state) => const CustomerHomeScreen()),
         GoRoute(path: '/customer/post', builder: (context, state) => const PostJobScreen()),
-        GoRoute(path: '/customer/post/preview', builder: (context, state) => const PostJobPreviewScreen()),
+        GoRoute(path: '/customer/post/preview', builder: (context, state) => PostJobPreviewScreen(draft: state.extra is JobDraft ? state.extra! as JobDraft : JobDraft.demo())),
         GoRoute(path: '/customer/jobs', builder: (context, state) => const MyJobsScreen()),
         GoRoute(path: '/customer/jobs/:id', builder: (context, state) => JobDetailScreen(jobId: state.pathParameters['id']!)),
         GoRoute(path: '/customer/jobs/:id/bids', builder: (context, state) => ReceivedBidsScreen(jobId: state.pathParameters['id']!)),
@@ -42,4 +43,3 @@ final appRouter = GoRouter(
     ),
   ],
 );
-

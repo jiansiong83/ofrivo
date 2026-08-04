@@ -235,12 +235,30 @@ class DateTimeSelector extends StatelessWidget {
 }
 
 class PhotoUploader extends StatelessWidget {
-  const PhotoUploader({super.key, this.count = 0});
+  const PhotoUploader({super.key, this.count = 0, this.paths = const [], this.onPick});
 
   final int count;
+  final List<String> paths;
+  final VoidCallback? onPick;
 
   @override
-  Widget build(BuildContext context) => Container(width: double.infinity, padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.outline)), child: Column(children: [const Icon(Icons.add_a_photo_outlined, size: 30), const SizedBox(height: 8), Text('$count/5 photos selected'), const SizedBox(height: 8), const Text('Photo upload placeholder', style: TextStyle(color: AppColors.textSecondary))]));
+  Widget build(BuildContext context) {
+    final selectedCount = paths.isEmpty ? count : paths.length;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.outline)),
+      child: Column(children: [
+        const Icon(Icons.add_a_photo_outlined, size: 30),
+        const SizedBox(height: 8),
+        Text('$selectedCount/5 photos selected'),
+        const SizedBox(height: 8),
+        Text(selectedCount == 0 ? 'Add up to 5 photos to help providers understand the job.' : 'Photos are attached to this job.', textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary)),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(onPressed: onPick, icon: const Icon(Icons.photo_library_outlined), label: Text(selectedCount == 0 ? 'Choose photos' : 'Change photos')),
+      ]),
+    );
+  }
 }
 
 class EmptyState extends StatelessWidget {

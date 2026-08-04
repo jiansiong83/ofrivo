@@ -30,6 +30,15 @@
 - [ ] Profile RLS tests pass.
 - [ ] Suspended account and Provider Mode guards pass.
 
+## Step 4 customer job creation
+
+- [ ] Job form validation tests pass once the Flutter SDK is available.
+- [ ] Draft save and publish work in local demo mode.
+- [ ] Supabase insert, private job-photo upload, and draft-to-open transition pass against an isolated project.
+- [ ] My Jobs and Job Detail show only the authenticated customer's jobs.
+- [ ] Cancellation uses `cancel_job` and rejects non-cancellable states.
+- [x] No service-role key or hosted Supabase values committed.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

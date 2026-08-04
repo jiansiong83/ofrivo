@@ -1,6 +1,6 @@
 # Security Baseline
 
-Step 2 adds the local SQL implementation of these controls. It still does not connect the mobile or admin apps to a hosted backend.
+Step 2 adds the local SQL implementation of these controls. The mobile app can use the same policies when runtime Supabase values are supplied; no hosted project values are committed.
 
 ## Required controls
 
@@ -40,3 +40,11 @@ Edge functions: FCM service credentials only in managed server secrets.
 - A first authenticated session upserts its own `profiles` row; RLS remains the authority.
 - Suspended profiles are held at the account-suspended state.
 - Provider mode is guarded by the profile's approved verification status.
+
+## Step 4 Customer Job controls
+
+- Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.
+- Full address and contact fields are collected for the job owner but are not sent through the public feed view.
+- Job photos use the private `job-photos` bucket and a job-scoped path; Storage RLS checks the job participant.
+- The app limits photo selection to five items and reports missing-file/upload failures instead of silently publishing.
+- Customer cancellation calls the server-side `cancel_job` RPC, which enforces the allowed status and actor checks.

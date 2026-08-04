@@ -6,14 +6,16 @@ Brand line: **Post a job. Compare offers. Get it done.**
 
 ## Current scope
 
-This repository contains the Step 0 + Step 1 foundation plus the local Step 2 Supabase database foundation from the project master plan:
+This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, and the Step 4 customer job flow from the project master plan:
 
 - Flutter Android app shell with Riverpod, go_router, Material 3, feature-based folders, and fake data.
 - Next.js + TypeScript + Tailwind admin shell with placeholder dashboard content.
 - Product, screen, UI, data, security, test, release, and project-status documentation.
 - Supabase migration, seed, storage policy, RLS, and transaction-RPC source files. They are not applied to Supabase Cloud in this repository.
+- Mobile Email + Password auth with session restore, profile guards, and a local demo fallback.
+- Customer job creation with validation, private contact fields, photo selection, draft/preview/publish, My Jobs, Job Detail, and cancellation.
 
-The current round adds the mobile authentication/profile adapter, but it only connects when explicit `--dart-define` values are supplied. Payments, chat, maps, AI pricing, and FCM remain deferred.
+The mobile app connects to Supabase only when explicit `--dart-define` values are supplied; otherwise it uses local demo data. Provider application/feed/bids, payments, chat, maps, AI pricing, and FCM remain deferred.
 
 ## Repository map
 

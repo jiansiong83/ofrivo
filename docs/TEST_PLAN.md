@@ -23,6 +23,15 @@
 - Suspended profile is blocked from normal app routes.
 - Non-approved provider cannot enter Provider Mode.
 
+## Step 4 Customer Job checks
+
+- Job draft validation rejects missing title, description, address, phone, invalid budget, and more than five photos.
+- Fake repository covers save as draft, publish, load, and cancel lifecycle behavior.
+- Post Job form carries category/area IDs and private contact fields into preview and repository payloads.
+- Supabase repository inserts a draft, uploads job photos to the private `job-photos` bucket, and transitions draft to open only after the insert succeeds.
+- Customer cancellation uses the transactional `cancel_job` RPC and only enables for cancellable job states.
+- Flutter unit/widget tests and Android build remain environment-blocked until a Flutter SDK is available.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

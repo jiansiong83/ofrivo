@@ -1,6 +1,6 @@
 # Data Model Draft
 
-The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql` implements this contract locally. It must still be reviewed/applied through the Supabase CLI before any cloud environment is used.
+The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql` implements this contract locally. Step 4's mobile repository consumes the jobs and job_photos tables when runtime Supabase values are supplied. The migration must still be reviewed/applied through the Supabase CLI before any cloud environment is used.
 
 ## Planned entities
 
