@@ -325,14 +325,16 @@ class JobPhotoGallery extends StatelessWidget {
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({required this.title, required this.message, super.key, this.icon = Icons.inbox_outlined});
+  const EmptyState({required this.title, required this.message, super.key, this.icon = Icons.inbox_outlined, this.onAction, this.actionLabel = 'Try again'});
 
   final String title;
   final String message;
   final IconData icon;
+  final VoidCallback? onAction;
+  final String actionLabel;
 
   @override
-  Widget build(BuildContext context) => Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 48, color: AppColors.textSecondary), const SizedBox(height: 12), Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary))])));
+  Widget build(BuildContext context) => Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 48, color: AppColors.textSecondary), const SizedBox(height: 12), Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary)), if (onAction != null) ...[const SizedBox(height: 14), OutlinedButton(onPressed: onAction, child: Text(actionLabel))]])));
 }
 
 class ErrorState extends StatelessWidget {
@@ -341,7 +343,16 @@ class ErrorState extends StatelessWidget {
   final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) => const EmptyState(title: 'Something went wrong', message: 'Please check your connection and try again.', icon: Icons.error_outline);
+  Widget build(BuildContext context) => EmptyState(title: 'Something went wrong', message: 'Please check your connection and try again.', icon: Icons.error_outline, onAction: onRetry);
+}
+
+class OfflineState extends StatelessWidget {
+  const OfflineState({super.key, this.onRetry});
+
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) => EmptyState(title: 'You are offline', message: 'Your changes stay on this device. Reconnect and try again when you are ready.', icon: Icons.cloud_off_outlined, onAction: onRetry);
 }
 
 class LoadingSkeleton extends StatelessWidget {

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/models/app_models.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/validation/image_validation.dart';
 import '../auth/auth_controller.dart';
 import '../shell/shell_screen.dart';
 import '../../shared/widgets/app_widgets.dart';
@@ -134,8 +135,14 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
     final files =
         await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
-    setState(
-        () => photoPaths = files.take(5).map((file) => file.path).toList());
+    final result = await ImageValidation.validatePaths(
+        files.map((file) => file.path).toList(), maxCount: 5);
+    if (!mounted) return;
+    if (!result.isValid) {
+      _showValidation(result.error!);
+      return;
+    }
+    setState(() => photoPaths = result.paths);
   }
 
   void _showValidation(String message) => ScaffoldMessenger.of(context)

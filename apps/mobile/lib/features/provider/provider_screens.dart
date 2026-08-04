@@ -9,6 +9,7 @@ import '../../core/models/app_models.dart';
 import '../../core/models/service_options.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/validation/image_validation.dart';
 import '../../shared/widgets/app_widgets.dart';
 import '../auth/auth_controller.dart';
 import '../shell/shell_screen.dart';
@@ -79,6 +80,13 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
     final file = await imagePicker.pickImage(
         source: ImageSource.gallery, imageQuality: 82, maxWidth: 1600);
     if (!mounted || file == null) return;
+    final error = await ImageValidation.validatePath(file.path);
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
     setState(() {
       if (kind == 'front') icFrontPath = file.path;
       if (kind == 'back') icBackPath = file.path;
@@ -91,16 +99,30 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
     final files =
         await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
-    setState(() =>
-        certificatePaths = files.take(5).map((file) => file.path).toList());
+    final result = await ImageValidation.validatePaths(
+        files.map((file) => file.path).toList(), maxCount: 5);
+    if (!mounted) return;
+    if (!result.isValid) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.error!)));
+      return;
+    }
+    setState(() => certificatePaths = result.paths);
   }
 
   Future<void> _pickWorkPhotos() async {
     final files =
         await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
-    setState(
-        () => workPhotoPaths = files.take(6).map((file) => file.path).toList());
+    final result = await ImageValidation.validatePaths(
+        files.map((file) => file.path).toList(), maxCount: 6);
+    if (!mounted) return;
+    if (!result.isValid) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.error!)));
+      return;
+    }
+    setState(() => workPhotoPaths = result.paths);
   }
 
   Future<void> _submit() async {

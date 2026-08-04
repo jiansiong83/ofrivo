@@ -32,4 +32,23 @@ void main() {
     final profile = ProfileData.fromMap({'id': 'suspended-user', 'account_status': 'suspended'});
     expect(profile.isSuspended, isTrue);
   });
+
+  test('customer and provider profile data stay isolated by account id', () {
+    final customer = ProfileData.fromMap({
+      'id': 'customer-a',
+      'full_name': 'Customer A',
+      'account_status': 'active',
+      'provider_profiles': null,
+    });
+    final provider = ProfileData.fromMap({
+      'id': 'provider-b',
+      'full_name': 'Provider B',
+      'account_status': 'active',
+      'provider_profiles': {'verification_status': 'approved'},
+    });
+
+    expect(customer.id, isNot(provider.id));
+    expect(customer.isApprovedProvider, isFalse);
+    expect(provider.isApprovedProvider, isTrue);
+  });
 }
