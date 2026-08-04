@@ -40,6 +40,14 @@
 - SQL policy prevents direct client insertion of approved provider or verification states; status changes are server-controlled.
 - Pending, approved, rejected, and suspended status states expose clear next actions and never reveal verification files publicly.
 
+## Step 6 Provider Feed and Bid checks
+
+- Safe feed mapping exposes category, area, public location, budget, schedule, urgency, bid count, and signed job photos without full address/contact fields.
+- Fake feed filters cover category, area, service date, budget range, urgent-only, no-bids-only, newest, highest budget, and soonest service.
+- Provider bid validation requires a positive amount, available time, and inclusions; optional exclusions/materials/message fields retain their limits.
+- Fake repository covers a provider's active bid edit, new bid submission, and pending bid withdrawal without exposing another provider's bid amount.
+- Widget flow exposes protected address messaging, submit/edit actions, and My Bids status/action states.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

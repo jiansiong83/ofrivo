@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 5 provider application (runtime connection optional; Flutter Android validation is now enabled).
+Step 6 Provider Job Feed and Bid (runtime connection optional; Flutter Android validation is enabled).
 
 ## Current objective
 
-Validate the Step 5 mobile workspace with the prepared Flutter SDK while preserving runtime-only Supabase configuration.
+Complete the approved-provider Job Feed and Bid workflow while preserving public-feed privacy and runtime-only Supabase configuration.
 
 ## Completed
 
@@ -29,10 +29,12 @@ Validate the Step 5 mobile workspace with the prepared Flutter SDK while preserv
 - Provider application validation and fake lifecycle tests added and passing.
 - Flutter stable SDK 3.44.8 / Dart 3.12.2 prepared at `F:\Dev\FlutterSDK`; Android licenses accepted and user PATH updated.
 - Android platform host generated with `flutter create --platforms=android .`; Kotlin incremental compilation disabled for the Windows cross-drive cache layout.
+- Step 6 provider feed/bid models, repository/controller, safe feed view migration, filters, job detail, bid submit/edit/withdraw, and My Bids screens added.
+- Step 6 fake lifecycle tests and static contract validation added.
 
 ## Not completed yet
 
-- No Supabase Cloud project connection or FCM connection; app-side auth/jobs/provider application connect only when runtime defines are supplied.
+- No Supabase Cloud project connection or FCM connection; app-side auth/jobs/provider application/feed/bids connect only when runtime defines are supplied.
 
 ## Known issues / environment
 
@@ -49,18 +51,20 @@ Validate the Step 5 mobile workspace with the prepared Flutter SDK while preserv
 - Admin production build: PASS (static `/` output).
 - Admin Step 2 regression lint/build: PASS.
 - Flutter analyze: PASS — `No issues found!` (Flutter 3.44.8).
-- Flutter test: PASS — 10 tests passed.
+- Flutter test: PASS — 15 tests passed.
 - Android debug build: PASS — `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`.
 - Dependency install: Admin dependencies installed; ESLint/PostCSS were updated to patched releases and `npm audit` now reports 0 vulnerabilities.
 - Step 2 SQL static contract validation: PASS (`node supabase/tests/validate_step2.mjs`).
 - Supabase CLI local lint: BLOCKED — no local PostgreSQL/Docker runtime is available (`LegacyDbConnectError`).
 - Auth, customer job, provider application, and onboarding widget tests: PASS — 10 tests passed.
+- Provider feed filters, bid edit/withdraw, and bid validation tests: PASS — 5 additional tests.
+- Step 6 SQL/mobile static contract validation: PASS (`node supabase/tests/validate_step6.mjs`).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 5 commit: `9496274` (`feat: add provider verification workflow`). Rollback point is the Step 4 commit `5c34d48`.
+Step 6 commit: pending until this round is committed. Rollback point is the Step 5 commit `9496274`.
 
 ## Next step
 
-After this round is accepted: Step 6 Provider Job Feed.
+After this round is accepted: Step 7 transactional `accept_bid`.

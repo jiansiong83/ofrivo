@@ -45,6 +45,7 @@ Edge functions: FCM service credentials only in managed server secrets.
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.
 - Full address and contact fields are collected for the job owner but are not sent through the public feed view.
+- Provider feed photos remain in the private `job-photos` bucket; the app only requests short-lived signed URLs for jobs already authorized by the feed view.
 - Job photos use the private `job-photos` bucket and a job-scoped path; Storage RLS checks the job participant.
 - The app limits photo selection to five items and reports missing-file/upload failures instead of silently publishing.
 - Customer cancellation calls the server-side `cancel_job` RPC, which enforces the allowed status and actor checks.

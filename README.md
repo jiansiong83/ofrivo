@@ -6,7 +6,7 @@ Brand line: **Post a job. Compare offers. Get it done.**
 
 ## Current scope
 
-This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, the Step 4 customer job flow, and the Step 5 provider application flow from the project master plan:
+This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supabase database foundation, the Step 3 auth/profile adapter, the Step 4 customer job flow, the Step 5 provider application flow, and the Step 6 provider feed/bid flow from the project master plan:
 
 - Flutter Android app shell with Riverpod, go_router, Material 3, feature-based folders, and fake data.
 - Next.js + TypeScript + Tailwind admin shell with placeholder dashboard content.
@@ -15,8 +15,9 @@ This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supaba
 - Mobile Email + Password auth with session restore, profile guards, and a local demo fallback.
 - Customer job creation with validation, private contact fields, photo selection, draft/preview/publish, My Jobs, Job Detail, and cancellation.
 - Provider application with service categories, areas, private identity evidence, work photos, and Pending/Approved/Rejected/Suspended status states.
+- Provider Job Feed with public-field filtering, job detail privacy boundaries, bid submission/edit/withdraw, and My Bids.
 
-The mobile app connects to Supabase only when explicit `--dart-define` values are supplied; otherwise it uses local demo data. Provider feed/bids, payments, chat, maps, AI pricing, and FCM remain deferred.
+The mobile app connects to Supabase only when explicit `--dart-define` values are supplied; otherwise it uses local demo data. Payments, chat, maps, AI pricing, and FCM remain deferred.
 
 ## Repository map
 

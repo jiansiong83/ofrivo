@@ -4,6 +4,7 @@ import '../../features/auth/auth_screens.dart';
 import '../../features/common/common_screens.dart';
 import '../../features/customer/customer_screens.dart';
 import '../../features/customer/customer_job_models.dart';
+import '../models/app_models.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/provider/provider_screens.dart';
 import '../../features/shell/shell_screen.dart';
@@ -34,7 +35,7 @@ final appRouter = GoRouter(
         GoRoute(path: '/provider/feed', builder: (context, state) => const ProviderFeedScreen()),
         GoRoute(path: '/provider/filters', builder: (context, state) => const ProviderFiltersScreen()),
         GoRoute(path: '/provider/jobs/:id', builder: (context, state) => ProviderJobDetailScreen(jobId: state.pathParameters['id']!)),
-        GoRoute(path: '/provider/jobs/:id/bid', builder: (context, state) => SubmitBidScreen(jobId: state.pathParameters['id']!)),
+        GoRoute(path: '/provider/jobs/:id/bid', builder: (context, state) => SubmitBidScreen(jobId: state.pathParameters['id']!, existingBid: state.extra is Bid ? state.extra! as Bid : null)),
         GoRoute(path: '/provider/bids', builder: (context, state) => const MyBidsScreen()),
         GoRoute(path: '/provider/assigned', builder: (context, state) => const AssignedJobsScreen()),
         GoRoute(path: '/provider/assigned/:id', builder: (context, state) => AssignedJobDetailScreen(jobId: state.pathParameters['id']!)),

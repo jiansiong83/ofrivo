@@ -24,6 +24,9 @@ class Job {
     this.contactPhone,
     this.contactWhatsapp,
     this.photoPaths = const [],
+    this.createdAt,
+    this.scheduledAt,
+    this.expiresAt,
   });
 
   final String id;
@@ -42,8 +45,11 @@ class Job {
   final String? contactPhone;
   final String? contactWhatsapp;
   final List<String> photoPaths;
+  final DateTime? createdAt;
+  final DateTime? scheduledAt;
+  final DateTime? expiresAt;
 
-  Job copyWith({JobStatus? status, int? bidCount}) => Job(
+  Job copyWith({JobStatus? status, int? bidCount, DateTime? createdAt, DateTime? scheduledAt, DateTime? expiresAt}) => Job(
         id: id,
         title: title,
         category: category,
@@ -60,6 +66,9 @@ class Job {
         contactPhone: contactPhone,
         contactWhatsapp: contactWhatsapp,
         photoPaths: photoPaths,
+        createdAt: createdAt ?? this.createdAt,
+        scheduledAt: scheduledAt ?? this.scheduledAt,
+        expiresAt: expiresAt ?? this.expiresAt,
       );
 }
 
@@ -77,6 +86,11 @@ class Bid {
     required this.rating,
     required this.completedJobs,
     this.verified = true,
+    this.providerId,
+    this.materialsNote,
+    this.message,
+    this.availableAtDate,
+    this.createdAt,
   });
 
   final String id;
@@ -91,6 +105,49 @@ class Bid {
   final double rating;
   final int completedJobs;
   final bool verified;
+  final String? providerId;
+  final String? materialsNote;
+  final String? message;
+  final DateTime? availableAtDate;
+  final DateTime? createdAt;
+
+  Bid copyWith({
+    String? id,
+    String? jobId,
+    String? providerName,
+    String? providerCategory,
+    double? amount,
+    String? availableAt,
+    String? inclusions,
+    String? exclusions,
+    BidStatus? status,
+    double? rating,
+    int? completedJobs,
+    bool? verified,
+    String? providerId,
+    String? materialsNote,
+    String? message,
+    DateTime? availableAtDate,
+    DateTime? createdAt,
+  }) => Bid(
+        id: id ?? this.id,
+        jobId: jobId ?? this.jobId,
+        providerName: providerName ?? this.providerName,
+        providerCategory: providerCategory ?? this.providerCategory,
+        amount: amount ?? this.amount,
+        availableAt: availableAt ?? this.availableAt,
+        inclusions: inclusions ?? this.inclusions,
+        exclusions: exclusions ?? this.exclusions,
+        status: status ?? this.status,
+        rating: rating ?? this.rating,
+        completedJobs: completedJobs ?? this.completedJobs,
+        verified: verified ?? this.verified,
+        providerId: providerId ?? this.providerId,
+        materialsNote: materialsNote ?? this.materialsNote,
+        message: message ?? this.message,
+        availableAtDate: availableAtDate ?? this.availableAtDate,
+        createdAt: createdAt ?? this.createdAt,
+      );
 }
 
 class ProviderProfile {

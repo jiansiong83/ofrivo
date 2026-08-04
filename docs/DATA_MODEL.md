@@ -17,6 +17,7 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 - `accepted_bid_id` must belong to the same job.
 - `job_events` records important transitions.
 - `public_job_feed` and `public_provider_directory` are safe read views; they do not expose full address/contact fields.
+- Step 6 appends category/area labels and private Storage paths to `public_job_feed`; the mobile repository exchanges authorized job-photo paths for short-lived signed URLs.
 - `accept_bid`, `start_job`, `complete_job`, and `cancel_job` are `SECURITY DEFINER` transaction functions with explicit actor checks.
 - `submit_provider_application` is a `SECURITY DEFINER` transaction function that owns the pending transition and rewrites the provider's category/area selections.
 

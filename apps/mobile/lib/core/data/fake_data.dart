@@ -1,7 +1,7 @@
 import '../models/app_models.dart';
 
 final fakeJobs = <Job>[
-  const Job(
+  Job(
     id: 'job-001',
     title: 'Toilet blockage',
     category: 'Plumbing / Toilet',
@@ -12,8 +12,12 @@ final fakeJobs = <Job>[
     bidCount: 3,
     description: 'Water is draining slowly and the toilet is close to overflowing.',
     urgent: true,
+    categoryId: '00000000-0000-0000-0000-000000000201',
+    areaId: '00000000-0000-0000-0000-000000000251',
+    createdAt: DateTime(2026, 8, 4, 8),
+    scheduledAt: DateTime(2026, 8, 4, 14),
   ),
-  const Job(
+  Job(
     id: 'job-002',
     title: 'Install ceiling fan',
     category: 'Electrical / Lighting / Fan',
@@ -23,8 +27,12 @@ final fakeJobs = <Job>[
     status: JobStatus.open,
     bidCount: 1,
     description: 'Install one new ceiling fan. Existing power point is available.',
+    categoryId: '00000000-0000-0000-0000-000000000202',
+    areaId: '00000000-0000-0000-0000-000000000252',
+    createdAt: DateTime(2026, 8, 3, 19),
+    scheduledAt: DateTime(2026, 8, 5, 10),
   ),
-  const Job(
+  Job(
     id: 'job-003',
     title: 'Move a washing machine',
     category: 'Moving / Delivery',
@@ -34,6 +42,10 @@ final fakeJobs = <Job>[
     status: JobStatus.assigned,
     bidCount: 4,
     description: 'Move one washing machine from a landed house to a nearby apartment.',
+    categoryId: '00000000-0000-0000-0000-000000000204',
+    areaId: '00000000-0000-0000-0000-000000000253',
+    createdAt: DateTime(2026, 8, 2, 12),
+    scheduledAt: DateTime(2026, 8, 8, 9),
   ),
 ];
 
@@ -50,6 +62,7 @@ final fakeBids = <Bid>[
     status: BidStatus.pending,
     rating: 4.9,
     completedJobs: 86,
+    providerId: 'demo-user',
   ),
   const Bid(
     id: 'bid-002',
@@ -63,6 +76,21 @@ final fakeBids = <Bid>[
     status: BidStatus.pending,
     rating: 4.7,
     completedJobs: 42,
+    providerId: 'provider-b',
+  ),
+  const Bid(
+    id: 'bid-004',
+    jobId: 'job-002',
+    providerName: 'Ahmad Plumbing',
+    providerCategory: 'Electrical / Lighting / Fan',
+    amount: 150,
+    availableAt: 'Tomorrow, 11am',
+    inclusions: 'Installation and testing',
+    exclusions: 'Ceiling reinforcement',
+    status: BidStatus.pending,
+    rating: 4.9,
+    completedJobs: 86,
+    providerId: 'demo-user',
   ),
   const Bid(
     id: 'bid-003',
@@ -76,6 +104,7 @@ final fakeBids = <Bid>[
     status: BidStatus.accepted,
     rating: 4.8,
     completedJobs: 121,
+    providerId: 'provider-mover',
   ),
 ];
 

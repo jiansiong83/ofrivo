@@ -49,3 +49,11 @@
 - Added `provider_work_photos` and protected `submit_provider_application` migration/RPC, including server-controlled status transitions.
 - Added provider application validation and fake lifecycle tests.
 - Flutter validation passes with the prepared SDK; see the SDK preparation entry above.
+
+## Step 6 — Provider Job Feed and Bid
+
+- Added approved-provider feed models, filters, controller, fake repository, and Supabase `public_job_feed` adapter.
+- Added category, area, service-date, budget, urgent, no-bids, and sort filters.
+- Added safe job detail with private address/contact boundary and signed job-photo support.
+- Added bid submission, pending-bid edit, pending-bid withdrawal, and provider-scoped My Bids UI.
+- Added the Step 6 feed/view migration, static contract validator, and five fake lifecycle/filter tests.

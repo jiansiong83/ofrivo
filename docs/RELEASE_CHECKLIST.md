@@ -49,6 +49,16 @@
 - [ ] Supabase RLS and Storage scenarios pass against an isolated local project.
 - [x] No service-role key or hosted Supabase values committed.
 
+## Step 6 provider job feed and bids
+
+- [x] Approved-provider feed loads only open jobs from the safe public view.
+- [x] Category, area, service date, budget, urgent, no-bid, and sort filters pass fake-data tests.
+- [x] Job detail hides full address, phone, WhatsApp, and exact GPS until acceptance.
+- [x] Provider can submit, edit, and withdraw a pending bid.
+- [x] My Bids shows only the authenticated provider's bid records.
+- [x] Step 6 static migration/mobile contract validation passes.
+- [x] No service-role key or hosted Supabase values committed.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

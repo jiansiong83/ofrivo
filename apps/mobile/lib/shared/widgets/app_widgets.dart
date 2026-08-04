@@ -253,12 +253,13 @@ class BudgetInput extends StatelessWidget {
 }
 
 class DateTimeSelector extends StatelessWidget {
-  const DateTimeSelector({super.key, this.value = 'Choose a date and time'});
+  const DateTimeSelector({super.key, this.value = 'Choose a date and time', this.onTap});
 
   final String value;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.schedule_outlined), title: const Text('Service time'), subtitle: Text(value), trailing: const Icon(Icons.chevron_right));
+  Widget build(BuildContext context) => ListTile(onTap: onTap, contentPadding: EdgeInsets.zero, leading: const Icon(Icons.schedule_outlined), title: const Text('Service time'), subtitle: Text(value), trailing: const Icon(Icons.chevron_right));
 }
 
 class PhotoUploader extends StatelessWidget {
@@ -284,6 +285,41 @@ class PhotoUploader extends StatelessWidget {
         const SizedBox(height: 12),
         OutlinedButton.icon(onPressed: onPick, icon: const Icon(Icons.photo_library_outlined), label: Text(selectedCount == 0 ? 'Choose photos' : 'Change photos')),
       ]),
+    );
+  }
+}
+
+class JobPhotoGallery extends StatelessWidget {
+  const JobPhotoGallery({required this.paths, super.key});
+
+  final List<String> paths;
+
+  @override
+  Widget build(BuildContext context) {
+    if (paths.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      height: 92,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: paths.length,
+        separatorBuilder: (_, index) => const SizedBox(width: 10),
+        itemBuilder: (context, index) => ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            paths[index],
+            width: 112,
+            height: 92,
+            fit: BoxFit.cover,
+            errorBuilder: (_, error, stackTrace) => Container(
+              width: 112,
+              height: 92,
+              color: const Color(0xFFE7EEF0),
+              alignment: Alignment.center,
+              child: const Icon(Icons.image_not_supported_outlined),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

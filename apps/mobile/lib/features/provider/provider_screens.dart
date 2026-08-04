@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/data/fake_data.dart';
 import '../../core/models/app_models.dart';
@@ -13,6 +14,8 @@ import '../auth/auth_controller.dart';
 import '../shell/shell_screen.dart';
 import 'provider_application_controller.dart';
 import 'provider_application_models.dart';
+import 'provider_job_controller.dart';
+import 'provider_job_models.dart';
 
 class BecomeProviderScreen extends ConsumerStatefulWidget {
   const BecomeProviderScreen({super.key});
@@ -272,16 +275,262 @@ class ProviderFeedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final jobs = ref.watch(fakeJobsProvider).where((job) => job.status == JobStatus.open).toList();
-    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [const PageHeader(title: 'Job feed', subtitle: 'Open requests near your selected service areas.'), Padding(padding: const EdgeInsets.symmetric(horizontal: 20), child: Row(children: [Expanded(child: Text('${jobs.length} jobs available', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))), OutlinedButton.icon(onPressed: () => context.go('/provider/filters'), icon: const Icon(Icons.tune, size: 18), label: const Text('Filters'))])), const SizedBox(height: 14), for (final job in jobs) Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 12), child: JobCard(job: job, onTap: () => context.go('/provider/jobs/${job.id}')))]);
+    final state = ref.watch(providerJobControllerProvider);
+    if (!state.initialized && state.isLoading) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: const [LoadingSkeleton(), SizedBox(height: 12), LoadingSkeleton()],
+      );
+    }
+    if (state.error != null && state.jobs.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [ErrorState(onRetry: () => ref.read(providerJobControllerProvider.notifier).loadFeed())],
+      );
+    }
+    final jobs = state.visibleJobs;
+    return RefreshIndicator(
+      onRefresh: () => ref.read(providerJobControllerProvider.notifier).loadFeed(),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          const PageHeader(title: 'Job feed', subtitle: 'Open requests near your selected service areas.'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${jobs.length} jobs available',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => context.go('/provider/filters'),
+                  icon: const Icon(Icons.tune, size: 18),
+                  label: const Text('Filters'),
+                ),
+              ],
+            ),
+          ),
+          if (!state.filters.isDefault)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (state.filters.categoryLabel != null) CategoryChip(label: state.filters.categoryLabel!),
+                  if (state.filters.areaLabel != null) AreaChip(label: state.filters.areaLabel!),
+                  if (state.filters.urgentOnly) const StatusBadge(label: 'Urgent only'),
+                  if (state.filters.noBidsOnly) const StatusBadge(label: 'No bids'),
+                  StatusBadge(label: state.filters.sort.label),
+                  TextButton(
+                    onPressed: () => ref.read(providerJobControllerProvider.notifier).clearFilters(),
+                    child: const Text('Clear'),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 14),
+          if (jobs.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+              child: EmptyState(
+                title: 'No matching jobs',
+                message: 'Try another category, area, budget, or sort option.',
+                icon: Icons.search_off_outlined,
+              ),
+            )
+          else
+            for (final job in jobs)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: JobCard(job: job, onTap: () => context.go('/provider/jobs/${job.id}')),
+              ),
+        ],
+      ),
+    );
   }
 }
 
-class ProviderFiltersScreen extends StatelessWidget {
+class ProviderFiltersScreen extends ConsumerStatefulWidget {
   const ProviderFiltersScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Job filters', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 18), const Text('Category', style: TextStyle(fontWeight: FontWeight.w700)), const SizedBox(height: 8), const Wrap(spacing: 8, runSpacing: 8, children: [CategoryChip(label: 'Plumbing'), CategoryChip(label: 'Electrical'), CategoryChip(label: 'Cleaning'), CategoryChip(label: 'Handyman')]), const SizedBox(height: 18), const Text('Area', style: TextStyle(fontWeight: FontWeight.w700)), const SizedBox(height: 8), const Wrap(spacing: 8, children: [AreaChip(label: 'Mount Austin'), AreaChip(label: 'Taman Molek'), AreaChip(label: 'Permas Jaya')]), const SizedBox(height: 18), SwitchListTile(value: true, onChanged: (_) {}, title: const Text('Urgent jobs only')), const SizedBox(height: 14), PrimaryButton(label: 'Apply filters', onPressed: () => context.go('/provider/feed'))]);
+  ConsumerState<ProviderFiltersScreen> createState() => _ProviderFiltersScreenState();
+}
+
+class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
+  late String? categoryId;
+  late String? areaId;
+  late DateTime? serviceDate;
+  late bool urgentOnly;
+  late bool noBidsOnly;
+  late ProviderJobSort sort;
+  late TextEditingController minBudgetController;
+  late TextEditingController maxBudgetController;
+
+  @override
+  void initState() {
+    super.initState();
+    final filters = ref.read(providerJobControllerProvider).filters;
+    categoryId = filters.categoryId;
+    areaId = filters.areaId;
+    serviceDate = filters.serviceDate;
+    urgentOnly = filters.urgentOnly;
+    noBidsOnly = filters.noBidsOnly;
+    sort = filters.sort;
+    minBudgetController = TextEditingController(text: filters.minBudget?.toStringAsFixed(0) ?? '');
+    maxBudgetController = TextEditingController(text: filters.maxBudget?.toStringAsFixed(0) ?? '');
+  }
+
+  @override
+  void dispose() {
+    minBudgetController.dispose();
+    maxBudgetController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: serviceDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+    );
+    if (selected != null) setState(() => serviceDate = selected);
+  }
+
+  Future<void> _apply() async {
+    final min = double.tryParse(minBudgetController.text.trim());
+    final max = double.tryParse(maxBudgetController.text.trim());
+    if (minBudgetController.text.trim().isNotEmpty && min == null || maxBudgetController.text.trim().isNotEmpty && max == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter valid budget values.')));
+      return;
+    }
+    if (min != null && max != null && min > max) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Minimum budget cannot exceed maximum budget.')));
+      return;
+    }
+    final category = categoryId == null ? null : serviceCategoryOptions.firstWhere((option) => option.id == categoryId);
+    final area = areaId == null ? null : serviceAreaOptions.firstWhere((option) => option.id == areaId);
+    await ref.read(providerJobControllerProvider.notifier).setFilters(
+          ProviderJobFilters(
+            categoryId: category?.id,
+            categoryLabel: category?.label,
+            areaId: area?.id,
+            areaLabel: area?.label,
+            serviceDate: serviceDate,
+            minBudget: min,
+            maxBudget: max,
+            urgentOnly: urgentOnly,
+            noBidsOnly: noBidsOnly,
+            sort: sort,
+          ),
+        );
+    if (mounted) context.go('/provider/feed');
+  }
+
+  Future<void> _clear() async {
+    setState(() {
+      categoryId = null;
+      areaId = null;
+      serviceDate = null;
+      urgentOnly = false;
+      noBidsOnly = false;
+      sort = ProviderJobSort.newest;
+      minBudgetController.clear();
+      maxBudgetController.clear();
+    });
+    await ref.read(providerJobControllerProvider.notifier).clearFilters();
+    if (mounted) context.go('/provider/feed');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        Text('Job filters', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 8),
+        const Text('Narrow the feed to jobs you can serve next.'),
+        const SizedBox(height: 22),
+        const Text('Category', style: TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in serviceCategoryOptions)
+              FilterChip(
+                label: Text(option.label),
+                selected: categoryId == option.id,
+                onSelected: (selected) => setState(() => categoryId = selected ? option.id : null),
+              ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        const Text('Area', style: TextStyle(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in serviceAreaOptions)
+              FilterChip(
+                label: Text(option.label),
+                selected: areaId == option.id,
+                onSelected: (selected) => setState(() => areaId = selected ? option.id : null),
+              ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            Expanded(child: TextFormField(controller: minBudgetController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Min budget', prefixText: 'RM '))),
+            const SizedBox(width: 12),
+            Expanded(child: TextFormField(controller: maxBudgetController, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Max budget', prefixText: 'RM '))),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.event_outlined),
+          title: const Text('Service date'),
+          subtitle: Text(serviceDate == null ? 'Any date' : DateFormat('EEE, d MMM yyyy').format(serviceDate!)),
+          trailing: TextButton(onPressed: serviceDate == null ? null : () => setState(() => serviceDate = null), child: const Text('Clear')),
+          onTap: _pickDate,
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: urgentOnly,
+          onChanged: (value) => setState(() => urgentOnly = value),
+          title: const Text('Urgent jobs only'),
+          subtitle: const Text('Prioritise requests that need a fast response.'),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          value: noBidsOnly,
+          onChanged: (value) => setState(() => noBidsOnly = value),
+          title: const Text('No bids yet'),
+          subtitle: const Text('Find jobs where you can be the first offer.'),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<ProviderJobSort>(
+          initialValue: sort,
+          decoration: const InputDecoration(labelText: 'Sort by'),
+          items: [for (final option in ProviderJobSort.values) DropdownMenuItem(value: option, child: Text(option.label))],
+          onChanged: (value) => setState(() => sort = value ?? ProviderJobSort.newest),
+        ),
+        const SizedBox(height: 22),
+        PrimaryButton(label: 'Apply filters', onPressed: _apply),
+        const SizedBox(height: 10),
+        SecondaryButton(label: 'Reset filters', onPressed: _clear),
+      ],
+    );
+  }
 }
 
 class ProviderJobDetailScreen extends ConsumerWidget {
@@ -291,31 +540,199 @@ class ProviderJobDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final job = ref.watch(fakeJobsProvider).firstWhere((item) => item.id == jobId, orElse: () => fakeJobs.first);
-    return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text(job.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 10), Wrap(spacing: 8, children: [if (job.urgent) const StatusBadge(label: 'Urgent'), CategoryChip(label: job.category), AreaChip(label: job.area)]), const SizedBox(height: 18), Text(job.description, style: Theme.of(context).textTheme.bodyLarge), const SizedBox(height: 18), Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Customer budget', style: TextStyle(color: AppColors.textSecondary)), Text('RM${job.budget.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(job.time), const SizedBox(height: 8), Text('${job.bidCount} offers received', style: const TextStyle(color: AppColors.textSecondary))]))), const SizedBox(height: 18), const Text('Exact address and contact details stay hidden until a bid is accepted.', style: TextStyle(color: AppColors.textSecondary)), const SizedBox(height: 18), PrimaryButton(label: 'Submit a bid', onPressed: () => context.go('/provider/jobs/${job.id}/bid'))]);
+    final state = ref.watch(providerJobControllerProvider);
+    Job? job;
+    for (final candidate in state.jobs) {
+      if (candidate.id == jobId) job = candidate;
+    }
+    if (job == null) {
+      for (final candidate in fakeJobs) {
+        if (candidate.id == jobId) job = candidate;
+      }
+    }
+    if (job == null) {
+      return const EmptyState(title: 'Job unavailable', message: 'This request may have expired or been removed.', icon: Icons.work_off_outlined);
+    }
+    final selectedJob = job;
+    ProviderBid? existingBid;
+    for (final candidate in state.myBids) {
+      if (candidate.bid.jobId == job.id && (candidate.bid.status == BidStatus.pending || candidate.bid.status == BidStatus.accepted)) existingBid = candidate;
+    }
+    final canEdit = existingBid?.bid.status == BidStatus.pending;
+    final bidLabel = existingBid == null ? 'Submit a bid' : (canEdit ? 'Edit your bid' : 'View your accepted bid');
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        Text(job.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 10),
+        Wrap(spacing: 8, runSpacing: 8, children: [if (job.urgent) const StatusBadge(label: 'Urgent'), CategoryChip(label: job.category), AreaChip(label: job.area)]),
+        const SizedBox(height: 18),
+        Text(job.description, style: Theme.of(context).textTheme.bodyLarge),
+        if (job.photoPaths.isNotEmpty) ...[const SizedBox(height: 18), JobPhotoGallery(paths: job.photoPaths)],
+        const SizedBox(height: 18),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Customer budget', style: TextStyle(color: AppColors.textSecondary)),
+                Text('RM${job.budget.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 8),
+                Text(job.time),
+                const SizedBox(height: 8),
+                Text('${job.bidCount} offers received', style: const TextStyle(color: AppColors.textSecondary)),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        const Card(
+          child: ListTile(
+            leading: Icon(Icons.lock_outline, color: AppColors.primary),
+            title: Text('Address protected'),
+            subtitle: Text('Full address, phone, WhatsApp, and exact GPS stay hidden until a bid is accepted.'),
+          ),
+        ),
+        if (existingBid != null) ...[
+          const SizedBox(height: 18),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.request_quote_outlined),
+              title: Text('Your bid: RM${existingBid.bid.amount.toStringAsFixed(0)}'),
+              subtitle: Text('Available ${existingBid.bid.availableAt}'),
+              trailing: StatusBadge(label: existingBid.bid.status.name),
+            ),
+          ),
+        ],
+        const SizedBox(height: 18),
+        PrimaryButton(
+          label: bidLabel,
+          onPressed: existingBid?.bid.status == BidStatus.accepted
+              ? () => context.go('/provider/bids')
+              : () => context.go('/provider/jobs/${selectedJob.id}/bid', extra: existingBid?.bid),
+        ),
+      ],
+    );
   }
 }
 
-class SubmitBidScreen extends StatefulWidget {
-  const SubmitBidScreen({required this.jobId, super.key});
+class SubmitBidScreen extends ConsumerStatefulWidget {
+  const SubmitBidScreen({required this.jobId, super.key, this.existingBid});
 
   final String jobId;
+  final Bid? existingBid;
 
   @override
-  State<SubmitBidScreen> createState() => _SubmitBidScreenState();
+  ConsumerState<SubmitBidScreen> createState() => _SubmitBidScreenState();
 }
 
-class _SubmitBidScreenState extends State<SubmitBidScreen> {
+class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
   final amountController = TextEditingController();
+  final inclusionsController = TextEditingController();
+  final exclusionsController = TextEditingController();
+  final materialsController = TextEditingController();
+  final messageController = TextEditingController();
+  late DateTime availableAt;
+
+  bool get locked => widget.existingBid?.status == BidStatus.accepted;
+
+  @override
+  void initState() {
+    super.initState();
+    final bid = widget.existingBid;
+    availableAt = bid?.availableAtDate ?? DateTime.now().add(const Duration(hours: 2));
+    amountController.text = bid?.amount.toStringAsFixed(0) ?? '';
+    inclusionsController.text = bid?.inclusions ?? '';
+    exclusionsController.text = bid?.exclusions ?? '';
+    materialsController.text = bid?.materialsNote ?? '';
+    messageController.text = bid?.message ?? '';
+  }
 
   @override
   void dispose() {
     amountController.dispose();
+    inclusionsController.dispose();
+    exclusionsController.dispose();
+    materialsController.dispose();
+    messageController.dispose();
     super.dispose();
   }
 
+  Future<void> _pickAvailableAt() async {
+    final date = await showDatePicker(context: context, initialDate: availableAt, firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days: 90)));
+    if (!mounted || date == null) return;
+    final time = await showTimePicker(context: context, initialTime: TimeOfDay.fromDateTime(availableAt));
+    if (!mounted || time == null) return;
+    setState(() => availableAt = DateTime(date.year, date.month, date.day, time.hour, time.minute));
+  }
+
+  Future<void> _save() async {
+    final saved = await ref.read(providerJobControllerProvider.notifier).submitBid(
+          BidDraft(
+            bidId: widget.existingBid?.id,
+            jobId: widget.jobId,
+            amount: amountController.text,
+            availableAt: availableAt,
+            inclusions: inclusionsController.text,
+            exclusions: exclusionsController.text,
+            materialsNote: materialsController.text,
+            message: messageController.text,
+          ),
+        );
+    if (!mounted) return;
+    if (saved == null) {
+      final error = ref.read(providerJobControllerProvider).error ?? 'Unable to save your bid.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your bid was saved.')));
+    context.go('/provider/bids');
+  }
+
+  Future<void> _withdraw() async {
+    final bid = widget.existingBid;
+    if (bid == null) return;
+    final confirmed = await ConfirmationDialog.show(context, title: 'Withdraw bid?', message: 'The customer will no longer count this offer as active.');
+    if (!confirmed || !mounted) return;
+    final success = await ref.read(providerJobControllerProvider.notifier).withdrawBid(bid.id);
+    if (!mounted) return;
+    if (success) context.go('/provider/bids');
+  }
+
   @override
-  Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [Text('Submit a bid', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text('Job ${widget.jobId}', style: const TextStyle(color: AppColors.textSecondary)), const SizedBox(height: 20), BudgetInput(controller: amountController), const SizedBox(height: 14), const DateTimeSelector(value: 'Today, 5pm'), const SizedBox(height: 14), const TextField(maxLines: 3, decoration: InputDecoration(labelText: 'What is included?', hintText: 'Inspection and labour')), const SizedBox(height: 14), const TextField(maxLines: 3, decoration: InputDecoration(labelText: 'What is excluded?', hintText: 'Materials and wall hacking')), const SizedBox(height: 14), const TextField(maxLines: 3, decoration: InputDecoration(labelText: 'Additional note')), const SizedBox(height: 22), PrimaryButton(label: 'Send bid', onPressed: () { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fake-data flow: bid submitted.'))); context.go('/provider/bids'); })]);
+  Widget build(BuildContext context) {
+    final state = ref.watch(providerJobControllerProvider);
+    final busy = state.isSubmitting;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        Text(widget.existingBid == null ? 'Submit a bid' : 'Edit your bid', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 8),
+        Text('Job ${widget.jobId}', style: const TextStyle(color: AppColors.textSecondary)),
+        const SizedBox(height: 20),
+        BudgetInput(controller: amountController),
+        const SizedBox(height: 14),
+        DateTimeSelector(value: DateFormat('EEE, d MMM, h:mm a').format(availableAt), onTap: locked || busy ? null : _pickAvailableAt),
+        const SizedBox(height: 14),
+        TextField(controller: inclusionsController, enabled: !locked && !busy, maxLines: 3, decoration: const InputDecoration(labelText: 'What is included?', hintText: 'Inspection and labour')),
+        const SizedBox(height: 14),
+        TextField(controller: exclusionsController, enabled: !locked && !busy, maxLines: 3, decoration: const InputDecoration(labelText: 'What is excluded?', hintText: 'Materials and wall hacking')),
+        const SizedBox(height: 14),
+        TextField(controller: materialsController, enabled: !locked && !busy, maxLines: 2, decoration: const InputDecoration(labelText: 'Materials note', hintText: 'Materials are charged separately')),
+        const SizedBox(height: 14),
+        TextField(controller: messageController, enabled: !locked && !busy, maxLines: 3, decoration: const InputDecoration(labelText: 'Additional note')),
+        if (state.error != null) ...[const SizedBox(height: 12), Text(state.error!, style: const TextStyle(color: AppColors.danger))],
+        const SizedBox(height: 22),
+        if (!locked) PrimaryButton(label: busy ? 'Saving…' : (widget.existingBid == null ? 'Send bid' : 'Save changes'), onPressed: busy ? null : _save),
+        if (widget.existingBid?.status == BidStatus.pending) ...[
+          const SizedBox(height: 10),
+          SecondaryButton(label: busy ? 'Working…' : 'Withdraw bid', onPressed: busy ? null : _withdraw),
+        ],
+        if (locked) const Text('Accepted bids cannot be edited. The customer has selected this offer.', style: TextStyle(color: AppColors.textSecondary)),
+      ],
+    );
+  }
 }
 
 class MyBidsScreen extends ConsumerWidget {
@@ -323,8 +740,89 @@ class MyBidsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bids = ref.watch(fakeBidsProvider);
-    return ListView(padding: const EdgeInsets.only(bottom: 24), children: [const PageHeader(title: 'My bids', subtitle: 'Keep track of your pending and accepted offers.'), for (final bid in bids) Padding(padding: const EdgeInsets.fromLTRB(20, 0, 20, 12), child: BidCard(bid: bid))]);
+    final state = ref.watch(providerJobControllerProvider);
+    if (!state.initialized && state.myBids.isEmpty) {
+      return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: const [LoadingSkeleton()]);
+    }
+    if (state.error != null && state.myBids.isEmpty) {
+      return ListView(padding: const EdgeInsets.fromLTRB(20, 20, 20, 32), children: [ErrorState(onRetry: () => ref.read(providerJobControllerProvider.notifier).loadMyBids())]);
+    }
+    if (state.myBids.isEmpty) {
+      return ListView(children: const [PageHeader(title: 'My bids', subtitle: 'Keep track of your pending and accepted offers.'), EmptyState(title: 'No bids yet', message: 'Open a job from the feed and send your first offer.', icon: Icons.request_quote_outlined)]);
+    }
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 24),
+      children: [
+        const PageHeader(title: 'My bids', subtitle: 'Keep track of your pending and accepted offers.'),
+        for (final item in state.myBids)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: _MyBidCard(
+              item: item,
+              onEdit: item.bid.status == BidStatus.pending ? () => context.go('/provider/jobs/${item.bid.jobId}/bid', extra: item.bid) : null,
+              onWithdraw: item.bid.status == BidStatus.pending
+                  ? () async {
+                      final confirmed = await ConfirmationDialog.show(context, title: 'Withdraw bid?', message: 'The customer will no longer count this offer as active.');
+                      if (confirmed && context.mounted) await ref.read(providerJobControllerProvider.notifier).withdrawBid(item.bid.id);
+                    }
+                  : null,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _MyBidCard extends StatelessWidget {
+  const _MyBidCard({required this.item, this.onEdit, this.onWithdraw});
+
+  final ProviderBid item;
+  final VoidCallback? onEdit;
+  final VoidCallback? onWithdraw;
+
+  @override
+  Widget build(BuildContext context) {
+    final job = item.job;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text(job?.title ?? 'Job ${item.bid.jobId}', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+                StatusBadge(label: item.bid.status.name),
+              ],
+            ),
+            const SizedBox(height: 6),
+            if (job != null) Text('${job.area} · Customer budget RM${job.budget.toStringAsFixed(0)}', style: const TextStyle(color: AppColors.textSecondary)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Text('RM${item.bid.amount.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)),
+                const Spacer(),
+                Text('Available ${item.bid.availableAt}', style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text('Includes: ${item.bid.inclusions}'),
+            if (item.bid.exclusions.trim().isNotEmpty) Text('Excludes: ${item.bid.exclusions}', style: Theme.of(context).textTheme.bodySmall),
+            if (item.bid.materialsNote?.trim().isNotEmpty ?? false) Text('Materials: ${item.bid.materialsNote}', style: Theme.of(context).textTheme.bodySmall),
+            if (onEdit != null || onWithdraw != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  if (onEdit != null) Expanded(child: OutlinedButton(onPressed: onEdit, child: const Text('Edit bid'))),
+                  if (onEdit != null && onWithdraw != null) const SizedBox(width: 10),
+                  if (onWithdraw != null) Expanded(child: OutlinedButton(onPressed: onWithdraw, style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger), child: const Text('Withdraw'))),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
