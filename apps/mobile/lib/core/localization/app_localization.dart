@@ -1275,6 +1275,135 @@ const businessTranslations = <String, Map<AppLanguage, String>>{
     AppLanguage.malay: 'Alamat tidak diberikan.',
     AppLanguage.chinese: '未提供地址。',
   },
+  'notifications_title': {
+    AppLanguage.english: 'Notification centre',
+    AppLanguage.malay: 'Pusat pemberitahuan',
+    AppLanguage.chinese: '通知中心',
+  },
+  'notifications_mark_all_read': {
+    AppLanguage.english: 'Mark all read',
+    AppLanguage.malay: 'Tandakan semua telah dibaca',
+    AppLanguage.chinese: '全部标记为已读',
+  },
+  'notifications_all_caught_up': {
+    AppLanguage.english: 'All caught up',
+    AppLanguage.malay: 'Semua telah disemak',
+    AppLanguage.chinese: '全部看完了',
+  },
+  'notifications_empty_message': {
+    AppLanguage.english: 'New offers and job updates will appear here.',
+    AppLanguage.malay:
+        'Tawaran baharu dan kemas kini kerja akan muncul di sini.',
+    AppLanguage.chinese: '新报价和工作更新会显示在这里。',
+  },
+  'notification_new_badge': {
+    AppLanguage.english: 'New',
+    AppLanguage.malay: 'Baharu',
+    AppLanguage.chinese: '新',
+  },
+  'notification_title_new_job': {
+    AppLanguage.english: 'New matching job',
+    AppLanguage.malay: 'Kerja padanan baharu',
+    AppLanguage.chinese: '有新的匹配工作',
+  },
+  'notification_title_new_bid': {
+    AppLanguage.english: 'New offer',
+    AppLanguage.malay: 'Tawaran baharu',
+    AppLanguage.chinese: '新的报价',
+  },
+  'notification_title_bid_accepted': {
+    AppLanguage.english: 'Offer accepted',
+    AppLanguage.malay: 'Tawaran diterima',
+    AppLanguage.chinese: '报价已接受',
+  },
+  'notification_title_job_assigned': {
+    AppLanguage.english: 'Job assigned',
+    AppLanguage.malay: 'Kerja ditugaskan',
+    AppLanguage.chinese: '工作已分配',
+  },
+  'notification_title_job_expiring': {
+    AppLanguage.english: 'Job expiring soon',
+    AppLanguage.malay: 'Kerja akan tamat tempoh',
+    AppLanguage.chinese: '工作即将过期',
+  },
+  'notification_title_job_expired': {
+    AppLanguage.english: 'Job expired',
+    AppLanguage.malay: 'Kerja tamat tempoh',
+    AppLanguage.chinese: '工作已过期',
+  },
+  'notification_title_provider_approved': {
+    AppLanguage.english: 'Provider approved',
+    AppLanguage.malay: 'Penyedia diluluskan',
+    AppLanguage.chinese: '服务商已批准',
+  },
+  'notification_title_provider_rejected': {
+    AppLanguage.english: 'Provider verification update',
+    AppLanguage.malay: 'Kemas kini pengesahan penyedia',
+    AppLanguage.chinese: '服务商审核更新',
+  },
+  'notification_title_provider_suspended': {
+    AppLanguage.english: 'Provider account update',
+    AppLanguage.malay: 'Kemas kini akaun penyedia',
+    AppLanguage.chinese: '服务商账户更新',
+  },
+  'notification_title_job_started': {
+    AppLanguage.english: 'Job started',
+    AppLanguage.malay: 'Kerja bermula',
+    AppLanguage.chinese: '工作已开始',
+  },
+  'notification_title_job_completed': {
+    AppLanguage.english: 'Job completed',
+    AppLanguage.malay: 'Kerja selesai',
+    AppLanguage.chinese: '工作已完成',
+  },
+  'notification_title_job_cancelled': {
+    AppLanguage.english: 'Job cancelled',
+    AppLanguage.malay: 'Kerja dibatalkan',
+    AppLanguage.chinese: '工作已取消',
+  },
+  'notification_title_no_show': {
+    AppLanguage.english: 'No-show reported',
+    AppLanguage.malay: 'Ketidakhadiran dilaporkan',
+    AppLanguage.chinese: '已举报未到场',
+  },
+  'notification_title_generic': {
+    AppLanguage.english: 'Notification',
+    AppLanguage.malay: 'Pemberitahuan',
+    AppLanguage.chinese: '通知',
+  },
+  'account_suspended_title': {
+    AppLanguage.english: 'Account suspended',
+    AppLanguage.malay: 'Akaun digantung',
+    AppLanguage.chinese: '账户已暂停',
+  },
+  'account_access_paused': {
+    AppLanguage.english: 'Account access is paused',
+    AppLanguage.malay: 'Akses akaun dijeda',
+    AppLanguage.chinese: '账户访问已暂停',
+  },
+  'contact_support_mistake': {
+    AppLanguage.english: 'Contact support if you believe this was a mistake.',
+    AppLanguage.malay:
+        'Hubungi sokongan jika anda percaya ini adalah kesilapan.',
+    AppLanguage.chinese: '如认为这是误判，请联系支持团队。',
+  },
+  'provider_approval_required': {
+    AppLanguage.english: 'Provider approval required',
+    AppLanguage.malay: 'Kelulusan penyedia diperlukan',
+    AppLanguage.chinese: '需要服务商审核',
+  },
+  'provider_verification_prompt': {
+    AppLanguage.english:
+        'Complete verification before viewing jobs or submitting bids.',
+    AppLanguage.malay:
+        'Lengkapkan pengesahan sebelum melihat kerja atau menghantar tawaran.',
+    AppLanguage.chinese: '完成审核后才能查看工作或提交报价。',
+  },
+  'start_provider_application': {
+    AppLanguage.english: 'Start provider application',
+    AppLanguage.malay: 'Mulakan permohonan penyedia',
+    AppLanguage.chinese: '开始服务商申请',
+  },
 };
 
 extension BusinessLocalizations on AppLocalizations {

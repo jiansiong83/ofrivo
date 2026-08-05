@@ -30,6 +30,7 @@ const lifecycleModels = read('apps/mobile/lib/features/job_lifecycle/job_lifecyc
 const lifecycleRepository = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_repository.dart');
 const lifecycleController = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_controller.dart');
 const lifecycleScreens = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_screens.dart');
+const commonScreens = read('apps/mobile/lib/features/common/common_screens.dart');
 const notificationModel = read('apps/mobile/lib/core/models/app_models.dart');
 const notificationRepository = read('apps/mobile/lib/features/notifications/notification_repository.dart');
 const lifecycleTests = read('apps/mobile/test/job_lifecycle_test.dart');
@@ -73,6 +74,8 @@ const checks = [
   ['business localization covers all three languages', localization.includes('businessTranslations') && localization.includes("'received_bids'") && localization.includes("'received_bids'")],
   ['customer, provider, and lifecycle pages consume business localization', customerScreens.includes("business('post_job_title')") && providerScreens.includes("business('job_feed_title')") && lifecycleScreens.includes("business('review_intro')")],
   ['business localization has widget coverage and configurable budget labels', localizationTests.includes('business pages') && widgets.includes('final String label')],
+  ['notification center and access guards consume business localization', commonScreens.includes("business('notifications_title')") && commonScreens.includes('notification_title_new_job') && commonScreens.includes("business('provider_approval_required')")],
+  ['notification and access localization has focused test coverage', localizationTests.includes('notification and access chrome') && localization.includes("'notifications_mark_all_read'") && localization.includes("'account_suspended_title'")],
   ['shared preferences is a direct mobile dependency', pubspec.includes('shared_preferences: ^2.5.5')],
   ['portfolio bucket is public-read and owner-write', portfolioMigration.includes("'provider-portfolio'") && portfolioMigration.includes('provider_portfolio_public_read') && portfolioMigration.includes('provider_portfolio_owner_write')],
   ['public portfolio view filters approved active providers', portfolioMigration.includes('public_provider_portfolio') && portfolioMigration.includes("verification_status = 'approved'") && portfolioMigration.includes("account_status = 'active'")],

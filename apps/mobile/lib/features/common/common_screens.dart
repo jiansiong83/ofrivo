@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/localization/app_localization.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
@@ -14,10 +15,11 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(notificationControllerProvider);
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return AppScaffold(
       title: state.unreadCount == 0
-          ? 'Notification centre'
-          : 'Notification centre (${state.unreadCount})',
+          ? strings.business('notifications_title')
+          : '${strings.business('notifications_title')} (${state.unreadCount})',
       actions: [
         if (state.unreadCount > 0)
           TextButton(
@@ -26,7 +28,7 @@ class NotificationsScreen extends ConsumerWidget {
                 : () => ref
                     .read(notificationControllerProvider.notifier)
                     .markAllRead(),
-            child: const Text('Mark all read'),
+            child: Text(strings.business('notifications_mark_all_read')),
           ),
       ],
       body: ListView(
@@ -39,9 +41,9 @@ class NotificationsScreen extends ConsumerWidget {
                 onRetry: () =>
                     ref.read(notificationControllerProvider.notifier).load())
           else if (state.notifications.isEmpty)
-            const EmptyState(
-                title: 'All caught up',
-                message: 'New offers and job updates will appear here.',
+            EmptyState(
+                title: strings.business('notifications_all_caught_up'),
+                message: strings.business('notifications_empty_message'),
                 icon: Icons.notifications_none)
           else
             for (final notification in state.notifications)
@@ -54,10 +56,12 @@ class NotificationsScreen extends ConsumerWidget {
                         color: notification.isRead ? null : AppColors.primary),
                     title: Row(children: [
                       Expanded(
-                          child: Text(notification.title,
+                          child: Text(_titleFor(notification.type, strings),
                               style: const TextStyle(
                                   fontWeight: FontWeight.w700))),
-                      if (!notification.isRead) const StatusBadge(label: 'New')
+                      if (!notification.isRead)
+                        StatusBadge(
+                            label: strings.business('notification_new_badge'))
                     ]),
                     subtitle: Padding(
                         padding: const EdgeInsets.only(top: 4),
@@ -86,6 +90,29 @@ class NotificationsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  static String _titleFor(NotificationType type, AppLocalizations strings) {
+    final key = switch (type) {
+      NotificationType.newJob => 'notification_title_new_job',
+      NotificationType.newBid => 'notification_title_new_bid',
+      NotificationType.bidAccepted => 'notification_title_bid_accepted',
+      NotificationType.jobAssigned => 'notification_title_job_assigned',
+      NotificationType.jobExpiring => 'notification_title_job_expiring',
+      NotificationType.jobExpired => 'notification_title_job_expired',
+      NotificationType.providerApproved =>
+        'notification_title_provider_approved',
+      NotificationType.providerRejected =>
+        'notification_title_provider_rejected',
+      NotificationType.providerSuspended =>
+        'notification_title_provider_suspended',
+      NotificationType.jobStarted => 'notification_title_job_started',
+      NotificationType.jobCompleted => 'notification_title_job_completed',
+      NotificationType.jobCancelled => 'notification_title_job_cancelled',
+      NotificationType.noShow => 'notification_title_no_show',
+      NotificationType.generic => 'notification_title_generic',
+    };
+    return strings.business(key);
   }
 
   static IconData _iconFor(NotificationType type) {
@@ -120,23 +147,28 @@ class NotificationsScreen extends ConsumerWidget {
   }
 }
 
-class SuspendedAccountScreen extends StatelessWidget {
+class SuspendedAccountScreen extends ConsumerWidget {
   const SuspendedAccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => const AppScaffold(
-      title: 'Account suspended',
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
+    return AppScaffold(
+      title: strings.business('account_suspended_title'),
       body: EmptyState(
-          title: 'Account access is paused',
-          message: 'Contact support if you believe this was a mistake.',
-          icon: Icons.lock_outline));
+          title: strings.business('account_access_paused'),
+          message: strings.business('contact_support_mistake'),
+          icon: Icons.lock_outline),
+    );
+  }
 }
 
-class ProviderModeGuardScreen extends StatelessWidget {
+class ProviderModeGuardScreen extends ConsumerWidget {
   const ProviderModeGuardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -149,20 +181,20 @@ class ProviderModeGuardScreen extends StatelessWidget {
                 const Icon(Icons.verified_user_outlined, size: 44),
                 const SizedBox(height: 14),
                 Text(
-                  'Provider approval required',
+                  strings.business('provider_approval_required'),
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Complete verification before viewing jobs or submitting bids.',
+                Text(
+                  strings.business('provider_verification_prompt'),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 18),
                 PrimaryButton(
-                  label: 'Start provider application',
+                  label: strings.business('start_provider_application'),
                   onPressed: () => context.go('/provider/apply'),
                 ),
               ],

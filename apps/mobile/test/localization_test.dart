@@ -30,4 +30,16 @@ void main() {
     expect(chinese.business('received_bids'), '收到的报价');
     expect(chinese.business('unknown_business_key'), 'unknown_business_key');
   });
+
+  test('notification and access chrome use localized business copy', () {
+    const english = AppLocalizations(AppLanguage.english);
+    const malay = AppLocalizations(AppLanguage.malay);
+    const chinese = AppLocalizations(AppLanguage.chinese);
+
+    expect(english.business('notifications_mark_all_read'), 'Mark all read');
+    expect(
+        malay.business('notifications_all_caught_up'), 'Semua telah disemak');
+    expect(chinese.business('notification_title_job_expired'), '工作已过期');
+    expect(chinese.business('provider_approval_required'), '需要服务商审核');
+  });
 }
