@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Version 1.1 Phone OTP (demo/local and Supabase Auth adapter complete; real SMS delivery remains configuration-gated).
+Version 1.1 Phone OTP and three-language foundation (demo/local and Supabase Auth adapter complete; real SMS delivery remains configuration-gated).
 
 ## Current objective
 
-Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Google Play distribution is intentionally deferred for now.
+Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Core entry/auth/navigation copy now supports English, Bahasa Melayu, and Chinese; deep business-page translation remains tracked. Google Play distribution is intentionally deferred for now.
 
 ## Completed
 
@@ -23,6 +23,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Step 3 mobile Auth repository/controller added with runtime `--dart-define` configuration and local demo fallback.
 - Profile restore/upsert, sign-out, password reset, suspended-account guard, and Provider Mode guard added.
 - Version 1.1 Phone OTP added with E.164 normalization, Supabase SMS request/verify, phone-only profile fallback, local demo code, route/UI states, and repository/controller tests.
+- Version 1.1 three-language foundation added with persisted `en`/`ms`/`zh` selection, Material locale propagation, language picker, translated onboarding/auth copy, and translated shell navigation.
 - Auth unit tests added and passing with the prepared Flutter SDK.
 - Step 4 customer job form, photo picker adapter, draft/preview/publish flow, My Jobs, Job Detail, cancellation, and fake/Supabase repositories added.
 - Job draft validation and fake repository lifecycle tests added and passing.
@@ -64,6 +65,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Hosted Supabase RLS/Storage/multi-account/concurrency scenarios remain pending; the equivalent isolated local Docker run passes, but no cloud project is connected.
 - Closed Beta remains externally gated by a permanent Android application ID, production upload keystore, Google Play Console access, isolated beta project, and real tester accounts.
 - Real Phone OTP delivery remains externally gated by Supabase SMS provider/sender configuration; the local demo path is deterministic and offline.
+- Deep business-page copy still needs migration and review in all three languages; the current switch is intentionally scoped to entry, auth, and shell surfaces.
 
 ## Known issues / environment
 
@@ -107,15 +109,15 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Step 12 closed-beta readiness validation: PASS (`node scripts/validate_closed_beta.mjs`).
 - Step 12 local debug-signed AAB smoke: PASS (`apps/mobile/build/app/outputs/bundle/release/app-release.aab`); this artifact is not Play-uploadable.
 - Step 12 signed AAB/Play internal and closed-test validation: BLOCKED until release secrets, Play access, and beta runtime are supplied.
-- Version 1.1 static Phone OTP contract validation: PASS (`node scripts/validate_version11.mjs`, 19 checks).
 - Version 1.1 Flutter analyze: PASS (`No issues found!`).
-- Version 1.1 Flutter test: PASS (30 tests passed).
+- Version 1.1 static Phone OTP/localization contract validation: PASS (`node scripts/validate_version11.mjs`, 29 checks).
+- Version 1.1 Flutter test: PASS (32 tests passed).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). The paired Version 1.1 docs commit is the current rollback point.
+Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). Version 1.1 three-language commit: `11f1a0e` (`feat: add three-language app foundation`). The paired Version 1.1 docs commit is the current rollback point.
 
 ## Next step
 
-Next: Version 1.1 real SMS provider configuration and device verification. Google Play internal/closed testing remains deferred until explicitly requested.
+Next: Version 1.1 deep business-page translation and real SMS provider/device verification. Google Play internal/closed testing remains deferred until explicitly requested.

@@ -111,6 +111,14 @@
 - `/login` exposes the phone sign-in entry point; `/phone-login` renders send, verify, change-number, loading, error, and info states.
 - Run `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build. Real SMS delivery remains gated on Supabase provider configuration.
 
+## Version 1.1 Three-language checks
+
+- Language picker exposes English, Bahasa Melayu, and Chinese from onboarding, auth screens, and the authenticated shell.
+- Language changes rebuild onboarding/auth/navigation copy and propagate the selected `Locale` to `MaterialApp`.
+- The selected language persists as a locale code through `shared_preferences`; a missing/unavailable preferences plugin keeps an in-memory selection without blocking startup.
+- Translation tests cover the three onboarding variants and English fallback behavior; deep business-page copy remains explicitly tracked for later migration.
+- Run `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build after adding a translated feature surface.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

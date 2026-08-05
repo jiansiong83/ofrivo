@@ -107,10 +107,13 @@
 - Added a privacy-aware bug report template and `scripts/validate_closed_beta.mjs` readiness checks.
 - Permanent application ID, production keystore, Play Console promotion, and real beta accounts remain external gates.
 
-## Version 1.1 — Phone OTP
+## Version 1.1 — Phone OTP and three-language foundation
 
 - Added E.164 phone normalization and validation shared by demo and Supabase Auth paths.
 - Added SMS OTP request and verification through Supabase `signInWithOtp` and `verifyOTP`.
 - Added local demo OTP flow (`123456`), phone-only profile seeding, controller state, `/phone-login` route, and login-screen entry point.
-- Added Phone OTP repository tests and `scripts/validate_version11.mjs`; Flutter analyze and 30 tests pass.
+- Added Phone OTP repository tests and `scripts/validate_version11.mjs`.
+- Added English, Bahasa Melayu, and Chinese language state with local persistence, locale propagation, language picker, translated onboarding/auth copy, and translated shell navigation.
+- Deep business screens remain English until their individual copy contracts are migrated; the language switch remains available from onboarding, auth, and the authenticated shell.
+- Version 1.1 contract validation now covers 29 checks; Flutter analyze and 32 tests pass.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.

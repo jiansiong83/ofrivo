@@ -14,6 +14,7 @@ This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supaba
 - Supabase migration, seed, storage policy, RLS, and transaction-RPC source files. They are not applied to Supabase Cloud in this repository.
 - Mobile Email + Password auth with session restore, profile guards, and a local demo fallback.
 - Version 1.1 Phone OTP sign-in with E.164 normalization, Supabase SMS adapter, and a deterministic local demo code.
+- Version 1.1 three-language foundation for English, Bahasa Melayu, and Chinese with persisted language selection across onboarding, auth, and shell navigation.
 - Customer job creation with validation, private contact fields, photo selection, draft/preview/publish, My Jobs, Job Detail, and cancellation.
 - Provider application with service categories, areas, private identity evidence, work photos, and Pending/Approved/Rejected/Suspended status states.
 - Provider Job Feed with public-field filtering, job detail privacy boundaries, bid submission/edit/withdraw, and My Bids.

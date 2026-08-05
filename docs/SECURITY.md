@@ -73,6 +73,7 @@ Edge functions: FCM service credentials only in managed server secrets.
 - The mobile client uses only the public Supabase Auth API (`signInWithOtp` and `verifyOTP`); no SMS provider credential or service-role key is bundled.
 - A phone-only session seeds a profile from the verified phone identity only when no existing profile row is present; existing profile data is preserved.
 - Local demo mode uses an explicit deterministic code for offline testing and never contacts a backend; real SMS delivery requires Supabase provider configuration.
+- Language preference stores only `en`, `ms`, or `zh` in local app preferences; it never includes account, phone, token, or job data.
 
 ## Step 4 Customer Job controls
 
