@@ -102,6 +102,15 @@
 - Execute the internal-test and closed-test paths in `docs/CLOSED_BETA_RUNBOOK.md` with isolated test identities and deterministic jobs; promote the same immutable AAB without rebuilding.
 - Use `docs/BUG_REPORT_TEMPLATE.md` for every tester issue and redact credentials, tokens, private evidence, and personal contact data before sharing evidence.
 
+## Version 1.1 Phone OTP checks
+
+- Phone input normalizes spaces, punctuation, and `00` prefixes before validation; reject values outside the E.164 `+` prefix and 8–15 digit range.
+- Demo mode sends a local code request, requires a fresh request before verification, accepts only `123456`, and maps the authenticated phone into the session/profile state.
+- Supabase mode calls `signInWithOtp(phone: ...)` and `verifyOTP(..., type: OtpType.sms)` without exposing a service-role key.
+- Phone-only users receive a safe profile seed identity when no email is present.
+- `/login` exposes the phone sign-in entry point; `/phone-login` renders send, verify, change-number, loading, error, and info states.
+- Run `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build. Real SMS delivery remains gated on Supabase provider configuration.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

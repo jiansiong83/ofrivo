@@ -99,6 +99,17 @@
 - [ ] Google Play internal test passes with the isolated beta project and approved test accounts.
 - [ ] Google Play closed test is promoted without rebuilding the immutable artifact.
 
+## Version 1.1 Phone OTP
+
+- [x] E.164 phone normalization and validation are shared by demo and Supabase Auth paths.
+- [x] Local demo OTP request/verify flow uses the documented `123456` code and rejects stale/invalid requests.
+- [x] Supabase SMS request/verify adapter and phone-only profile fallback are implemented.
+- [x] `/phone-login` route, login entry point, loading/error/info states, and change-number action render.
+- [x] Version 1.1 static contract validation passes (`19` checks).
+- [x] Flutter analyze and tests pass (`30` tests).
+- [ ] Supabase SMS provider and sender configuration are supplied for real-device verification.
+- [ ] Google Play distribution remains deferred by current scope.
+
 ## Before any beta
 
 - [ ] RLS and storage permission tests pass.

@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Step 11 Security and Testing (local Docker RLS/Storage/concurrency validation passed; hosted integration remains pending).
+Version 1.1 Phone OTP (demo/local and Supabase Auth adapter complete; real SMS delivery remains configuration-gated).
 
 ## Current objective
 
-Prepare the Step 12 closed-beta release package while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets.
+Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Google Play distribution is intentionally deferred for now.
 
 ## Completed
 
@@ -22,6 +22,7 @@ Prepare the Step 12 closed-beta release package while preserving account privacy
 - Step 2 seed added with local auth fixtures, categories, areas, providers, jobs, bids, and notifications.
 - Step 3 mobile Auth repository/controller added with runtime `--dart-define` configuration and local demo fallback.
 - Profile restore/upsert, sign-out, password reset, suspended-account guard, and Provider Mode guard added.
+- Version 1.1 Phone OTP added with E.164 normalization, Supabase SMS request/verify, phone-only profile fallback, local demo code, route/UI states, and repository/controller tests.
 - Auth unit tests added and passing with the prepared Flutter SDK.
 - Step 4 customer job form, photo picker adapter, draft/preview/publish flow, My Jobs, Job Detail, cancellation, and fake/Supabase repositories added.
 - Job draft validation and fake repository lifecycle tests added and passing.
@@ -62,6 +63,7 @@ Prepare the Step 12 closed-beta release package while preserving account privacy
 - Admin Web is intentionally a local fake-data preview until server-side Supabase Auth claims, RLS-backed queries, signed URLs, and audit writes are configured.
 - Hosted Supabase RLS/Storage/multi-account/concurrency scenarios remain pending; the equivalent isolated local Docker run passes, but no cloud project is connected.
 - Closed Beta remains externally gated by a permanent Android application ID, production upload keystore, Google Play Console access, isolated beta project, and real tester accounts.
+- Real Phone OTP delivery remains externally gated by Supabase SMS provider/sender configuration; the local demo path is deterministic and offline.
 
 ## Known issues / environment
 
@@ -105,12 +107,15 @@ Prepare the Step 12 closed-beta release package while preserving account privacy
 - Step 12 closed-beta readiness validation: PASS (`node scripts/validate_closed_beta.mjs`).
 - Step 12 local debug-signed AAB smoke: PASS (`apps/mobile/build/app/outputs/bundle/release/app-release.aab`); this artifact is not Play-uploadable.
 - Step 12 signed AAB/Play internal and closed-test validation: BLOCKED until release secrets, Play access, and beta runtime are supplied.
+- Version 1.1 static Phone OTP contract validation: PASS (`node scripts/validate_version11.mjs`, 19 checks).
+- Version 1.1 Flutter analyze: PASS (`No issues found!`).
+- Version 1.1 Flutter test: PASS (30 tests passed).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
 ## Commit ID / rollback point
 
-Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Rollback point is the Step 12 docs commit `1917f8e`.
+Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). The paired Version 1.1 docs commit is the current rollback point.
 
 ## Next step
 
-Next: Step 12 Closed Beta.
+Next: Version 1.1 real SMS provider configuration and device verification. Google Play internal/closed testing remains deferred until explicitly requested.

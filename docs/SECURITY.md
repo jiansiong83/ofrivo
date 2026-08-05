@@ -67,6 +67,13 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Suspended profiles are held at the account-suspended state.
 - Provider mode is guarded by the profile's approved verification status.
 
+## Version 1.1 Phone OTP controls
+
+- Phone numbers are normalized to an E.164-style `+` value before either demo or Supabase Auth calls; malformed values are rejected client-side.
+- The mobile client uses only the public Supabase Auth API (`signInWithOtp` and `verifyOTP`); no SMS provider credential or service-role key is bundled.
+- A phone-only session seeds a profile from the verified phone identity only when no existing profile row is present; existing profile data is preserved.
+- Local demo mode uses an explicit deterministic code for offline testing and never contacts a backend; real SMS delivery requires Supabase provider configuration.
+
 ## Step 4 Customer Job controls
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.
