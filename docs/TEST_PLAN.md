@@ -87,7 +87,9 @@
 ## Step 11 Security and Testing checks
 
 - Run `node supabase/tests/validate_step11.mjs` and the Flutter analyze/test/APK commands.
-- In an isolated Supabase runtime, execute `supabase/tests/step11_security_and_testing.sql` for RLS, private Storage, account isolation, invalid transitions, and concurrent bid acceptance.
+- In the local Docker Supabase runtime, run `supabase/tests/run_step11_local.mjs` for Auth, RLS, private Storage, account isolation, invalid transitions, and concurrent bid acceptance; keep `step11_security_and_testing.sql` as the manual/session checklist for hosted verification.
+- Confirm the local run reports 19 passing integration checks and that the migration applies cleanly from a reset database.
+- Run `npx.cmd --yes supabase@2.109.1 db lint` and require `No schema errors found` before promotion.
 - Confirm the customer/provider pickers reject spoofed extensions, unsupported signatures, oversized files, duplicate paths, and missing files.
 - Confirm `ErrorState` retries the failed loader, `OfflineState` communicates recoverability, and the global crash reporter captures uncaught Flutter/async errors without storing secrets.
 - Confirm no `service_role` value or hosted backend secret is present in mobile/admin source.

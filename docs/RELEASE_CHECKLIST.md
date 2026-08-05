@@ -85,7 +85,8 @@
 - [x] Android debug APK builds successfully.
 - [x] Image signature, size, count, duplicate, and missing-file validation is wired to pickers.
 - [x] Error retry, offline state, crash diagnostic, and multi-account smoke tests exist.
-- [ ] RLS, private Storage, and concurrent acceptance scenarios pass against an isolated Supabase runtime.
+- [x] RLS, private Storage, account isolation, bid eligibility, invalid transitions, and concurrent acceptance scenarios pass against the isolated local Docker Supabase runtime (19 checks).
+- [ ] The same permission and concurrency checks pass against the hosted beta Supabase project.
 
 ## Step 12 Closed Beta
 

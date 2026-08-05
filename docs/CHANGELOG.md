@@ -97,7 +97,8 @@
 - Added image file validation for extension/signature, size, count, duplicate paths, and missing files; customer/provider pickers now reject unsafe selections.
 - Added retryable error and offline widgets plus global crash diagnostic capture.
 - Added multi-account, image, crash, and widget resilience tests with `supabase/tests/validate_step11.mjs`.
-- Flutter analyze, 28 tests, and Android debug build pass; live Supabase permission tests remain environment-gated.
+- Added executable local Supabase integration checks and corrected migration ordering, Storage owner type casts, RLS policy recursion, service-role grants, and Auth fixture defaults exposed by Docker Postgres.
+- Flutter analyze, 28 tests, Android debug build, and 19 local RLS/Storage/concurrency checks pass; hosted Supabase permission tests remain environment-gated.
 
 ## Step 12 — Closed Beta preparation
 

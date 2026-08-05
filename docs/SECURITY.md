@@ -45,7 +45,8 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 
 ## Step 11 Security and testing controls
 
-- RLS, private Storage, multiple-account, and concurrent-acceptance scenarios are maintained as repeatable isolated-environment SQL, not as claims of a hosted test run.
+- RLS, private Storage, multiple-account, invalid-transition, and concurrent-acceptance scenarios pass in the isolated local Docker runtime through `run_step11_local.mjs`; hosted Supabase execution remains a separate gate.
+- Job-scope security-definer helpers prevent policy recursion, and the server-only `service_role` receives explicit table grants without being exposed to mobile/admin clients.
 - Image inputs are bounded by extension, file signature, size, count, duplicate-path, and existence checks before upload; server-side Storage policies remain authoritative.
 - Error and offline states expose retry/recovery without revealing backend details, and uncaught Flutter/async failures are captured only in an in-memory diagnostic sink.
 - The security validator rejects missing RLS/Storage/concurrency contracts and checks that mobile source contains no service-role credential.

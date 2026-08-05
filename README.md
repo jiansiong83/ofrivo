@@ -20,7 +20,7 @@ This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supaba
 - Transactional start/complete/cancel actions, customer/provider reviews, participant-aware reports, and job event history.
 - Admin moderation actions run against explicit local fake data in the preview and append attributable audit events; production Supabase Auth/RLS wiring remains runtime-only.
 - Push-ready notifications include device-token registration, matching-job/new-bid/verification/expiry event fan-out, unread badges, and read-all state; native FCM delivery remains runtime-configured.
-- Security/testing package includes RLS/Storage/multi-account/concurrency scenarios, retryable error/offline states, crash diagnostics, and image signature/size/count validation.
+- Security/testing package includes RLS/Storage/multi-account/concurrency scenarios, retryable error/offline states, crash diagnostics, image signature/size/count validation, and a Docker-backed local integration runner.
 
 The mobile app connects to Supabase only when explicit `--dart-define` values are supplied; otherwise it uses local demo data. Payments, chat, maps, AI pricing, and production FCM credentials/native delivery remain deferred.
 
