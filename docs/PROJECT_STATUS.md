@@ -4,6 +4,10 @@
 
 Version 1.1 Phone OTP, three-language foundation, Provider Portfolio, No-show marker, Job auto-expire, richer review dimensions, deep business-page localization, and notification/access-state localization (local Docker validation complete; real SMS/FCM delivery remains configuration-gated).
 
+## Current status (2026-08-05)
+
+Local automated validation is complete. The reviewed baseline is `61e112a` with rollback point `bd59bbb`; this Admin integration change is the next local-only increment on `master`. Local Supabase, schema/RLS/Storage/RPC rebuilds, Docker integration, Flutter checks/build, Admin lint/build, and the local Admin browser smoke test pass. Android UI/device E2E remains `BLOCKED` by the current emulator storage shortage and the absence of a connected USB phone. Cloud and paid services remain explicitly deferred.
+
 ## Current objective
 
 Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Core entry/auth/navigation, customer/provider/lifecycle business pages, notification centre, and access guards now support English, Bahasa Melayu, and Chinese with safe fallback; approved-provider portfolio photos are separated from private evidence; no-show reports are participant-derived and duplicate-safe; open jobs now have a service-only expiry worker with event/notification outbox writes; reviews now capture punctuality, quality, and communication dimensions. Remaining Admin Web/server-generated notification copy review and external delivery configuration are tracked separately. Google Play distribution is intentionally deferred for now.
@@ -13,7 +17,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Local Real-Device Validation is the active objective. No Cloudflare, Vercel, Supabase Cloud, Google Play, paid SMS, real FCM, payment, maps, chat, or new feature work was performed.
 - `scripts/local-dev.ps1` and `docs/LOCAL_REAL_DEVICE_RUNBOOK.md` now provide reproducible start/status/health/reset/lint/integration/Admin/Emulator/device/APK commands without copying secrets into source.
 - Supabase local `start`, `status`, `db reset`, `db lint`, and API/Auth, REST, Studio, and Mailpit health checks pass on ports `54420`-`54427`. Core DB/Auth/REST/Storage/Realtime services recover after restart; Windows Docker Analytics/Vector warnings are optional and do not affect the tested core paths.
-- Docker integration runners pass 19 Step 11 checks, 3 no-show checks, 3 expiry checks, and 4 review-dimension checks. Admin lint, production build, and `npm audit` pass with 0 vulnerabilities.
+- Docker integration runners pass 19 Step 11 checks, 3 no-show checks, 3 expiry checks, 4 review-dimension checks, and the Admin local Auth/data/Storage/RPC/audit runner. Admin browser smoke confirms seeded Auth, live queues, signed-evidence boundary, and a moderation action. Admin lint, production build, and `npm audit` pass with 0 vulnerabilities.
 - Version 1.1 contract validation passes 68 checks; Flutter analyze is clean, all 39 Flutter tests pass, and the debug APK builds.
 - Emulator host connectivity to `10.0.2.2:54421` passes, but the current AVD cannot install the APK because of insufficient `/data` storage. No emulator wipe was performed. No USB phone was connected, so device UI flows remain explicitly blocked rather than claimed as passed.
 
@@ -57,7 +61,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Review and Report flows added with rating/comment validation, reason selection, participant-aware Supabase inserts, and fake-data adapters.
 - Job Event Log timeline added to customer and provider job details.
 - Step 8 lifecycle tests and static RPC/mobile contract validation added.
-- Step 9 Admin Web console added with local login preview and operational Dashboard.
+- Step 9 Admin Web console now authenticates through local Supabase Auth and loads live RLS-protected users, providers, jobs, bids, reports, taxonomy, and audit records.
 - Provider verification supports approve, reject, and suspend actions with private-evidence signed-preview guidance.
 - Users supports suspend/restore; Jobs and Bids expose admin-scoped marketplace monitoring; Reports supports reviewing, resolving, and dismissing.
 - Categories, Areas, System Settings, and Audit Log views added; every moderation mutation appends an attributable local audit event.
@@ -76,7 +80,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 ## Not completed yet
 
 - No Supabase Cloud project connection or production FCM credentials/native delivery bridge; push tokens can be supplied at runtime and the notification rows remain the durable outbox.
-- Admin Web is intentionally a local fake-data preview until server-side Supabase Auth claims, RLS-backed queries, signed URLs, and audit writes are configured.
+- Admin Web local Supabase integration is complete for this phase: browser anon-key Auth, `is_admin` profile guard, signed verification URLs, atomic moderation RPCs, and attributable audit events are wired to Docker Supabase. Production/cloud deployment remains out of scope.
 - Hosted Supabase RLS/Storage/multi-account/concurrency scenarios remain pending; the equivalent isolated local Docker run passes, but no cloud project is connected.
 - Closed Beta remains externally gated by a permanent Android application ID, production upload keystore, Google Play Console access, isolated beta project, and real tester accounts.
 - Real Phone OTP delivery remains externally gated by Supabase SMS provider/sender configuration; the local demo path is deterministic and offline.
@@ -114,9 +118,11 @@ Step 2 through Version 1.1 review-dimension migrations are applied and seeded in
 - Step 6 SQL/mobile static contract validation: PASS (`node supabase/tests/validate_step6.mjs`).
 - Step 7 RPC/mobile static contract validation: PASS (`node supabase/tests/validate_step7.mjs`).
 - Step 8 lifecycle/mobile static contract validation: PASS (`node supabase/tests/validate_step8.mjs`).
-- Step 9 Admin Web static contract validation: PASS (`node supabase/tests/validate_step9.mjs`).
+- Step 9 Admin Web static contract validation: PASS (`node supabase/tests/validate_step9.mjs`, 15 checks).
 - Step 9 Admin lint: PASS (`npm.cmd run lint`).
 - Step 9 Admin production build: PASS (`npm.cmd run build`, static `/` output).
+- Admin local integration runner: PASS (Auth, real data, signed URL, moderation RPCs, audit writes, fixture restoration).
+- Admin browser smoke: PASS (`http://localhost:3000`, seeded Admin login, live provider queue, approval action).
 - Step 10 push static contract validation: PASS (`node supabase/tests/validate_step10.mjs`).
 - Step 10 Flutter analyze: PASS (`No issues found!`).
 - Step 10 Flutter test: PASS (23 tests passed).
@@ -157,8 +163,10 @@ Step 2 through Version 1.1 review-dimension migrations are applied and seeded in
 
 ## Commit ID / rollback point
 
+Reviewed baseline: `61e112a`; rollback point: `bd59bbb`. This change is the local Admin integration commit `feat: connect Ofrivo admin to local Supabase`; the exact commit hash is reported in the handoff.
+
 Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). Version 1.1 three-language commit: `11f1a0e` (`feat: add three-language app foundation`). Version 1.1 Provider Portfolio commit: `ad02c18` (`feat: add provider portfolio`). Version 1.1 No-show commit: `46020ab` (`feat: add no-show job marker`). Version 1.1 Job auto-expire commit: `a7c6a89` (`feat: add job auto-expiry worker`). Version 1.1 richer review dimensions commit: `5aafb7c` (`feat: add richer review dimensions`). Version 1.1 business localization commit: `4db264a` (`feat: localize business pages`). Version 1.1 notification localization commit: `665ec74` (`feat: localize notification center`). The paired Version 1.1 docs commit is the current rollback point.
 
 ## Next step
 
-Next: provide an authorized USB Android phone or an approved larger AVD, run the documented on-device workflow, then review remaining Admin/server-generated notification copy. Real SMS, FCM delivery, Supabase Cloud, and Google Play remain deferred until explicitly requested.
+Next: provide an authorized USB Android phone or an approved larger AVD, then run the documented on-device workflow. Real SMS, FCM delivery, Supabase Cloud, Cloudflare, Vercel, and Google Play remain deferred until explicitly requested.

@@ -105,6 +105,9 @@ function Invoke-Flutter {
 }
 
 function Invoke-Admin {
+    $localEnv = Get-LocalSupabaseEnvironment
+    $env:NEXT_PUBLIC_SUPABASE_URL = $localEnv.API_URL
+    $env:NEXT_PUBLIC_SUPABASE_ANON_KEY = $localEnv.ANON_KEY
     Push-Location $AdminRoot
     try {
         & npm.cmd run dev
@@ -126,7 +129,8 @@ function Invoke-LocalIntegration {
         'supabase/tests/run_step11_local.mjs',
         'supabase/tests/run_version11_no_show_local.mjs',
         'supabase/tests/run_version11_expiry_local.mjs',
-        'supabase/tests/run_version11_review_local.mjs'
+        'supabase/tests/run_version11_review_local.mjs',
+        'supabase/tests/run_admin_local.mjs'
     )
     Push-Location $RepoRoot
     try {
@@ -139,7 +143,7 @@ function Invoke-LocalIntegration {
     } finally {
         Pop-Location
     }
-    Write-Output 'Local Docker integration runners: PASS (step11, no-show, expiry, review)'
+    Write-Output 'Local Docker integration runners: PASS (step11, no-show, expiry, review, admin)'
 }
 
 function Invoke-AdbReverse {

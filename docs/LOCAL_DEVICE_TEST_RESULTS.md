@@ -35,6 +35,8 @@ This file is the evidence log for the current local-only validation round. It is
 | Studio | PASS | HTTP 200 |
 | Mailpit | PASS | HTTP 200 |
 | Docker integration runners | PASS | Step 11: 19; no-show: 3; expiry: 3; review: 4 |
+| Admin local Supabase integration | PASS | Auth, real data/RLS reads, signed URL, moderation RPCs, audit writes, and fixture restoration |
+| Admin browser smoke | PASS | `localhost:3000`; seeded login, live provider queue, approval action |
 
 The post-reset 502 was caused by a Kong/Auth route restart window. Stopping and starting only the Ofrivo local project restored the route; health and all runners then passed. `supabase_vector` may restart on Windows when Docker daemon log access is unavailable, while the tested DB/Auth/REST/Storage/Realtime paths remain healthy.
 
@@ -76,7 +78,7 @@ USB-device note: no authorized physical phone was available during this round; a
 
 ## Final round result
 
-Automated local validation and documentation are complete. Core local Supabase, Admin checks, Flutter checks, Docker integration runners, and debug APK build pass. On-device UI execution is not complete: the Emulator cannot install because of storage and no USB device is connected. These hardware-dependent scenarios remain `BLOCKED`, not successful. No cloud or paid service was used.
+Automated local validation and documentation are complete. Core local Supabase, real Admin integration, Admin browser smoke, Flutter checks, Docker integration runners, and debug APK build pass. On-device UI execution is not complete: the Emulator cannot install because of storage and no USB device is connected. These hardware-dependent scenarios remain `BLOCKED`, not successful. No cloud or paid service was used.
 
 ## Automated regression evidence
 
@@ -97,4 +99,5 @@ Automated local validation and documentation are complete. Core local Supabase, 
 - Added the local runbook/helper and ephemeral integration command.
 - Added debug-only cleartext HTTP support for local Android testing.
 - Added a production bootstrap guard that refuses Demo OTP without Supabase runtime configuration.
+- Replaced the Admin fake-data preview path with local Supabase Auth, RLS-backed data reads, signed verification URLs, atomic moderation RPCs, and attributable audit events.
 - No service-role key, hosted URL, cloud deployment, SMS provider, FCM credential, or paid integration was added.

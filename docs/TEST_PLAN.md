@@ -68,12 +68,13 @@
 
 ## Step 9 Admin Web checks
 
-- Admin login preview gates the console and sign-out returns to the login screen.
+- Local Admin login uses seeded Supabase Auth and an active `profiles.is_admin` guard; sign-out returns to the login screen.
+- Admin loads real users through `admin_list_users` and real provider profiles, verification rows, jobs, bids, reports, taxonomy, and audit rows through RLS.
 - Dashboard queue counts navigate to Pending Providers, Reports, and Audit Log.
-- Provider verification actions cover approve, reject, suspend, and restore-to-approved states; private evidence is labelled as signed-preview only.
+- Provider verification actions call atomic local RPCs; private evidence is served only through five-minute signed URLs.
 - Users covers suspend/restore; Jobs exposes private address only in the admin detail; Bids show admin-scoped offer monitoring.
-- Reports cover reviewing, resolving, and dismissing; each moderation mutation appends an audit event.
-- Run `node supabase/tests/validate_step9.mjs`, `npm.cmd run lint`, and `npm.cmd run build` from `apps/admin`.
+- Reports cover reviewing, resolving, and dismissing; each moderation mutation appends an attributable audit event.
+- Run `node supabase/tests/validate_step9.mjs`, `npm.cmd run lint`, `npm.cmd run build`, and `node supabase/tests/run_admin_local.mjs` with local status env values.
 
 ## Step 10 Push Notification checks
 

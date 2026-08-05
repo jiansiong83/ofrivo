@@ -46,7 +46,7 @@ npx.cmd --yes supabase@2.109.1 db lint
 .\scripts\local-dev.ps1 -Command admin
 ```
 
-Open `http://localhost:3000`. The current Admin Web is a local fake-data operations preview. Its UI actions and audit view are tested locally, but this round does not add a Supabase-backed Admin repository.
+Open `http://localhost:3000`. The helper injects only the local API URL and anon key into the Admin process. Sign in with the seeded development identity `admin@example.test` / `local-dev-only`; the browser verifies `profiles.is_admin` and uses RLS-protected data plus moderation RPCs. Verification evidence links are five-minute signed URLs. The service-role key is never passed to the browser.
 
 ## Flutter Emulator
 
@@ -116,8 +116,8 @@ cd ..\..
 ```
 
 The `integration` command reads the local status values and exposes them only to
-the Docker runner processes. It never prints or passes the service role key to
-Flutter.
+the Docker runner processes, including `run_admin_local.mjs`. It never prints or
+passes the service role key to Flutter or Admin Web.
 
 ## Evidence and blockers
 

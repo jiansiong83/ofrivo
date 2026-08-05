@@ -151,6 +151,11 @@ values
   ('00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000204', '00000000-0000-0000-0000-000000000253', 'Move a washing machine', 'Move one washing machine from a landed house to a nearby apartment.', 'Permas Jaya', '22 Example Street, Permas Jaya, Johor Bahru', 80, now() + interval '3 days', '9am–12pm', 'normal', 'assigned', '+60 12 000 0101', '+60 12 000 0101', now() + interval '5 days')
 on conflict (id) do nothing;
 
+insert into public.jobs (id, customer_id, category_id, area_id, title, description, public_location_text, full_address, budget_amount, scheduled_at, time_window, urgency, status, contact_phone, contact_whatsapp, expires_at)
+values
+  ('00000000-0000-0000-0000-000000000304', '00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000206', '00000000-0000-0000-0000-000000000252', 'Repair kitchen sink pipe', 'Repair a leaking kitchen sink pipe and check the shutoff valve.', 'Taman Molek', '8 Example Street, Taman Molek, Johor Bahru', 140, now() - interval '2 days', '10am-2pm', 'normal', 'completed', '+60 12 000 0101', '+60 12 000 0101', now() - interval '1 day')
+on conflict (id) do nothing;
+
 insert into public.bids (id, job_id, provider_id, amount, available_at, inclusions, exclusions, materials_note, message, status)
 values
   ('00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000102', 120, now() + interval '7 hours', 'Inspection and labour', 'Materials and wall hacking', 'Parts charged only after confirmation.', 'I can inspect and explain the repair before work starts.', 'pending'),
@@ -158,9 +163,30 @@ values
   ('00000000-0000-0000-0000-000000000403', '00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000102', 90, now() + interval '3 days', 'Two movers and trolley', 'Staircase surcharge', null, 'Ready for the scheduled window.', 'accepted')
 on conflict (id) do nothing;
 
+insert into public.bids (id, job_id, provider_id, amount, available_at, inclusions, exclusions, materials_note, message, status)
+values
+  ('00000000-0000-0000-0000-000000000404', '00000000-0000-0000-0000-000000000304', '00000000-0000-0000-0000-000000000104', 125, now() - interval '2 days', 'Inspection and pipe repair', 'Replacement parts', 'Parts charged after confirmation.', 'The repair was completed during the scheduled visit.', 'accepted')
+on conflict (id) do nothing;
+
 update public.jobs
 set accepted_bid_id = '00000000-0000-0000-0000-000000000403'
 where id = '00000000-0000-0000-0000-000000000303';
+
+update public.jobs
+set accepted_bid_id = '00000000-0000-0000-0000-000000000404'
+where id = '00000000-0000-0000-0000-000000000304';
+
+insert into public.reports (id, job_id, reporter_id, reported_user_id, reason_code, description, status)
+values (
+  '00000000-0000-0000-0000-000000000501',
+  '00000000-0000-0000-0000-000000000304',
+  '00000000-0000-0000-0000-000000000101',
+  '00000000-0000-0000-0000-000000000104',
+  'work_quality',
+  'The leak returned after the first visit and the provider stopped replying.',
+  'open'
+)
+on conflict (id) do nothing;
 
 insert into public.job_events (id, job_id, actor_id, event_type, metadata)
 values
@@ -172,6 +198,12 @@ insert into public.notifications (id, user_id, type, title, body, reference_type
 values
   ('00000000-0000-0000-0000-000000000601', '00000000-0000-0000-0000-000000000101', 'new_bid', 'Your job received a new offer', 'Toilet blockage has a new offer.', 'job', '00000000-0000-0000-0000-000000000301'),
   ('00000000-0000-0000-0000-000000000602', '00000000-0000-0000-0000-000000000102', 'provider_approved', 'Provider verification approved', 'You can now view matching jobs.', 'provider', '00000000-0000-0000-0000-000000000102')
+on conflict (id) do nothing;
+
+insert into public.admin_audit_events (id, actor_id, action, target_type, target_id, metadata, created_at)
+values
+  ('00000000-0000-0000-0000-000000000801', '00000000-0000-0000-0000-000000000199', 'provider_review_approved', 'provider', '00000000-0000-0000-0000-000000000102', '{"status":"approved","fixture":true}'::jsonb, now() - interval '13 days'),
+  ('00000000-0000-0000-0000-000000000802', '00000000-0000-0000-0000-000000000199', 'report_fixture_created', 'report', '00000000-0000-0000-0000-000000000501', '{"status":"open","fixture":true}'::jsonb, now() - interval '2 days')
 on conflict (id) do nothing;
 
 insert into public.device_tokens (id, user_id, token, platform)

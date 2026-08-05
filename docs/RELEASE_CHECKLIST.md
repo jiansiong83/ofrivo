@@ -61,12 +61,13 @@
 
 ## Step 9 Admin Web
 
-- [x] Admin login preview and sign-out flow render.
+- [x] Local Supabase Admin Auth login and sign-out flow render.
 - [x] Dashboard, provider verification, users, jobs, bids, reports, taxonomy, settings, and audit views render.
-- [x] Provider/account/report moderation actions append local audit events.
-- [x] Step 9 static contract validation passes.
+- [x] Real local provider/account/report moderation RPCs append attributable audit events.
+- [x] Real local users, providers, jobs, bids, reports, Storage signed URLs, and audit rows load through RLS.
+- [x] Step 9 static contract validation passes (15 checks).
 - [x] Admin lint and production build pass.
-- [ ] Production admin Auth claims, RLS-backed repositories, signed evidence URLs, and server-side audit writes are configured.
+- [ ] Hosted/production Admin deployment and external Auth claims are configured (intentionally deferred).
 
 ## Step 10 Push Notification
 
@@ -145,7 +146,7 @@
 - [x] Emulator reaches the host API through `10.0.2.2:54421`; the result is recorded as network PASS.
 - [ ] Emulator app install/runtime UI flow: BLOCKED by insufficient AVD `/data` storage; no wipe performed.
 - [ ] USB physical-device workflow and two-phone UI concurrency: BLOCKED because no authorized phone is connected.
-- [ ] Admin Supabase-backed repository, real SMS, native FCM delivery, cloud deployment, domain, payment, maps, chat, and Google Play remain intentionally out of scope.
+- [x] Admin local Supabase repository, Auth, RLS-backed reads, signed URLs, moderation RPCs, and audit writes pass; hosted/cloud deployment, real SMS, native FCM delivery, domain, payment, maps, chat, and Google Play remain intentionally out of scope.
 
 ## Before any beta
 

@@ -16,6 +16,7 @@ export interface AdminProvider {
   completedJobs: number;
   bio: string;
   evidence: string[];
+  evidenceLinks?: { label: string; path: string; url: string | null }[];
 }
 
 export interface AdminUser {

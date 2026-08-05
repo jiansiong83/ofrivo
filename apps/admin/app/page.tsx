@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 
 import {
@@ -13,8 +13,18 @@ import {
   type BidStatus,
   type ProviderStatus,
   type ReportStatus,
-  makeFakeAdminData,
 } from '../lib/admin-data';
+import {
+  loadAdminData,
+  restoreAdminSession,
+  reviewProvider,
+  reviewReport,
+  signInAdmin,
+  signOutAdmin,
+  updateAccountStatus,
+  type AdminSession,
+} from '../lib/admin-repository';
+import { isLocalSupabaseConfigured } from '../lib/supabase';
 
 type AdminTab = 'Dashboard' | 'Pending Providers' | 'Users' | 'Jobs' | 'Bids' | 'Reports' | 'Categories' | 'Areas' | 'Audit Log' | 'System Settings';
 
@@ -32,56 +42,81 @@ const navigation: { id: AdminTab; label: string; hint: string }[] = [
 ];
 
 export default function AdminHome() {
-  const [data, setData] = useState<AdminData>(() => makeFakeAdminData());
+  const [data, setData] = useState<AdminData | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>('Dashboard');
-  const [signedIn, setSignedIn] = useState(false);
+  const [session, setSession] = useState<AdminSession | null>(null);
+  const [loading, setLoading] = useState(isLocalSupabaseConfigured());
+  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const mutate = (message: string, auditAction: string, target: string, updater: (next: AdminData) => void) => {
-    setData((previous) => {
-      const next: AdminData = {
-        ...previous,
-        providers: [...previous.providers],
-        users: [...previous.users],
-        jobs: [...previous.jobs],
-        bids: [...previous.bids],
-        reports: [...previous.reports],
-        audit: [...previous.audit],
-        categories: [...previous.categories],
-        areas: [...previous.areas],
-      };
-      updater(next);
-      next.audit.unshift({ id: `audit-${Date.now()}`, actor: 'Admin', action: auditAction, target, createdAt: 'Just now' });
-      return next;
-    });
-    setToast(message);
-    window.setTimeout(() => setToast(null), 3200);
+  const refresh = useCallback(async () => setData(await loadAdminData()), []);
+
+  useEffect(() => {
+    if (!isLocalSupabaseConfigured()) return;
+    let active = true;
+    void restoreAdminSession()
+      .then(async (restored) => {
+        if (!active || !restored) return;
+        setSession(restored);
+        await refresh();
+      })
+      .catch((reason: unknown) => {
+        if (active) setError(reason instanceof Error ? reason.message : 'Unable to restore the local Admin session.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [refresh]);
+
+  const handleLogin = async (email: string, password: string) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const nextSession = await signInAdmin(email, password);
+      setSession(nextSession);
+      await refresh();
+    } catch (reason: unknown) {
+      setError(reason instanceof Error ? reason.message : 'Admin sign-in failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const mutate = async (message: string, operation: () => Promise<void>) => {
+    setError(null);
+    setLoading(true);
+    try {
+      await operation();
+      await refresh();
+      setToast(message);
+      window.setTimeout(() => setToast(null), 3200);
+    } catch (reason: unknown) {
+      setError(reason instanceof Error ? reason.message : 'Admin operation failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const providerAction = (provider: AdminProvider, status: ProviderStatus) => {
     const label = status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'suspended';
-    mutate(`Provider ${provider.name} ${label}.`, `${label[0].toUpperCase()}${label.slice(1)} provider`, provider.id, (next) => {
-      const target = next.providers.find((item) => item.id === provider.id);
-      if (target) target.status = status;
-    });
+    void mutate(`Provider ${provider.name} ${label}.`, () => reviewProvider(provider.id, status));
   };
 
   const userAction = (user: AdminUser, status: AccountStatus) => {
     const label = status === 'suspended' ? 'suspended' : 'restored';
-    mutate(`Account ${user.name} ${label}.`, `${label[0].toUpperCase()}${label.slice(1)} account`, user.id, (next) => {
-      const target = next.users.find((item) => item.id === user.id);
-      if (target) target.status = status;
-    });
+    void mutate(`Account ${user.name} ${label}.`, () => updateAccountStatus(user.id, status));
   };
 
   const reportAction = (report: AdminReport, status: ReportStatus) => {
-    mutate(`Report marked ${status}.`, `Marked report ${status}`, report.id, (next) => {
-      const target = next.reports.find((item) => item.id === report.id);
-      if (target) target.status = status;
-    });
+    void mutate(`Report marked ${status}.`, () => reviewReport(report.id, status));
   };
 
-  if (!signedIn) return <AdminLogin onLogin={() => setSignedIn(true)} />;
+  if (!isLocalSupabaseConfigured()) return <AdminNotConfigured />;
+  if (!session) return <AdminLogin onLogin={handleLogin} loading={loading} error={error} />;
+  if (loading || !data) return <AdminLoading message={error ?? 'Loading local Supabase data…'} />;
 
   const current = navigation.find((item) => item.id === activeTab) ?? navigation[0];
   return (
@@ -98,13 +133,14 @@ export default function AdminHome() {
             </button>
           ))}
         </nav>
-        <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600"><p className="font-bold text-slate-800">Local admin preview</p><p className="mt-1">Actions update fake data and append an audit event. Supabase values stay runtime-only.</p></div>
+        <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600"><p className="font-bold text-slate-800">Local Supabase Admin</p><p className="mt-1">Authenticated data and moderation actions use local RLS-protected tables. No service-role key is sent to this browser.</p></div>
       </aside>
       <section className="min-w-0 flex-1 p-5 sm:p-8">
         <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
           <div><p className="text-sm font-semibold text-tealbrand">{current.hint}</p><h1 className="mt-1 text-3xl font-black tracking-tight">{current.label}</h1><p className="mt-2 text-slate-500">Moderate providers, protect users, and keep marketplace activity healthy.</p></div>
-          <div className="flex items-center gap-3"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">Demo admin · active</span><button type="button" onClick={() => setSignedIn(false)} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:border-slate-300">Sign out</button></div>
+          <div className="flex items-center gap-3"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">{session.name} · local active</span><button type="button" onClick={() => { void signOutAdmin().then(() => { setSession(null); setData(null); }).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Sign out failed.')); }} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:border-slate-300">Sign out</button></div>
         </header>
+        {error && <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
         {activeTab === 'Dashboard' && <DashboardView data={data} onNavigate={setActiveTab} />}
         {activeTab === 'Pending Providers' && <ProvidersView providers={data.providers} onAction={providerAction} />}
         {activeTab === 'Users' && <UsersView users={data.users} onAction={userAction} />}
@@ -121,11 +157,19 @@ export default function AdminHome() {
   );
 }
 
-function AdminLogin({ onLogin }: { onLogin: () => void }) {
+function AdminNotConfigured() {
+  return <main className="grid min-h-screen place-items-center bg-page px-5 py-10"><section className="w-full max-w-xl rounded-3xl border border-amber-200 bg-white p-8 shadow-sm"><h1 className="text-2xl font-black tracking-tight">Local Supabase is not configured</h1><p className="mt-3 text-sm leading-6 text-slate-600">Start the local stack, then expose only the local URL and anon key to the Admin process.</p><pre className="mt-5 overflow-x-auto rounded-2xl bg-slate-900 p-4 text-xs leading-6 text-slate-100">$env:NEXT_PUBLIC_SUPABASE_URL=&apos;http://127.0.0.1:54421&apos;{`\n`}$env:NEXT_PUBLIC_SUPABASE_ANON_KEY=&apos;(from supabase status)&apos;{`\n`}npm.cmd run dev</pre><p className="mt-4 text-xs text-slate-500">The service-role key is never accepted by this UI.</p></section></main>;
+}
+
+function AdminLoading({ message }: { message: string }) {
+  return <main className="grid min-h-screen place-items-center bg-page px-5 py-10"><section className="rounded-3xl border border-slate-200 bg-white px-8 py-7 text-center shadow-sm"><p className="font-bold text-slate-800">Connecting to local Supabase…</p><p className="mt-2 text-sm text-slate-500">{message}</p></section></main>;
+}
+
+function AdminLogin({ onLogin, loading, error }: { onLogin: (email: string, password: string) => Promise<void>; loading: boolean; error: string | null }) {
   const [email, setEmail] = useState('admin@example.test');
-  const [password, setPassword] = useState('local-preview');
-  const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (email.trim() && password.trim()) onLogin(); };
-  return <main className="grid min-h-screen place-items-center bg-page px-5 py-10"><form onSubmit={submit} className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"><div className="mb-8 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-tealbrand text-xl font-black text-white">O</div><div><p className="font-extrabold">Ofrivo Admin</p><p className="text-xs text-slate-500">Secure operations console</p></div></div><h1 className="text-2xl font-black tracking-tight">Sign in to continue</h1><p className="mt-2 text-sm leading-6 text-slate-500">The local preview uses fake admin data. Production authentication will use Supabase Auth and an admin profile guard.</p><label className="mt-6 block text-sm font-bold text-slate-700">Email<input value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 outline-none ring-teal-200 focus:ring-2" type="email" /></label><label className="mt-4 block text-sm font-bold text-slate-700">Password<input value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 outline-none ring-teal-200 focus:ring-2" type="password" /></label><button type="submit" className="mt-6 w-full rounded-xl bg-tealbrand px-4 py-3 font-bold text-white hover:bg-teal-700">Enter admin preview</button><p className="mt-5 text-center text-xs text-slate-400">No credentials are stored in the repository.</p></form></main>;
+  const [password, setPassword] = useState('local-dev-only');
+  const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (email.trim() && password.trim()) void onLogin(email, password); };
+  return <main className="grid min-h-screen place-items-center bg-page px-5 py-10"><form onSubmit={submit} className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"><div className="mb-8 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-tealbrand text-xl font-black text-white">O</div><div><p className="font-extrabold">Ofrivo Admin</p><p className="text-xs text-slate-500">Local Supabase operations console</p></div></div><h1 className="text-2xl font-black tracking-tight">Sign in to continue</h1><p className="mt-2 text-sm leading-6 text-slate-500">Sign in with the seeded local Admin identity. The profile `is_admin` flag and RLS are enforced by Supabase.</p><label className="mt-6 block text-sm font-bold text-slate-700">Email<input value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 outline-none ring-teal-200 focus:ring-2" type="email" autoComplete="username" /></label><label className="mt-4 block text-sm font-bold text-slate-700">Password<input value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 outline-none ring-teal-200 focus:ring-2" type="password" autoComplete="current-password" /></label>{error && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">{error}</p>}<button disabled={loading} type="submit" className="mt-6 w-full rounded-xl bg-tealbrand px-4 py-3 font-bold text-white hover:bg-teal-700 disabled:cursor-wait disabled:opacity-60">{loading ? 'Signing in…' : 'Sign in to local Admin'}</button><p className="mt-5 text-center text-xs text-slate-400">Only NEXT_PUBLIC Supabase URL and anon key are accepted by this browser.</p></form></main>;
 }
 
 function DashboardView({ data, onNavigate }: { data: AdminData; onNavigate: (tab: AdminTab) => void }) {
@@ -133,7 +177,11 @@ function DashboardView({ data, onNavigate }: { data: AdminData; onNavigate: (tab
   const pendingProviders = data.providers.filter((provider) => provider.status === 'pending').length;
   const activeProviders = data.providers.filter((provider) => provider.status === 'approved').length;
   const openJobs = data.jobs.filter((job) => job.status === 'open').length;
-  return <div className="space-y-6"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><MetricCard label="Open jobs" value={openJobs} note="Live marketplace requests" tone="emerald" /><MetricCard label="Pending providers" value={pendingProviders} note="Needs verification review" tone="orange" /><MetricCard label="Approved providers" value={activeProviders} note="Eligible to receive jobs" tone="blue" /><MetricCard label="Open reports" value={openReports} note="Safety queue" tone="red" /></div><div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]"><section className="admin-card p-5"><SectionHeader title="Recent jobs" subtitle="Public job fields are shown in the list; private fields stay behind the job detail permission." action={<button type="button" onClick={() => onNavigate('Jobs')} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-tealbrand">View all</button>} /><JobTable jobs={data.jobs.slice(0, 4)} compact /></section><section className="admin-card p-5"><SectionHeader title="Safety queue" subtitle="Review urgent work without losing the audit trail." /><div className="mt-5 grid gap-3"><QueueButton title="Pending provider verification" value={`${pendingProviders} waiting`} tone="orange" onClick={() => onNavigate('Pending Providers')} /><QueueButton title="Reports requiring review" value={`${openReports} open`} tone="red" onClick={() => onNavigate('Reports')} /><QueueButton title="Audit events today" value={`${data.audit.length} recent events`} tone="blue" onClick={() => onNavigate('Audit Log')} /></div></section></div><section className="admin-card p-5"><SectionHeader title="Conversion pulse" subtitle="A small operational snapshot for the first Johor Bahru cohort." /><div className="mt-6 grid gap-5 md:grid-cols-3"><Progress label="Jobs with an offer" value={75} note="3 of 4 demo jobs" tone="teal" /><Progress label="Offer acceptance" value={50} note="2 assigned jobs" tone="blue" /><Progress label="Reports resolved" value={33} note="1 of 3 demo reports" tone="orange" /></div></section></div>;
+  const jobsWithOffers = data.jobs.filter((job) => job.bids > 0).length;
+  const acceptedBids = data.bids.filter((bid) => bid.status === 'accepted').length;
+  const resolvedReports = data.reports.filter((report) => report.status === 'resolved' || report.status === 'dismissed').length;
+  const percent = (value: number, total: number) => total > 0 ? Math.round((value / total) * 100) : 0;
+  return <div className="space-y-6"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><MetricCard label="Open jobs" value={openJobs} note="Live marketplace requests" tone="emerald" /><MetricCard label="Pending providers" value={pendingProviders} note="Needs verification review" tone="orange" /><MetricCard label="Approved providers" value={activeProviders} note="Eligible to receive jobs" tone="blue" /><MetricCard label="Open reports" value={openReports} note="Safety queue" tone="red" /></div><div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]"><section className="admin-card p-5"><SectionHeader title="Recent jobs" subtitle="Live jobs from the local Supabase database; private fields stay behind the admin RLS boundary." action={<button type="button" onClick={() => onNavigate('Jobs')} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-tealbrand">View all</button>} /><JobTable jobs={data.jobs.slice(0, 4)} compact /></section><section className="admin-card p-5"><SectionHeader title="Safety queue" subtitle="Review live moderation queues without losing the audit trail." /><div className="mt-5 grid gap-3"><QueueButton title="Pending provider verification" value={`${pendingProviders} waiting`} tone="orange" onClick={() => onNavigate('Pending Providers')} /><QueueButton title="Reports requiring review" value={`${openReports} open`} tone="red" onClick={() => onNavigate('Reports')} /><QueueButton title="Audit events" value={`${data.audit.length} recorded`} tone="blue" onClick={() => onNavigate('Audit Log')} /></div></section></div><section className="admin-card p-5"><SectionHeader title="Conversion pulse" subtitle="Calculated from the currently loaded local records." /><div className="mt-6 grid gap-5 md:grid-cols-3"><Progress label="Jobs with an offer" value={percent(jobsWithOffers, data.jobs.length)} note={`${jobsWithOffers} of ${data.jobs.length} jobs`} tone="teal" /><Progress label="Accepted offers" value={percent(acceptedBids, data.bids.length)} note={`${acceptedBids} of ${data.bids.length} bids`} tone="blue" /><Progress label="Reports resolved" value={percent(resolvedReports, data.reports.length)} note={`${resolvedReports} of ${data.reports.length} reports`} tone="orange" /></div></section></div>;
 }
 
 function ProvidersView({ providers, onAction }: { providers: AdminProvider[]; onAction: (provider: AdminProvider, status: ProviderStatus) => void }) {
@@ -143,7 +191,8 @@ function ProvidersView({ providers, onAction }: { providers: AdminProvider[]; on
 }
 
 function ProviderDetail({ provider, onAction }: { provider: AdminProvider; onAction: (provider: AdminProvider, status: ProviderStatus) => void }) {
-  return <aside className="admin-card h-fit p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-tealbrand">Provider detail</p><h2 className="mt-1 text-xl font-black">{provider.name}</h2><p className="mt-1 text-sm text-slate-500">{provider.email}</p></div><StatusBadge value={provider.status} /></div><div className="mt-6 grid grid-cols-2 gap-3"><Info label="Rating" value={`${provider.rating.toFixed(1)} / 5`} /><Info label="Completed" value={`${provider.completedJobs} jobs`} /><Info label="Category" value={provider.category} /><Info label="Area" value={provider.area} /></div><div className="mt-6 rounded-2xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Profile bio</p><p className="mt-2 text-sm leading-6 text-slate-700">{provider.bio}</p></div><div className="mt-5"><p className="text-sm font-bold text-slate-800">Private evidence</p><div className="mt-3 grid gap-2">{provider.evidence.map((item) => <div key={item} className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm"><span>{item}</span><span className="text-xs font-bold text-tealbrand">Signed preview</span></div>)}</div><p className="mt-3 text-xs leading-5 text-slate-500">Evidence should be served through short-lived signed URLs to admins only.</p></div><div className="mt-6 flex flex-wrap gap-2">{provider.status === 'pending' && <><ActionButton label="Approve" tone="primary" onClick={() => onAction(provider, 'approved')} /><ActionButton label="Reject" tone="muted" onClick={() => onAction(provider, 'rejected')} /></>}{provider.status === 'approved' && <ActionButton label="Suspend provider" tone="danger" onClick={() => onAction(provider, 'suspended')} />}{(provider.status === 'rejected' || provider.status === 'suspended') && <ActionButton label="Approve provider" tone="primary" onClick={() => onAction(provider, 'approved')} />}</div></aside>;
+  const evidence = provider.evidenceLinks ?? provider.evidence.map((label) => ({ label, path: '', url: null }));
+  return <aside className="admin-card h-fit p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-tealbrand">Provider detail</p><h2 className="mt-1 text-xl font-black">{provider.name}</h2><p className="mt-1 text-sm text-slate-500">{provider.email}</p></div><StatusBadge value={provider.status} /></div><div className="mt-6 grid grid-cols-2 gap-3"><Info label="Rating" value={`${provider.rating.toFixed(1)} / 5`} /><Info label="Completed" value={`${provider.completedJobs} jobs`} /><Info label="Category" value={provider.category} /><Info label="Area" value={provider.area} /></div><div className="mt-6 rounded-2xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Profile bio</p><p className="mt-2 text-sm leading-6 text-slate-700">{provider.bio}</p></div><div className="mt-5"><p className="text-sm font-bold text-slate-800">Private evidence</p><div className="mt-3 grid gap-2">{evidence.map((item) => <div key={`${item.label}-${item.path}`} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-sm"><span>{item.label}</span>{item.url ? <a href={item.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-tealbrand hover:underline">Open signed URL</a> : <span className="text-xs font-bold text-slate-400">Unavailable locally</span>}</div>)}</div><p className="mt-3 text-xs leading-5 text-slate-500">URLs expire after five minutes and are generated only for this authenticated Admin session.</p></div><div className="mt-6 flex flex-wrap gap-2">{provider.status === 'pending' && <><ActionButton label="Approve" tone="primary" onClick={() => onAction(provider, 'approved')} /><ActionButton label="Reject" tone="muted" onClick={() => onAction(provider, 'rejected')} /></>}{provider.status === 'approved' && <ActionButton label="Suspend provider" tone="danger" onClick={() => onAction(provider, 'suspended')} />}{(provider.status === 'rejected' || provider.status === 'suspended') && <ActionButton label="Approve provider" tone="primary" onClick={() => onAction(provider, 'approved')} />}</div></aside>;
 }
 
 function UsersView({ users, onAction }: { users: AdminUser[]; onAction: (user: AdminUser, status: AccountStatus) => void }) {
@@ -175,11 +224,19 @@ function AuditView({ audit }: { audit: AdminData['audit'] }) {
 }
 
 function TaxonomyView({ title, items, description }: { title: string; items: string[]; description: string }) {
+  return <section className="admin-card p-5"><SectionHeader title={title} subtitle={`${description} Read-only local view for this phase.`} /><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{items.map((item, index) => <div key={item} className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3"><div><p className="font-bold">{item}</p><p className="mt-1 text-xs text-slate-400">Active · ID {String(index + 1).padStart(3, '0')}</p></div><span className="text-xs font-bold text-slate-400">Read-only</span></div>)}</div></section>;
+}
+
+function LegacyTaxonomyView({ title, items, description }: { title: string; items: string[]; description: string }) {
+  /* Legacy fake preview retained only as a migration reference; it is not rendered.
   return <section className="admin-card p-5"><SectionHeader title={title} subtitle={description} action={<button type="button" className="rounded-lg bg-tealbrand px-3 py-2 text-sm font-bold text-white">Add {title === 'Areas' ? 'area' : 'category'}</button>} /><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{items.map((item, index) => <div key={item} className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3"><div><p className="font-bold">{item}</p><p className="mt-1 text-xs text-slate-400">Active · ID {String(index + 1).padStart(3, '0')}</p></div><button type="button" className="text-xs font-bold text-slate-400 hover:text-red-700">Disable</button></div>)}</div></section>;
 }
 
+  */
+}
+
 function SettingsView() {
-  return <section className="max-w-3xl space-y-5"><div className="admin-card p-5"><SectionHeader title="System settings" subtitle="Runtime-only controls and operational safeguards." /><div className="mt-5 grid gap-3"><Setting label="Environment" value="development / fake data" /><Setting label="Supabase URL" value="Not configured in this preview" /><Setting label="Service role key" value="Never exposed to browser" /><Setting label="Audit retention" value="90 days (planned)" /></div></div><div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900"><p className="font-bold">Production checklist</p><p className="mt-1">Use Supabase Auth admin claims/RLS for admin access, short-lived signed URLs for verification evidence, and server-side audit writes before enabling real moderation actions.</p></div></section>;
+  return <section className="max-w-3xl space-y-5"><div className="admin-card p-5"><SectionHeader title="System settings" subtitle="Runtime-only controls and operational safeguards." /><div className="mt-5 grid gap-3"><Setting label="Environment" value="local development" /><Setting label="Supabase URL" value={process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'Not configured'} /><Setting label="Anon key" value="Loaded at runtime only" /><Setting label="Service role key" value="Never exposed to browser" /><Setting label="Audit retention" value="Local database table" /></div></div><div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-6 text-emerald-900"><p className="font-bold">Local safeguards active</p><p className="mt-1">Admin Auth, profile `is_admin`, table RLS, atomic moderation RPCs, and five-minute verification signed URLs are enforced by the local Supabase stack.</p></div></section>;
 }
 
 function SectionHeader({ title, subtitle, action }: { title: string; subtitle: string; action?: ReactNode }) {

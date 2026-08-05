@@ -31,10 +31,10 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 
 ## Step 9 Admin Web controls
 
-- The browser preview uses fake data only and does not embed a service-role key or hosted Supabase secret.
-- Production admin routes must require Supabase Auth admin claims and server-side RLS/policy checks for every provider, user, job, bid, report, taxonomy, and settings mutation.
-- Verification evidence and private job addresses are admin-only fields; serve evidence through short-lived signed URLs and never expose storage paths as public URLs.
-- Provider, account, and report actions must write an actor, target, action, and timestamp to the audit log in the same server-authorized operation.
+- The local Admin browser uses only the public anon key, Supabase Auth, and the active `profiles.is_admin` guard; no service-role key or hosted secret is bundled.
+- Users, providers, jobs, bids, reports, taxonomy, and audit rows are read through RLS; moderation mutations use security-definer RPCs that re-check `is_admin()` server-side.
+- Verification evidence and private job addresses are admin-only fields; evidence is exposed only through five-minute signed URLs and never as a public Storage URL.
+- Provider, account, and report actions write actor, target, action, metadata, and timestamp to `admin_audit_events` in the same RPC transaction.
 
 ## Step 10 Push Notification controls
 
@@ -127,4 +127,4 @@ Edge functions: FCM service credentials only in managed server secrets.
 - `APP_ENV=development` is explicit for Emulator/USB debug runs. Demo OTP `123456` is available only through Fake/Demo mode; production bootstrap fails closed when Supabase runtime values are absent.
 - HTTP cleartext is enabled only in `apps/mobile/android/app/src/debug/AndroidManifest.xml` for the local `10.0.2.2`/ADB-reverse endpoints. Release/production Android manifests do not receive this exception.
 - Local Docker reset/lint and the 19-check RLS/Storage/concurrency suite, plus no-show, expiry, and review runners, passed after a local stop/start recovery. Hosted services and external delivery were not touched.
-- The Admin Web remains a fake-data local preview in this round; no admin secret or hosted credential is present in the browser bundle.
+- The Admin Web is now backed by local Docker Supabase for this phase; production/cloud deployment, hosted claims, and external delivery remain deferred.

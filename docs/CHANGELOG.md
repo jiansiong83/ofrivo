@@ -131,6 +131,14 @@
 - Notification/access localization tests pass; Version 1.1 contract validation now covers 67 checks, Flutter analyze reports no issues, 39 tests pass, and the Android debug APK builds.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.
 
+## 2026-08-05 — Admin local Supabase integration
+
+- Replaced the Admin fake-data runtime with a browser anon-key Supabase client and seeded local Auth login guarded by `profiles.is_admin`.
+- Added RLS-protected live Admin reads for users, providers, verification records, jobs, bids, reports, taxonomy, and `admin_audit_events`.
+- Added atomic provider/account/report moderation RPCs with attributable audit writes and five-minute verification signed URLs.
+- Added `supabase/tests/run_admin_local.mjs`, local Admin environment injection in `scripts/local-dev.ps1`, and 15-check Admin contract validation.
+- Admin lint/build, local integration, and browser smoke pass; cloud deployment and device UI validation remain deferred/blocked as documented.
+
 ## 2026-08-05 — Local Real-Device Validation
 
 - Added `docs/LOCAL_REAL_DEVICE_RUNBOOK.md`, `docs/LOCAL_DEVICE_TEST_RESULTS.md`, and `scripts/local-dev.ps1` for repeatable local Docker, Admin, Emulator, USB reverse, integration, and APK workflows.
