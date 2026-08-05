@@ -15,6 +15,7 @@ The Step 2 migration in `supabase/migrations/20260804000100_step2_foundation.sql
 - Budget and bid amounts are positive; ratings are 1–5.
 - One provider has at most one active bid per job; each user reviews the other party once per job.
 - `accepted_bid_id` must belong to the same job.
+- Reviews carry an overall 1–5 rating plus required punctuality, quality, and communication scores, each constrained to 1–5; each participant can review the other once per completed job.
 - `job_events` records important transitions.
 - `public_job_feed` and `public_provider_directory` are safe read views; they do not expose full address/contact fields.
 - Step 6 appends category/area labels and private Storage paths to `public_job_feed`; the mobile repository exchanges authorized job-photo paths for short-lived signed URLs.

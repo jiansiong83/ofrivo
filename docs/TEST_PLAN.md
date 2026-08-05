@@ -143,6 +143,13 @@
 - Fake customer mode expires only due open jobs and emits matching local event/notification fixtures.
 - Run `node supabase/tests/run_version11_expiry_local.mjs` and require all 3 checks, in addition to reset/lint, the Step 11 security suite, and the Version 1.1 contract validator.
 
+## Version 1.1 Richer review dimension checks
+
+- Completed-job review screens collect an overall rating plus punctuality, quality, and communication scores, each from 1–5, and preserve the optional comment limit.
+- Fake and Supabase adapters persist and map all three dimension fields; the existing participant trigger and one-review-per-participant rule remain active.
+- Database migration backfills legacy rows to `5` and removes insert defaults so new clients must submit all dimensions explicitly.
+- Run `node supabase/tests/run_version11_review_local.mjs` and require all 4 checks, in addition to reset/lint, the Step 11 security suite, and the Version 1.1 contract validator.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

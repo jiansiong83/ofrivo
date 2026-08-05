@@ -123,4 +123,6 @@
 - Version 1.1 contract validation now covers 48 checks; Flutter analyze, 36 tests, and the Android debug APK pass.
 - Added publish-time seven-day expiry defaults and service-only `expire_open_jobs` worker with row locks, pending-bid expiration, `job_expired` event/notification outbox, fake parity, and `supabase/tests/run_version11_expiry_local.mjs`.
 - Expiry local runner passes 3/3 checks; Version 1.1 contract validation now covers 55 checks, Flutter analyze and 37 tests pass, and the Android debug APK builds.
+- Added required punctuality, quality, and communication review dimensions with 1–5 database constraints, detailed fake/Supabase adapters, and review-screen controls.
+- Review local runner passes 4/4 checks; Version 1.1 contract validation now covers 62 checks, Flutter analyze and 37 tests pass, and the Android debug APK builds.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.

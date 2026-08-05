@@ -93,6 +93,12 @@ Edge functions: FCM service credentials only in managed server secrets.
 - `expire_open_jobs` is bounded and service-role-only, locks due open rows with `SKIP LOCKED`, and changes only `open` jobs; assigned/in-progress work is unaffected.
 - Pending bids, job events, and customer notifications are written in the same security-definer transaction, preventing half-expired jobs.
 
+## Version 1.1 Review dimension controls
+
+- Review inserts still require the authenticated reviewer, a completed job, and the customer/accepted-provider pair; the existing unique `(job_id, reviewer_id)` rule prevents duplicates.
+- Punctuality, quality, and communication scores are required for new rows and constrained to 1–5 by the database; legacy reviews are backfilled to a safe neutral default during migration.
+- No client update path is granted for reviews, so submitted scores and comments cannot be rewritten by a participant.
+
 ## Step 4 Customer Job controls
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.

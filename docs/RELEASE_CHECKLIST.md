@@ -121,6 +121,10 @@
 - [x] Expiry worker locks due open jobs, expires pending bids, and writes event/notification outbox rows atomically.
 - [x] Local expiry runner passes 3 checks; Version 1.1 contract validation now passes 55 checks.
 - [x] Android debug APK builds with the `job_expired` notification mapping.
+- [x] Reviews collect punctuality, quality, and communication scores in addition to the overall rating.
+- [x] New review dimension scores are required and constrained to 1–5; legacy rows receive a safe migration default.
+- [x] Local review runner passes 4 checks; Version 1.1 contract validation now passes 62 checks.
+- [x] Android debug APK builds with the detailed review controls.
 - [ ] Remaining deep business-page copy is migrated and reviewed in all three languages.
 - [ ] Supabase SMS provider and sender configuration are supplied for real-device verification.
 - [ ] Google Play distribution remains deferred by current scope.
