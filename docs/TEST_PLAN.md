@@ -119,6 +119,14 @@
 - Translation tests cover the three onboarding variants and English fallback behavior; deep business-page copy remains explicitly tracked for later migration.
 - Run `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build after adding a translated feature surface.
 
+## Version 1.1 Provider Portfolio checks
+
+- Provider application uploads work photos to the public `provider-portfolio` bucket; identity evidence and certificates remain in private `provider-verifications`.
+- Storage write policy permits only the provider's own folder (or admin); public reads expose no verification, contact, or account fields.
+- `public_provider_portfolio` returns paths only for active approved providers; the mobile repository converts those paths to public URLs and tolerates a hosted view rollout without breaking profile loading.
+- Customer Provider Profile and provider-mode profile render a placeholder for local demo paths and a network image with an error fallback for public URLs.
+- Run `npx.cmd --yes supabase@2.109.1 db reset --yes`, `npx.cmd --yes supabase@2.109.1 db lint`, `node supabase/tests/run_step11_local.mjs`, `node scripts/validate_version11.mjs`, Flutter analyze/test, and the Android debug build.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

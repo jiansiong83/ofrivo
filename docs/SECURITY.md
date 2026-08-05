@@ -75,6 +75,12 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Local demo mode uses an explicit deterministic code for offline testing and never contacts a backend; real SMS delivery requires Supabase provider configuration.
 - Language preference stores only `en`, `ms`, or `zh` in local app preferences; it never includes account, phone, token, or job data.
 
+## Version 1.1 Provider Portfolio controls
+
+- Public portfolio work photos use the separate `provider-portfolio` bucket; identity evidence, certificates, and other verification files remain in the private `provider-verifications` bucket.
+- Portfolio uploads are folder-scoped to the authenticated provider (or an admin); public reads expose only approved active-provider photo paths through `public_provider_portfolio`.
+- The portfolio view does not include phone, WhatsApp, address, verification evidence, or account-status fields beyond the approved/active filter.
+
 ## Step 4 Customer Job controls
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.

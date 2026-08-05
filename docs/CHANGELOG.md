@@ -116,4 +116,6 @@
 - Added English, Bahasa Melayu, and Chinese language state with local persistence, locale propagation, language picker, translated onboarding/auth copy, and translated shell navigation.
 - Deep business screens remain English until their individual copy contracts are migrated; the language switch remains available from onboarding, auth, and the authenticated shell.
 - Version 1.1 contract validation now covers 29 checks; Flutter analyze and 32 tests pass.
+- Added Provider Portfolio support: approved-provider-only public portfolio view, dedicated public `provider-portfolio` bucket, owner-scoped uploads, public profile URL mapping, and demo/gallery coverage.
+- Local Docker reset, schema lint, existing 19-check security integration suite, Flutter analyze, 34 tests, Android debug APK, and 39 Version 1.1 contract checks pass.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.

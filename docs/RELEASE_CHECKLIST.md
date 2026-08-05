@@ -109,6 +109,10 @@
 - [x] Selected language persists locally and propagates to `MaterialApp.locale`.
 - [x] Version 1.1 static contract validation passes (`29` checks).
 - [x] Flutter analyze and tests pass (`32` tests).
+- [x] Provider Portfolio separates public work photos from private verification evidence.
+- [x] Approved-provider portfolio view, owner-scoped Storage writes, demo fixtures, URL mapping, and gallery fallbacks are implemented.
+- [x] Local database reset/lint, Step 11 security integration (19 checks), and Version 1.1 contract validation (39 checks) pass.
+- [x] Android debug APK builds with the portfolio UI.
 - [ ] Remaining deep business-page copy is migrated and reviewed in all three languages.
 - [ ] Supabase SMS provider and sender configuration are supplied for real-device verification.
 - [ ] Google Play distribution remains deferred by current scope.
