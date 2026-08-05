@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/data/fake_data.dart';
+import '../../core/localization/app_localization.dart';
 import '../../core/models/app_models.dart';
 import '../../core/models/service_options.dart';
 import '../../core/state/app_state.dart';
@@ -155,6 +156,7 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerApplicationControllerProvider);
     _hydrate(state.application);
     final busy = state.isLoading;
@@ -248,7 +250,7 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
           ),
           const SizedBox(height: 18),
           SecondaryButton(
-            label: 'View verification status',
+            label: strings.business('view_verification_status'),
             onPressed: () => context.go('/provider/verification'),
           ),
         ],
@@ -259,8 +261,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
         children: [
           Text(
               state.status == ProviderApplicationStatus.rejected
-                  ? 'Update your provider application'
-                  : 'Become a provider',
+                  ? strings.business('update_provider_application')
+                  : strings.business('become_provider'),
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
@@ -295,7 +297,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
                   hintText:
                       'Experience, specialties, and what customers can expect.')),
           const SizedBox(height: 18),
-          const Text('Services', style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(strings.business('services'),
+              style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           Wrap(spacing: 8, runSpacing: 8, children: [
             for (final option in serviceCategoryOptions)
@@ -308,8 +311,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
                       : (selected) => _toggleCategory(option, selected))
           ]),
           const SizedBox(height: 18),
-          const Text('Service areas',
-              style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(strings.business('service_areas'),
+              style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           Wrap(spacing: 8, runSpacing: 8, children: [
             for (final option in serviceAreaOptions)
@@ -320,26 +323,26 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
                       busy ? null : (selected) => _toggleArea(option, selected))
           ]),
           const SizedBox(height: 22),
-          const Text('Verification documents',
-              style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(strings.business('verification_documents'),
+              style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           _EvidenceTile(
-              label: 'ID front',
+              label: strings.business('id_front'),
               path: icFrontPath,
               required: true,
               onPick: busy ? null : () => _pickIdentity('front')),
           _EvidenceTile(
-              label: 'ID back',
+              label: strings.business('id_back'),
               path: icBackPath,
               required: true,
               onPick: busy ? null : () => _pickIdentity('back')),
           _EvidenceTile(
-              label: 'Verification selfie',
+              label: strings.business('verification_selfie'),
               path: selfiePath,
               required: true,
               onPick: busy ? null : () => _pickIdentity('selfie')),
           _EvidenceTile(
-              label: 'SSM / business document (optional)',
+              label: strings.business('business_document_optional'),
               path: ssmPath,
               onPick: busy ? null : () => _pickIdentity('ssm')),
           SecondaryButton(
@@ -348,8 +351,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
                   : '${certificatePaths.length} certificates selected',
               onPressed: busy ? null : _pickCertificates),
           const SizedBox(height: 14),
-          const Text('Work photos',
-              style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(strings.business('work_photos'),
+              style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           PhotoUploader(
               paths: workPhotoPaths, onPick: busy ? null : _pickWorkPhotos),
@@ -359,7 +362,9 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
           ],
           const SizedBox(height: 22),
           PrimaryButton(
-              label: busy ? 'Submitting…' : 'Submit application',
+              label: busy
+                  ? strings.business('submitting')
+                  : strings.business('submit_application'),
               onPressed: busy ? null : _submit),
         ]);
   }
@@ -400,6 +405,7 @@ class VerificationStatusScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerApplicationControllerProvider);
     if (!state.initialized && state.isLoading) {
       return ListView(
@@ -422,18 +428,17 @@ class VerificationStatusScreen extends ConsumerWidget {
       return ListView(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           children: [
-            Text('Verification status',
+            Text(strings.business('verification_status'),
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
                     ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 18),
-            const EmptyState(
-                title: 'No application yet',
-                message:
-                    'Complete your provider information and verification documents to apply.'),
+            EmptyState(
+                title: strings.business('no_application'),
+                message: strings.business('complete_provider_apply')),
             PrimaryButton(
-                label: 'Start application',
+                label: strings.business('start_application'),
                 onPressed: () => context.go('/provider/apply'))
           ]);
     }
@@ -450,21 +455,23 @@ class VerificationStatusScreen extends ConsumerWidget {
             ? Icons.error_outline
             : Icons.hourglass_top_rounded);
     final title = approved
-        ? 'Approved'
+        ? strings.business('approved')
         : (rejected
-            ? 'Changes requested'
-            : (suspended ? 'Provider access suspended' : 'Pending review'));
-    final message = approved
-        ? 'Your provider profile is approved. You can switch to Provider Mode.'
-        : (rejected
-            ? 'Update the application using the admin note below and submit again.'
+            ? strings.business('changes_requested')
             : (suspended
-                ? 'Provider features are temporarily unavailable. Contact support if you need help.'
-                : 'Your documents are waiting for an admin review.'));
+                ? strings.business('provider_access_suspended')
+                : strings.business('pending_review')));
+    final message = approved
+        ? strings.business('provider_approved_message')
+        : (rejected
+            ? strings.business('resubmit_admin_note')
+            : (suspended
+                ? strings.business('provider_suspended_message')
+                : strings.business('documents_pending_message')));
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          Text('Verification status',
+          Text(strings.business('verification_status'),
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
@@ -517,13 +524,13 @@ class VerificationStatusScreen extends ConsumerWidget {
           if (rejected) ...[
             const SizedBox(height: 18),
             SecondaryButton(
-                label: 'Edit and resubmit',
+                label: strings.business('edit_resubmit'),
                 onPressed: () => context.go('/provider/apply'))
           ],
           if (approved) ...[
             const SizedBox(height: 18),
             PrimaryButton(
-                label: 'Open Provider Mode',
+                label: strings.business('open_provider_mode'),
                 onPressed: () {
                   ref.read(appModeProvider.notifier).state = AppMode.provider;
                   context.go('/provider/feed');
@@ -542,6 +549,7 @@ class ProviderFeedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerJobControllerProvider);
     if (!state.initialized && state.isLoading) {
       return ListView(
@@ -571,16 +579,16 @@ class ProviderFeedScreen extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          const PageHeader(
-              title: 'Job feed',
-              subtitle: 'Open requests near your selected service areas.'),
+          PageHeader(
+              title: strings.business('job_feed_title'),
+              subtitle: strings.business('job_feed_subtitle')),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    '${jobs.length} jobs available',
+                    '${jobs.length} ${strings.business('jobs_available_suffix')}',
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
@@ -590,7 +598,7 @@ class ProviderFeedScreen extends ConsumerWidget {
                 OutlinedButton.icon(
                   onPressed: () => context.go('/provider/filters'),
                   icon: const Icon(Icons.tune, size: 18),
-                  label: const Text('Filters'),
+                  label: Text(strings.business('filters')),
                 ),
               ],
             ),
@@ -607,26 +615,26 @@ class ProviderFeedScreen extends ConsumerWidget {
                   if (state.filters.areaLabel != null)
                     AreaChip(label: state.filters.areaLabel!),
                   if (state.filters.urgentOnly)
-                    const StatusBadge(label: 'Urgent only'),
+                    StatusBadge(label: strings.business('urgent_only')),
                   if (state.filters.noBidsOnly)
-                    const StatusBadge(label: 'No bids'),
+                    StatusBadge(label: strings.business('no_bids_filter')),
                   StatusBadge(label: state.filters.sort.label),
                   TextButton(
                     onPressed: () => ref
                         .read(providerJobControllerProvider.notifier)
                         .clearFilters(),
-                    child: const Text('Clear'),
+                    child: Text(strings.business('clear')),
                   ),
                 ],
               ),
             ),
           const SizedBox(height: 14),
           if (jobs.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
               child: EmptyState(
-                title: 'No matching jobs',
-                message: 'Try another category, area, budget, or sort option.',
+                title: strings.business('no_matching_jobs'),
+                message: strings.business('try_another_filter'),
                 icon: Icons.search_off_outlined,
               ),
             )
@@ -750,18 +758,20 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text('Job filters',
+        Text(strings.business('job_filters'),
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 8),
-        const Text('Narrow the feed to jobs you can serve next.'),
+        Text(strings.business('filters_hint')),
         const SizedBox(height: 22),
-        const Text('Category', style: TextStyle(fontWeight: FontWeight.w700)),
+        Text(strings.business('category'),
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -777,7 +787,8 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
           ],
         ),
         const SizedBox(height: 18),
-        const Text('Area', style: TextStyle(fontWeight: FontWeight.w700)),
+        Text(strings.business('area'),
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -800,23 +811,25 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
                     controller: minBudgetController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                        labelText: 'Min budget', prefixText: 'RM '))),
+                    decoration: InputDecoration(
+                        labelText: strings.business('min_budget'),
+                        prefixText: 'RM '))),
             const SizedBox(width: 12),
             Expanded(
                 child: TextFormField(
                     controller: maxBudgetController,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                        labelText: 'Max budget', prefixText: 'RM '))),
+                    decoration: InputDecoration(
+                        labelText: strings.business('max_budget'),
+                        prefixText: 'RM '))),
           ],
         ),
         const SizedBox(height: 8),
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.event_outlined),
-          title: const Text('Service date'),
+          title: Text(strings.business('service_date')),
           subtitle: Text(serviceDate == null
               ? 'Any date'
               : DateFormat('EEE, d MMM yyyy').format(serviceDate!)),
@@ -824,28 +837,27 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
               onPressed: serviceDate == null
                   ? null
                   : () => setState(() => serviceDate = null),
-              child: const Text('Clear')),
+              child: Text(strings.business('clear'))),
           onTap: _pickDate,
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           value: urgentOnly,
           onChanged: (value) => setState(() => urgentOnly = value),
-          title: const Text('Urgent jobs only'),
-          subtitle:
-              const Text('Prioritise requests that need a fast response.'),
+          title: Text(strings.business('urgent_jobs_only')),
+          subtitle: Text(strings.business('urgent_jobs_hint')),
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           value: noBidsOnly,
           onChanged: (value) => setState(() => noBidsOnly = value),
-          title: const Text('No bids yet'),
-          subtitle: const Text('Find jobs where you can be the first offer.'),
+          title: Text(strings.business('no_bids')),
+          subtitle: Text(strings.business('first_offer_hint')),
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<ProviderJobSort>(
           initialValue: sort,
-          decoration: const InputDecoration(labelText: 'Sort by'),
+          decoration: InputDecoration(labelText: strings.business('sort_by')),
           items: [
             for (final option in ProviderJobSort.values)
               DropdownMenuItem(value: option, child: Text(option.label))
@@ -854,9 +866,11 @@ class _ProviderFiltersScreenState extends ConsumerState<ProviderFiltersScreen> {
               setState(() => sort = value ?? ProviderJobSort.newest),
         ),
         const SizedBox(height: 22),
-        PrimaryButton(label: 'Apply filters', onPressed: _apply),
+        PrimaryButton(
+            label: strings.business('apply_filters'), onPressed: _apply),
         const SizedBox(height: 10),
-        SecondaryButton(label: 'Reset filters', onPressed: _clear),
+        SecondaryButton(
+            label: strings.business('reset_filters'), onPressed: _clear),
       ],
     );
   }
@@ -869,6 +883,7 @@ class ProviderJobDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerJobControllerProvider);
     Job? job;
     for (final candidate in state.jobs) {
@@ -880,9 +895,9 @@ class ProviderJobDetailScreen extends ConsumerWidget {
       }
     }
     if (job == null) {
-      return const EmptyState(
-          title: 'Job unavailable',
-          message: 'This request may have expired or been removed.',
+      return EmptyState(
+          title: strings.business('job_unavailable'),
+          message: strings.business('job_expired_removed'),
           icon: Icons.work_off_outlined);
     }
     final selectedJob = job;
@@ -896,8 +911,10 @@ class ProviderJobDetailScreen extends ConsumerWidget {
     }
     final canEdit = existingBid?.bid.status == BidStatus.pending;
     final bidLabel = existingBid == null
-        ? 'Submit a bid'
-        : (canEdit ? 'Edit your bid' : 'View your accepted bid');
+        ? strings.business('submit_bid')
+        : (canEdit
+            ? strings.business('edit_bid')
+            : strings.business('view_accepted_bid'));
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
@@ -908,7 +925,7 @@ class ProviderJobDetailScreen extends ConsumerWidget {
                 ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          if (job.urgent) const StatusBadge(label: 'Urgent'),
+          if (job.urgent) StatusBadge(label: strings.business('urgent')),
           CategoryChip(label: job.category),
           AreaChip(label: job.area)
         ]),
@@ -925,8 +942,8 @@ class ProviderJobDetailScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Customer budget',
-                    style: TextStyle(color: AppColors.textSecondary)),
+                Text(strings.business('customer_budget'),
+                    style: const TextStyle(color: AppColors.textSecondary)),
                 Text('RM${job.budget.toStringAsFixed(0)}',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: AppColors.primary, fontWeight: FontWeight.w800)),
@@ -940,12 +957,11 @@ class ProviderJobDetailScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 18),
-        const Card(
+        Card(
           child: ListTile(
-            leading: Icon(Icons.lock_outline, color: AppColors.primary),
-            title: Text('Address protected'),
-            subtitle: Text(
-                'Full address, phone, WhatsApp, and exact GPS stay hidden until a bid is accepted.'),
+            leading: const Icon(Icons.lock_outline, color: AppColors.primary),
+            title: Text(strings.business('address_protected')),
+            subtitle: Text(strings.business('address_protected_message')),
           ),
         ),
         if (existingBid != null) ...[
@@ -1052,17 +1068,19 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
           .showSnackBar(SnackBar(content: Text(error)));
       return;
     }
+    final strings = AppLocalizations(ref.read(appLanguageProvider));
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Your bid was saved.')));
+        .showSnackBar(SnackBar(content: Text(strings.business('bid_saved'))));
     context.go('/provider/bids');
   }
 
   Future<void> _withdraw() async {
     final bid = widget.existingBid;
     if (bid == null) return;
+    final strings = AppLocalizations(ref.read(appLanguageProvider));
     final confirmed = await ConfirmationDialog.show(context,
-        title: 'Withdraw bid?',
-        message: 'The customer will no longer count this offer as active.');
+        title: strings.business('withdraw_bid_title'),
+        message: strings.business('withdraw_bid_message'));
     if (!confirmed || !mounted) return;
     final success = await ref
         .read(providerJobControllerProvider.notifier)
@@ -1073,12 +1091,16 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerJobControllerProvider);
     final busy = state.isSubmitting;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text(widget.existingBid == null ? 'Submit a bid' : 'Edit your bid',
+        Text(
+            widget.existingBid == null
+                ? strings.business('submit_bid')
+                : strings.business('edit_bid'),
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
@@ -1087,7 +1109,9 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
         Text('Job ${widget.jobId}',
             style: const TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 20),
-        BudgetInput(controller: amountController),
+        BudgetInput(
+            controller: amountController,
+            label: strings.business('bid_amount')),
         const SizedBox(height: 14),
         DateTimeSelector(
             value: DateFormat('EEE, d MMM, h:mm a').format(availableAt),
@@ -1097,31 +1121,32 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
             controller: inclusionsController,
             enabled: !locked && !busy,
             maxLines: 3,
-            decoration: const InputDecoration(
-                labelText: 'What is included?',
+            decoration: InputDecoration(
+                labelText: strings.business('what_included'),
                 hintText: 'Inspection and labour')),
         const SizedBox(height: 14),
         TextField(
             controller: exclusionsController,
             enabled: !locked && !busy,
             maxLines: 3,
-            decoration: const InputDecoration(
-                labelText: 'What is excluded?',
+            decoration: InputDecoration(
+                labelText: strings.business('what_excluded'),
                 hintText: 'Materials and wall hacking')),
         const SizedBox(height: 14),
         TextField(
             controller: materialsController,
             enabled: !locked && !busy,
             maxLines: 2,
-            decoration: const InputDecoration(
-                labelText: 'Materials note',
+            decoration: InputDecoration(
+                labelText: strings.business('materials_note'),
                 hintText: 'Materials are charged separately')),
         const SizedBox(height: 14),
         TextField(
             controller: messageController,
             enabled: !locked && !busy,
             maxLines: 3,
-            decoration: const InputDecoration(labelText: 'Additional note')),
+            decoration: InputDecoration(
+                labelText: strings.business('additional_note'))),
         if (state.error != null) ...[
           const SizedBox(height: 12),
           Text(state.error!, style: const TextStyle(color: AppColors.danger))
@@ -1130,19 +1155,22 @@ class _SubmitBidScreenState extends ConsumerState<SubmitBidScreen> {
         if (!locked)
           PrimaryButton(
               label: busy
-                  ? 'Saving…'
-                  : (widget.existingBid == null ? 'Send bid' : 'Save changes'),
+                  ? strings.business('saving')
+                  : (widget.existingBid == null
+                      ? strings.business('send_bid')
+                      : strings.business('save_changes')),
               onPressed: busy ? null : _save),
         if (widget.existingBid?.status == BidStatus.pending) ...[
           const SizedBox(height: 10),
           SecondaryButton(
-              label: busy ? 'Working…' : 'Withdraw bid',
+              label: busy
+                  ? strings.business('working')
+                  : strings.business('withdraw_bid'),
               onPressed: busy ? null : _withdraw),
         ],
         if (locked)
-          const Text(
-              'Accepted bids cannot be edited. The customer has selected this offer.',
-              style: TextStyle(color: AppColors.textSecondary)),
+          Text(strings.business('accepted_bid_locked'),
+              style: const TextStyle(color: AppColors.textSecondary)),
       ],
     );
   }
@@ -1153,6 +1181,7 @@ class MyBidsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerJobControllerProvider);
     if (!state.initialized && state.myBids.isEmpty) {
       return ListView(
@@ -1170,22 +1199,22 @@ class MyBidsScreen extends ConsumerWidget {
           ]);
     }
     if (state.myBids.isEmpty) {
-      return ListView(children: const [
+      return ListView(children: [
         PageHeader(
-            title: 'My bids',
-            subtitle: 'Keep track of your pending and accepted offers.'),
+            title: strings.business('my_bids_title'),
+            subtitle: strings.business('my_bids_subtitle')),
         EmptyState(
-            title: 'No bids yet',
-            message: 'Open a job from the feed and send your first offer.',
+            title: strings.business('no_bids'),
+            message: strings.business('first_bid_message'),
             icon: Icons.request_quote_outlined)
       ]);
     }
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const PageHeader(
-            title: 'My bids',
-            subtitle: 'Keep track of your pending and accepted offers.'),
+        PageHeader(
+            title: strings.business('my_bids_title'),
+            subtitle: strings.business('my_bids_subtitle')),
         for (final item in state.myBids)
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
@@ -1197,10 +1226,11 @@ class MyBidsScreen extends ConsumerWidget {
                   : null,
               onWithdraw: item.bid.status == BidStatus.pending
                   ? () async {
+                      final strings =
+                          AppLocalizations(ref.read(appLanguageProvider));
                       final confirmed = await ConfirmationDialog.show(context,
-                          title: 'Withdraw bid?',
-                          message:
-                              'The customer will no longer count this offer as active.');
+                          title: strings.business('withdraw_bid_title'),
+                          message: strings.business('withdraw_bid_message'));
                       if (confirmed && context.mounted) {
                         await ref
                             .read(providerJobControllerProvider.notifier)
@@ -1298,12 +1328,13 @@ class AssignedJobsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerJobControllerProvider);
     if (!state.initialized && state.isLoading && state.assignedJobs.isEmpty) {
       return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
-        const PageHeader(
-            title: 'Assigned jobs',
-            subtitle: 'Your accepted work and next actions.'),
+        PageHeader(
+            title: strings.business('assigned_jobs_title'),
+            subtitle: strings.business('assigned_jobs_subtitle')),
         const Padding(
             padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
             child: LoadingSkeleton())
@@ -1316,15 +1347,14 @@ class AssignedJobsScreen extends ConsumerWidget {
               .loadAssignedJobs());
     }
     if (state.assignedJobs.isEmpty) {
-      return const EmptyState(
-          title: 'No assigned jobs',
-          message:
-              'Accepted offers will appear here after a customer selects you.');
+      return EmptyState(
+          title: strings.business('no_assigned_jobs'),
+          message: strings.business('accepted_jobs_message'));
     }
     return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
-      const PageHeader(
-          title: 'Assigned jobs',
-          subtitle: 'Your accepted work and next actions.'),
+      PageHeader(
+          title: strings.business('assigned_jobs_title'),
+          subtitle: strings.business('assigned_jobs_subtitle')),
       for (final job in state.assignedJobs)
         Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
@@ -1342,6 +1372,7 @@ class AssignedJobDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(providerJobControllerProvider);
     Job? job;
     for (final candidate in state.assignedJobs) {
@@ -1355,9 +1386,9 @@ class AssignedJobDetailScreen extends ConsumerWidget {
           padding: EdgeInsets.all(20), child: LoadingSkeleton());
     }
     if (job == null) {
-      return const EmptyState(
-          title: 'Assigned job not found',
-          message: 'Only the accepted provider can reveal this job address.');
+      return EmptyState(
+          title: strings.business('assigned_job_not_found'),
+          message: strings.business('accepted_provider_only'));
     }
     final assignedJob = job;
     return ListView(
@@ -1382,16 +1413,16 @@ class AssignedJobDetailScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Row(children: [
-                Icon(Icons.lock_open_outlined, color: AppColors.primary),
-                SizedBox(width: 8),
-                Text('Private service details',
-                    style: TextStyle(fontWeight: FontWeight.w800))
+              Row(children: [
+                const Icon(Icons.lock_open_outlined, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Text(strings.business('private_service_details'),
+                    style: const TextStyle(fontWeight: FontWeight.w800))
               ]),
               const SizedBox(height: 12),
               Text(assignedJob.fullAddress?.trim().isNotEmpty == true
                   ? assignedJob.fullAddress!
-                  : 'Address not provided.'),
+                  : strings.business('address_not_provided')),
               if (assignedJob.contactPhone?.trim().isNotEmpty == true) ...[
                 const SizedBox(height: 8),
                 Text('Phone: ${assignedJob.contactPhone}')
@@ -1425,13 +1456,14 @@ class ProviderProfileModeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final provider = ref.watch(providerProfileProvider);
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          const PageHeader(
-              title: 'Provider profile',
-              subtitle: 'Your public profile and availability.'),
+          PageHeader(
+              title: strings.business('provider_profile'),
+              subtitle: strings.business('provider_profile_subtitle')),
           ProviderCard(provider: provider),
           if (provider.portfolioUrls.isNotEmpty) ...[
             const SizedBox(height: 16),
@@ -1441,17 +1473,17 @@ class ProviderProfileModeScreen extends ConsumerWidget {
           SwitchListTile(
               value: true,
               onChanged: (_) {},
-              title: const Text('Available for new jobs'),
-              subtitle: const Text('Show matching requests in your feed')),
+              title: Text(strings.business('available_new_jobs')),
+              subtitle: Text(strings.business('show_matching_requests'))),
           ListTile(
               leading: const Icon(Icons.verified_outlined),
-              title: const Text('Verification status'),
-              subtitle: const Text('Approved'),
+              title: Text(strings.business('verification_status')),
+              subtitle: Text(strings.business('approved')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.go('/provider/verification')),
           ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Sign out'),
+              title: Text(strings.business('sign_out')),
               onTap: () async {
                 await ref.read(authControllerProvider.notifier).signOut();
                 if (context.mounted) context.go('/onboarding');

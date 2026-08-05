@@ -308,16 +308,16 @@ class ProviderCard extends StatelessWidget {
 }
 
 class BudgetInput extends StatelessWidget {
-  const BudgetInput({super.key, this.controller});
+  const BudgetInput({super.key, this.controller, this.label = 'Budget'});
 
   final TextEditingController? controller;
+  final String label;
 
   @override
   Widget build(BuildContext context) => TextFormField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration:
-          const InputDecoration(labelText: 'Budget', prefixText: 'RM '));
+      decoration: InputDecoration(labelText: label, prefixText: 'RM '));
 }
 
 class DateTimeSelector extends StatelessWidget {

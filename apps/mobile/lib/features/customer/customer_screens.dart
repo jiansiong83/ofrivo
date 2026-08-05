@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/localization/app_localization.dart';
 import '../../core/models/app_models.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/validation/image_validation.dart';
@@ -20,24 +21,25 @@ class CustomerHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final jobsState = ref.watch(customerJobsControllerProvider);
     final jobs = jobsState.jobs;
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const PageHeader(
-            title: 'Good morning, Alex',
-            subtitle: 'What would you like to get done today?'),
+        PageHeader(
+            title: strings.business('good_morning'),
+            subtitle: strings.business('customer_home_subtitle')),
         Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: PrimaryButton(
-                label: 'Post a new job',
+                label: strings.business('post_new_job'),
                 icon: Icons.add,
                 onPressed: () => context.go('/customer/post'))),
         const SizedBox(height: 22),
         Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Your active jobs',
+            child: Text(strings.business('active_jobs'),
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
@@ -54,11 +56,11 @@ class CustomerHomeScreen extends ConsumerWidget {
                   onRetry: () =>
                       ref.read(customerJobsControllerProvider.notifier).load()))
         else if (jobs.isEmpty)
-          const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: EmptyState(
-                  title: 'No jobs yet',
-                  message: 'Post your first service request to get started.'))
+                  title: strings.business('no_jobs_yet'),
+                  message: strings.business('first_request')))
         else
           for (final job in jobs.take(2))
             Padding(
@@ -66,17 +68,17 @@ class CustomerHomeScreen extends ConsumerWidget {
                 child: JobCard(
                     job: job,
                     onTap: () => context.go('/customer/jobs/${job.id}'))),
-        const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+        Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Card(
                 child: Padding(
-                    padding: EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(18),
                     child: Row(children: [
-                      Icon(Icons.shield_outlined, color: AppColors.primary),
-                      SizedBox(width: 12),
+                      const Icon(Icons.shield_outlined,
+                          color: AppColors.primary),
+                      const SizedBox(width: 12),
                       Expanded(
-                          child: Text(
-                              'Compare verified local providers and keep your address private until you choose.'))
+                          child: Text(strings.business('privacy_provider')))
                     ])))),
       ],
     );
@@ -169,32 +171,34 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
           'Unable to save this draft.');
       return;
     }
+    final strings = AppLocalizations(ref.read(appLanguageProvider));
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Draft saved.')));
+        .showSnackBar(SnackBar(content: Text(strings.business('draft_saved'))));
     context.go('/customer/jobs');
   }
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final jobsState = ref.watch(customerJobsControllerProvider);
     final busy = jobsState.isLoading;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text('Post a job',
+        Text(strings.business('post_job_title'),
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 6),
-        const Text('Give providers enough detail to send useful bids.',
-            style: TextStyle(color: AppColors.textSecondary)),
+        Text(strings.business('post_job_hint'),
+            style: const TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 22),
         DropdownButtonFormField<JobCategoryOption>(
           initialValue: selectedCategory,
-          decoration: const InputDecoration(
-              labelText: 'Service category',
-              prefixIcon: Icon(Icons.category_outlined)),
+          decoration: InputDecoration(
+              labelText: strings.business('service_category'),
+              prefixIcon: const Icon(Icons.category_outlined)),
           items: [
             for (final option in jobCategoryOptions)
               DropdownMenuItem(value: option, child: Text(option.label))
@@ -208,8 +212,9 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         const SizedBox(height: 14),
         DropdownButtonFormField<JobAreaOption>(
           initialValue: selectedArea,
-          decoration: const InputDecoration(
-              labelText: 'Area', prefixIcon: Icon(Icons.location_on_outlined)),
+          decoration: InputDecoration(
+              labelText: strings.business('area'),
+              prefixIcon: const Icon(Icons.location_on_outlined)),
           items: [
             for (final option in jobAreaOptions)
               DropdownMenuItem(value: option, child: Text(option.label))
@@ -224,54 +229,55 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         TextField(
             controller: titleController,
             enabled: !busy,
-            decoration: const InputDecoration(
-                labelText: 'Job title', hintText: 'e.g. Fix leaking tap')),
+            decoration: InputDecoration(
+                labelText: strings.business('job_title'),
+                hintText: 'e.g. Fix leaking tap')),
         const SizedBox(height: 14),
         TextField(
             controller: descriptionController,
             enabled: !busy,
             maxLines: 4,
-            decoration: const InputDecoration(
-                labelText: 'Describe the problem',
+            decoration: InputDecoration(
+                labelText: strings.business('job_description'),
                 hintText: 'What should the provider inspect or repair?')),
         const SizedBox(height: 14),
         TextField(
             controller: addressController,
             enabled: !busy,
             maxLines: 2,
-            decoration: const InputDecoration(
-                labelText: 'Full service address',
-                prefixIcon: Icon(Icons.home_outlined),
+            decoration: InputDecoration(
+                labelText: strings.business('full_address'),
+                prefixIcon: const Icon(Icons.home_outlined),
                 hintText: 'Visible only to the selected provider')),
         const SizedBox(height: 14),
         TextField(
             controller: phoneController,
             enabled: !busy,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-                labelText: 'Contact phone',
-                prefixIcon: Icon(Icons.phone_outlined))),
+            decoration: InputDecoration(
+                labelText: strings.business('contact_phone'),
+                prefixIcon: const Icon(Icons.phone_outlined))),
         const SizedBox(height: 14),
         TextField(
             controller: whatsappController,
             enabled: !busy,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-                labelText: 'WhatsApp (optional)',
-                prefixIcon: Icon(Icons.chat_outlined))),
+            decoration: InputDecoration(
+                labelText: '${strings.business('whatsapp')} (optional)',
+                prefixIcon: const Icon(Icons.chat_outlined))),
         const SizedBox(height: 14),
         BudgetInput(controller: budgetController),
         const SizedBox(height: 8),
         TextField(
             controller: timeController,
             enabled: !busy,
-            decoration: const InputDecoration(
-                labelText: 'Service time window',
-                prefixIcon: Icon(Icons.schedule_outlined),
+            decoration: InputDecoration(
+                labelText: strings.business('time_window'),
+                prefixIcon: const Icon(Icons.schedule_outlined),
                 hintText: 'e.g. Today, 2pm–6pm')),
         SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Mark as urgent'),
+            title: Text(strings.business('mark_urgent')),
             subtitle: const Text(
                 'Urgent requests are highlighted to approved providers.'),
             value: urgent,
@@ -284,11 +290,14 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         ],
         const SizedBox(height: 22),
         PrimaryButton(
-            label: busy ? 'Saving…' : 'Preview job',
+            label: busy
+                ? strings.business('saving')
+                : strings.business('preview_job'),
             onPressed: busy ? null : _preview),
         const SizedBox(height: 10),
         SecondaryButton(
-            label: 'Save as draft', onPressed: busy ? null : _saveDraft),
+            label: strings.business('save_draft'),
+            onPressed: busy ? null : _saveDraft),
       ],
     );
   }
@@ -301,6 +310,7 @@ class PostJobPreviewScreen extends ConsumerWidget {
 
   Future<void> _submit(BuildContext context, WidgetRef ref,
       {required bool publish}) async {
+    final strings = AppLocalizations(ref.read(appLanguageProvider));
     final controller = ref.read(customerJobsControllerProvider.notifier);
     final job = publish
         ? await controller.publish(draft)
@@ -312,27 +322,29 @@ class PostJobPreviewScreen extends ConsumerWidget {
               'Unable to save this job.')));
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(publish ? 'Job published.' : 'Draft saved.')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(publish
+            ? strings.business('job_published')
+            : strings.business('draft_saved'))));
     context.go('/customer/jobs');
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(customerJobsControllerProvider);
     final preview = draft.toPreviewJob();
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text('Preview your job',
+        Text(strings.business('preview_job'),
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 6),
-        const Text(
-            'Review the details before you share this request with providers.',
-            style: TextStyle(color: AppColors.textSecondary)),
+        Text(strings.business('review_before_share'),
+            style: const TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 16),
         JobCard(job: preview),
         const SizedBox(height: 12),
@@ -342,8 +354,8 @@ class PostJobPreviewScreen extends ConsumerWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Private contact details',
-                          style: TextStyle(fontWeight: FontWeight.w800)),
+                      Text(strings.business('private_contact'),
+                          style: const TextStyle(fontWeight: FontWeight.w800)),
                       const SizedBox(height: 8),
                       Text(draft.fullAddress),
                       Text(draft.contactPhone),
@@ -360,20 +372,22 @@ class PostJobPreviewScreen extends ConsumerWidget {
         ],
         const SizedBox(height: 18),
         PrimaryButton(
-            label: state.isLoading ? 'Saving…' : 'Publish job',
+            label: state.isLoading
+                ? strings.business('saving')
+                : strings.business('publish_job'),
             onPressed: state.isLoading
                 ? null
                 : () => _submit(context, ref, publish: true)),
         const SizedBox(height: 10),
         SecondaryButton(
-            label: 'Save as draft',
+            label: strings.business('save_draft'),
             onPressed: state.isLoading
                 ? null
                 : () => _submit(context, ref, publish: false)),
         const SizedBox(height: 10),
         TextButton(
             onPressed: state.isLoading ? null : () => context.pop(),
-            child: const Text('Keep editing')),
+            child: Text(strings.business('keep_editing'))),
       ],
     );
   }
@@ -384,24 +398,23 @@ class MyJobsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(customerJobsControllerProvider);
     if (!state.initialized && state.isLoading) {
-      return ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: const [
-            PageHeader(
-                title: 'My jobs',
-                subtitle: 'Track your requests from draft to completed.'),
-            Padding(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
-                child: LoadingSkeleton())
-          ]);
+      return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+        PageHeader(
+            title: strings.business('my_jobs_title'),
+            subtitle: strings.business('track_jobs')),
+        const Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: LoadingSkeleton())
+      ]);
     }
     if (state.error != null && state.jobs.isEmpty) {
       return ListView(children: [
-        const PageHeader(
-            title: 'My jobs',
-            subtitle: 'Track your requests from draft to completed.'),
+        PageHeader(
+            title: strings.business('my_jobs_title'),
+            subtitle: strings.business('track_jobs')),
         ErrorState(
             onRetry: () =>
                 ref.read(customerJobsControllerProvider.notifier).load())
@@ -409,18 +422,18 @@ class MyJobsScreen extends ConsumerWidget {
     }
     if (state.jobs.isEmpty) {
       return ListView(children: [
-        const PageHeader(
-            title: 'My jobs',
-            subtitle: 'Track your requests from draft to completed.'),
-        const EmptyState(
-            title: 'No jobs yet',
-            message: 'Post a service request to see it here.')
+        PageHeader(
+            title: strings.business('my_jobs_title'),
+            subtitle: strings.business('track_jobs')),
+        EmptyState(
+            title: strings.business('no_jobs_yet'),
+            message: strings.business('post_request_here'))
       ]);
     }
     return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
-      const PageHeader(
-          title: 'My jobs',
-          subtitle: 'Track your requests from draft to completed.'),
+      PageHeader(
+          title: strings.business('my_jobs_title'),
+          subtitle: strings.business('track_jobs')),
       for (final job in state.jobs)
         Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
@@ -437,6 +450,7 @@ class JobDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(customerJobsControllerProvider);
     if (!state.initialized && state.isLoading) {
       return const Padding(
@@ -450,9 +464,9 @@ class JobDetailScreen extends ConsumerWidget {
       }
     }
     if (job == null) {
-      return const EmptyState(
-          title: 'Job not found',
-          message: 'This job may have been removed or is no longer available.');
+      return EmptyState(
+          title: strings.business('job_not_found'),
+          message: strings.business('job_removed'));
     }
     final currentJob = job;
     final canCancel = currentJob.status == JobStatus.open ||
@@ -481,8 +495,9 @@ class JobDetailScreen extends ConsumerWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Budget',
-                            style: TextStyle(color: AppColors.textSecondary)),
+                        Text(strings.business('budget_label'),
+                            style: const TextStyle(
+                                color: AppColors.textSecondary)),
                         Text('RM${currentJob.budget.toStringAsFixed(0)}',
                             style: Theme.of(context)
                                 .textTheme
@@ -495,39 +510,44 @@ class JobDetailScreen extends ConsumerWidget {
                         if (currentJob.fullAddress?.trim().isNotEmpty ??
                             false) ...[
                           const SizedBox(height: 12),
-                          const Text('Service address',
-                              style: TextStyle(color: AppColors.textSecondary)),
+                          Text(strings.business('service_address'),
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary)),
                           Text(currentJob.fullAddress!)
                         ],
                         if (currentJob.contactPhone?.trim().isNotEmpty ??
                             false) ...[
                           const SizedBox(height: 12),
-                          const Text('Contact',
-                              style: TextStyle(color: AppColors.textSecondary)),
+                          Text(strings.business('contact'),
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary)),
                           Text(currentJob.contactPhone!)
                         ]
                       ]))),
           const SizedBox(height: 18),
           PrimaryButton(
-              label: '${currentJob.bidCount} offers received',
+              label:
+                  '${currentJob.bidCount} ${strings.business('offers_received_suffix')}',
               onPressed: () =>
                   context.go('/customer/jobs/${currentJob.id}/bids')),
           const SizedBox(height: 10),
           DangerButton(
-              label: canCancel ? 'Cancel job' : 'Job cannot be cancelled',
+              label: canCancel
+                  ? strings.business('cancel_job')
+                  : strings.business('cancel_job_cannot'),
               onPressed: canCancel
                   ? () async {
                       final confirmed = await ConfirmationDialog.show(context,
-                          title: 'Cancel this job?',
-                          message: 'This will mark the request as cancelled.');
+                          title: strings.business('cancel_job_title'),
+                          message: strings.business('cancel_job_message'));
                       if (!confirmed || !context.mounted) return;
                       final cancelled = await ref
                           .read(customerJobsControllerProvider.notifier)
                           .cancel(currentJob.id);
                       if (!context.mounted) return;
                       if (cancelled) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Job cancelled.')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(strings.business('job_cancelled'))));
                         context.go('/customer/jobs');
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -558,6 +578,7 @@ class ReceivedBidsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(customerBidControllerProvider(jobId));
     if (!state.initialized && state.isLoading) {
       return const Padding(
@@ -570,20 +591,21 @@ class ReceivedBidsScreen extends ConsumerWidget {
               .load(jobId));
     }
     if (state.bids.isEmpty) {
-      return const EmptyState(
-          title: 'No bids yet',
-          message: 'Approved providers will appear here when they respond.');
+      return EmptyState(
+          title: strings.business('no_bids'),
+          message: strings.business('no_bids_message'));
     }
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text('Received bids',
+        Text(strings.business('received_bids'),
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 6),
-        Text('${state.bids.length} providers responded',
+        Text(
+            '${state.bids.length} ${strings.business('providers_responded_suffix')}',
             style: const TextStyle(color: AppColors.textSecondary)),
         if (state.info != null) ...[
           const SizedBox(height: 14),
@@ -611,9 +633,8 @@ class ReceivedBidsScreen extends ConsumerWidget {
               onAccept: offer.bid.status == BidStatus.pending
                   ? () async {
                       final confirmed = await ConfirmationDialog.show(context,
-                          title: 'Accept this offer?',
-                          message:
-                              'This will assign the job and automatically reject the other pending offers.');
+                          title: strings.business('accept_offer_title'),
+                          message: strings.business('accept_offer_message'));
                       if (!confirmed || !context.mounted) return;
                       final accepted = await ref
                           .read(customerBidControllerProvider(jobId).notifier)
@@ -633,7 +654,7 @@ class ReceivedBidsScreen extends ConsumerWidget {
   }
 }
 
-class _CustomerBidOfferCard extends StatelessWidget {
+class _CustomerBidOfferCard extends ConsumerWidget {
   const _CustomerBidOfferCard(
       {required this.offer,
       required this.isAccepting,
@@ -646,7 +667,8 @@ class _CustomerBidOfferCard extends StatelessWidget {
   final VoidCallback? onAccept;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final bid = offer.bid;
     return Card(
       child: Padding(
@@ -682,14 +704,15 @@ class _CustomerBidOfferCard extends StatelessWidget {
           if (onAccept != null) ...[
             const SizedBox(height: 14),
             PrimaryButton(
-                label: isAccepting ? 'Accepting...' : 'Accept this offer',
+                label: isAccepting
+                    ? strings.business('accepting')
+                    : strings.business('accept_offer'),
                 onPressed: isAccepting ? null : onAccept)
           ],
           if (bid.status == BidStatus.accepted) ...[
             const SizedBox(height: 12),
-            const Text(
-                'Address and contact details are now available to the selected provider.',
-                style: TextStyle(
+            Text(strings.business('contact_revealed'),
+                style: const TextStyle(
                     color: AppColors.success, fontWeight: FontWeight.w600))
           ],
         ]),
@@ -703,14 +726,15 @@ class CustomerProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final auth = ref.watch(authControllerProvider);
     final profile = auth.profile;
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          const PageHeader(
-              title: 'Your profile',
-              subtitle: 'Manage your shared account details.'),
+          PageHeader(
+              title: strings.business('your_profile'),
+              subtitle: strings.business('manage_profile')),
           Card(
               child: Padding(
                   padding: const EdgeInsets.all(18),
@@ -732,18 +756,18 @@ class CustomerProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           ListTile(
               leading: const Icon(Icons.verified_user_outlined),
-              title: const Text('Become a provider'),
-              subtitle: const Text('Apply to receive local job requests'),
+              title: Text(strings.business('become_provider')),
+              subtitle: Text(strings.business('apply_receive_requests')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.go('/provider/apply')),
           ListTile(
               leading: const Icon(Icons.notifications_none),
-              title: const Text('Notification centre'),
+              title: Text(strings.business('notification_centre')),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.go('/notifications')),
           ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Sign out'),
+              title: Text(strings.business('sign_out')),
               onTap: () async {
                 await ref.read(authControllerProvider.notifier).signOut();
                 if (context.mounted) context.go('/onboarding');
@@ -761,6 +785,7 @@ class ProviderProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final asyncProfile = profile == null
         ? ref.watch(customerProviderProfileProvider(providerId))
         : null;
@@ -777,7 +802,7 @@ class ProviderProfileScreen extends ConsumerWidget {
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          Text('Provider profile',
+          Text(strings.business('provider_profile'),
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
@@ -793,18 +818,18 @@ class ProviderProfileScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           Wrap(spacing: 8, children: [
             StatusBadge(label: provider.verification.name),
-            if (provider.isAvailable) const StatusBadge(label: 'Available')
+            if (provider.isAvailable)
+              StatusBadge(label: strings.business('available'))
           ]),
           const SizedBox(height: 18),
-          const Card(
+          Card(
               child: Padding(
-                  padding: EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(14),
                   child: Row(children: [
-                    Icon(Icons.lock_outline, color: AppColors.primary),
-                    SizedBox(width: 10),
+                    const Icon(Icons.lock_outline, color: AppColors.primary),
+                    const SizedBox(width: 10),
                     Expanded(
-                        child: Text(
-                            'Contact details are revealed only after a bid is accepted.'))
+                        child: Text(strings.business('contact_after_accept')))
                   ])))
         ]);
   }

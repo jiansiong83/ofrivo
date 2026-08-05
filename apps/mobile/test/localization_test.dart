@@ -19,4 +19,15 @@ void main() {
     const strings = AppLocalizations(AppLanguage.chinese);
     expect(strings.text('missing_key'), 'missing_key');
   });
+
+  test('business pages expose three-language copy with safe fallback', () {
+    const english = AppLocalizations(AppLanguage.english);
+    const malay = AppLocalizations(AppLanguage.malay);
+    const chinese = AppLocalizations(AppLanguage.chinese);
+
+    expect(english.business('received_bids'), 'Received bids');
+    expect(malay.business('received_bids'), 'Tawaran diterima');
+    expect(chinese.business('received_bids'), '收到的报价');
+    expect(chinese.business('unknown_business_key'), 'unknown_business_key');
+  });
 }

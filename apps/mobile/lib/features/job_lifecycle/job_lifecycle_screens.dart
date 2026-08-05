@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/localization/app_localization.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
@@ -24,29 +25,36 @@ class JobLifecycleActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(jobLifecycleControllerProvider(jobId));
     final controller = ref.read(jobLifecycleControllerProvider(jobId).notifier);
     final buttons = <Widget>[];
     if (role == AppMode.provider && status == JobStatus.assigned) {
       buttons.add(PrimaryButton(
-          label: state.isSubmitting ? 'Starting...' : 'Mark as started',
+          label: state.isSubmitting
+              ? strings.business('starting')
+              : strings.business('mark_started'),
           onPressed: state.isSubmitting
               ? null
-              : () => _run(
-                  context, () => controller.start(jobId), 'Job started.')));
+              : () => _run(context, () => controller.start(jobId),
+                  strings.business('job_started'))));
     }
     if (status == JobStatus.inProgress) {
       buttons.add(PrimaryButton(
-          label: state.isSubmitting ? 'Completing...' : 'Mark as completed',
+          label: state.isSubmitting
+              ? strings.business('completing')
+              : strings.business('mark_completed'),
           onPressed: state.isSubmitting
               ? null
               : () => _run(context, () => controller.complete(jobId),
-                  'Job completed.')));
+                  strings.business('job_completed'))));
     }
     if (includeCancel &&
         (status == JobStatus.assigned || status == JobStatus.inProgress)) {
       buttons.add(DangerButton(
-          label: state.isSubmitting ? 'Cancelling...' : 'Cancel assigned job',
+          label: state.isSubmitting
+              ? strings.business('cancelling')
+              : strings.business('cancel_assigned'),
           onPressed: state.isSubmitting
               ? null
               : () => _confirmCancel(context, controller)));
@@ -58,8 +66,8 @@ class JobLifecycleActions extends ConsumerWidget {
               : () => _confirmNoShow(context, controller),
           icon: const Icon(Icons.person_off_outlined),
           label: Text(role == AppMode.customer
-              ? 'Mark provider no-show'
-              : 'Report customer no-show')));
+              ? strings.business('mark_provider_no_show')
+              : strings.business('mark_customer_no_show'))));
     }
     if (status == JobStatus.completed) {
       buttons.add(Row(children: [
@@ -67,13 +75,13 @@ class JobLifecycleActions extends ConsumerWidget {
             child: OutlinedButton.icon(
                 onPressed: () => context.go(_reviewPath()),
                 icon: const Icon(Icons.star_outline),
-                label: const Text('Leave a review'))),
+                label: Text(strings.business('leave_review')))),
         const SizedBox(width: 10),
         Expanded(
             child: OutlinedButton.icon(
                 onPressed: () => context.go(_reportPath()),
                 icon: const Icon(Icons.flag_outlined),
-                label: const Text('Report')))
+                label: Text(strings.business('report'))))
       ]));
     }
     if (state.info != null) {
@@ -106,22 +114,25 @@ class JobLifecycleActions extends ConsumerWidget {
 
   Future<void> _confirmCancel(
       BuildContext context, JobLifecycleController controller) async {
+    final strings = AppLocalizations(
+        ProviderScope.containerOf(context).read(appLanguageProvider));
     final confirmed = await ConfirmationDialog.show(context,
-        title: 'Cancel this assigned job?',
-        message: 'The customer will be notified and the job will stop here.');
+        title: strings.business('cancel_assigned_title'),
+        message: strings.business('cancel_assigned_message'));
     if (!confirmed || !context.mounted) return;
     await _run(
         context,
         () => controller.cancel(jobId, reason: 'Cancelled by provider.'),
-        'Job cancelled.');
+        strings.business('job_cancelled'));
   }
 
   Future<void> _confirmNoShow(
       BuildContext context, JobLifecycleController controller) async {
+    final strings = AppLocalizations(
+        ProviderScope.containerOf(context).read(appLanguageProvider));
     final confirmed = await ConfirmationDialog.show(context,
-        title: 'Mark a no-show?',
-        message:
-            'This creates a private safety event for the job and notifies the other participant.');
+        title: strings.business('no_show_title'),
+        message: strings.business('no_show_message'));
     if (!confirmed || !context.mounted) return;
     await _run(
         context,
@@ -129,7 +140,7 @@ class JobLifecycleActions extends ConsumerWidget {
             reason: role == AppMode.customer
                 ? 'Customer marked the provider as a no-show.'
                 : 'Provider marked the customer as a no-show.'),
-        'No-show marked for safety review.');
+        strings.business('no_show_marked'));
   }
 
   String _reviewPath() => role == AppMode.provider
@@ -148,18 +159,19 @@ class JobEventTimeline extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(jobLifecycleControllerProvider(jobId));
     if (!state.initialized && state.isLoading) return const LoadingSkeleton();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text('Job history',
-              style: TextStyle(fontWeight: FontWeight.w800)),
+          Text(strings.business('job_history'),
+              style: const TextStyle(fontWeight: FontWeight.w800)),
           const SizedBox(height: 12),
           if (state.events.isEmpty)
-            const Text('No activity recorded yet.',
-                style: TextStyle(color: AppColors.textSecondary))
+            Text(strings.business('no_activity'),
+                style: const TextStyle(color: AppColors.textSecondary))
           else
             for (final event in state.events.take(8))
               Padding(
@@ -224,10 +236,11 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     final mode = ref.watch(appModeProvider);
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(jobLifecycleControllerProvider(widget.jobId));
     final title = mode == AppMode.provider
-        ? 'Review the customer'
-        : 'Review the provider';
+        ? strings.business('review_customer')
+        : strings.business('review_provider');
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
@@ -237,9 +250,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                   .headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
-          const Text(
-              'Your review helps the Ofrivo community choose reliable people.',
-              style: TextStyle(color: AppColors.textSecondary)),
+          Text(strings.business('review_intro'),
+              style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 22),
           Center(
               child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -252,21 +264,21 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                       color: AppColors.warning, size: 34))
           ])),
           const SizedBox(height: 14),
-          const Text('Detailed ratings',
-              style: TextStyle(fontWeight: FontWeight.w800)),
+          Text(strings.business('detailed_ratings'),
+              style: const TextStyle(fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
           _ReviewRatingRow(
-              label: 'Punctuality',
+              label: strings.business('punctuality'),
               value: punctualityRating,
               enabled: !state.isSubmitting,
               onChanged: (value) => setState(() => punctualityRating = value)),
           _ReviewRatingRow(
-              label: 'Quality',
+              label: strings.business('quality'),
               value: qualityRating,
               enabled: !state.isSubmitting,
               onChanged: (value) => setState(() => qualityRating = value)),
           _ReviewRatingRow(
-              label: 'Communication',
+              label: strings.business('communication'),
               value: communicationRating,
               enabled: !state.isSubmitting,
               onChanged: (value) =>
@@ -277,16 +289,18 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
               enabled: !state.isSubmitting,
               maxLines: 5,
               maxLength: 1000,
-              decoration: const InputDecoration(
-                  labelText: 'Comment (optional)',
-                  hintText: 'What went well?')),
+              decoration: InputDecoration(
+                  labelText: strings.business('comment_optional'),
+                  hintText: strings.business('what_went_well'))),
           if (state.error != null) ...[
             const SizedBox(height: 10),
             Text(state.error!, style: const TextStyle(color: AppColors.danger))
           ],
           const SizedBox(height: 18),
           PrimaryButton(
-              label: state.isSubmitting ? 'Submitting...' : 'Submit review',
+              label: state.isSubmitting
+                  ? strings.business('submitting')
+                  : strings.business('submit_review'),
               onPressed: state.isSubmitting
                   ? null
                   : () async {
@@ -303,8 +317,9 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                                   communicationRating: communicationRating));
                       if (!context.mounted) return;
                       if (ok) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Review submitted.')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text(strings.business('review_submitted'))));
                         context.pop();
                       }
                     })
@@ -362,19 +377,19 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(jobLifecycleControllerProvider(widget.jobId));
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          Text('Report an issue',
+          Text(strings.business('report_issue'),
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
-          const Text(
-              'Reports are private and reviewed by the Ofrivo safety team.',
-              style: TextStyle(color: AppColors.textSecondary)),
+          Text(strings.business('report_intro'),
+              style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
           DropdownButtonFormField<String>(
               initialValue: reason,
@@ -387,24 +402,26 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                   : (value) {
                       if (value != null) setState(() => reason = value);
                     },
-              decoration: const InputDecoration(labelText: 'Reason')),
+              decoration:
+                  InputDecoration(labelText: strings.business('reason'))),
           const SizedBox(height: 14),
           TextField(
               controller: descriptionController,
               enabled: !state.isSubmitting,
               maxLines: 6,
               maxLength: 2000,
-              decoration: const InputDecoration(
-                  labelText: 'What happened?',
-                  hintText:
-                      'Include dates, messages, or other useful details.')),
+              decoration: InputDecoration(
+                  labelText: strings.business('what_happened'),
+                  hintText: strings.business('report_details_hint'))),
           if (state.error != null) ...[
             const SizedBox(height: 10),
             Text(state.error!, style: const TextStyle(color: AppColors.danger))
           ],
           const SizedBox(height: 18),
           PrimaryButton(
-              label: state.isSubmitting ? 'Submitting...' : 'Submit report',
+              label: state.isSubmitting
+                  ? strings.business('submitting')
+                  : strings.business('submit_report'),
               onPressed: state.isSubmitting
                   ? null
                   : () async {
@@ -418,10 +435,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                                   description: descriptionController.text));
                       if (!context.mounted) return;
                       if (ok) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Report submitted to the safety team.')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text(strings.business('report_submitted'))));
                         context.pop();
                       }
                     })
