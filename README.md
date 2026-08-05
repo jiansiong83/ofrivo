@@ -19,6 +19,7 @@ This repository contains the Step 0 + Step 1 foundation, the local Step 2 Supaba
 - Version 1.1 No-show marker with participant-only RPC authorization, duplicate protection, private job events, and reported-user notifications.
 - Version 1.1 Job auto-expire with publish-time expiry defaults, service-only batch worker, pending-bid expiration, event/notification outbox, and local demo parity.
 - Version 1.1 richer review dimensions with punctuality, quality, and communication scores across the fake and Supabase review paths.
+- Version 1.1 deep business-page localization for customer/provider job flows, bids, provider application/feed, lifecycle, review, and report surfaces with safe fallback.
 - Customer job creation with validation, private contact fields, photo selection, draft/preview/publish, My Jobs, Job Detail, and cancellation.
 - Provider application with service categories, areas, private identity evidence, work photos, and Pending/Approved/Rejected/Suspended status states.
 - Provider Job Feed with public-field filtering, job detail privacy boundaries, bid submission/edit/withdraw, and My Bids.

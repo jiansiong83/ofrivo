@@ -125,4 +125,6 @@
 - Expiry local runner passes 3/3 checks; Version 1.1 contract validation now covers 55 checks, Flutter analyze and 37 tests pass, and the Android debug APK builds.
 - Added required punctuality, quality, and communication review dimensions with 1–5 database constraints, detailed fake/Supabase adapters, and review-screen controls.
 - Review local runner passes 4/4 checks; Version 1.1 contract validation now covers 62 checks, Flutter analyze and 37 tests pass, and the Android debug APK builds.
+- Extended localization into the customer, provider, and job-lifecycle business pages, including job creation, bids, provider application/feed, reviews, and reports, with English/Bahasa Melayu/Chinese fallback.
+- Business localization widget coverage passes; Version 1.1 contract validation now covers 65 checks, Flutter analyze reports no issues, 38 tests pass, and the Android debug APK builds.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.

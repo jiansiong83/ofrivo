@@ -116,7 +116,7 @@
 - Language picker exposes English, Bahasa Melayu, and Chinese from onboarding, auth screens, and the authenticated shell.
 - Language changes rebuild onboarding/auth/navigation copy and propagate the selected `Locale` to `MaterialApp`.
 - The selected language persists as a locale code through `shared_preferences`; a missing/unavailable preferences plugin keeps an in-memory selection without blocking startup.
-- Translation tests cover the three onboarding variants and English fallback behavior; deep business-page copy remains explicitly tracked for later migration.
+- Translation tests cover the three onboarding variants and English fallback behavior; business-page coverage is tracked in the dedicated checks below.
 - Run `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build after adding a translated feature surface.
 
 ## Version 1.1 Provider Portfolio checks
@@ -149,6 +149,12 @@
 - Fake and Supabase adapters persist and map all three dimension fields; the existing participant trigger and one-review-per-participant rule remain active.
 - Database migration backfills legacy rows to `5` and removes insert defaults so new clients must submit all dimensions explicitly.
 - Run `node supabase/tests/run_version11_review_local.mjs` and require all 4 checks, in addition to reset/lint, the Step 11 security suite, and the Version 1.1 contract validator.
+
+## Version 1.1 Business-page localization checks
+
+- Customer job creation, My Jobs, bids, provider application/feed, assigned-job lifecycle, review, and report surfaces resolve copy through the business localization map for English, Bahasa Melayu, and Chinese.
+- Changing the persisted language rebuilds the active business screen; an unknown business key returns the key safely rather than throwing or changing authorization state.
+- Run the business localization widget test together with `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build; the current baseline is 65 contract checks and 38 Flutter tests.
 
 ## Later test layers
 

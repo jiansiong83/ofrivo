@@ -99,6 +99,11 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Punctuality, quality, and communication scores are required for new rows and constrained to 1–5 by the database; legacy reviews are backfilled to a safe neutral default during migration.
 - No client update path is granted for reviews, so submitted scores and comments cannot be rewritten by a participant.
 
+## Version 1.1 Business-page localization controls
+
+- Business copy is static localization data; the persisted language preference stores only `en`, `ms`, or `zh` and carries no account, token, contact, or job data.
+- Runtime secrets, phone numbers, addresses, review content, and provider evidence are never embedded in translations; an unknown key falls back safely without changing authorization.
+
 ## Step 4 Customer Job controls
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.

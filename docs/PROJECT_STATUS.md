@@ -2,11 +2,11 @@
 
 ## Current stable version
 
-Version 1.1 Phone OTP, three-language foundation, Provider Portfolio, No-show marker, Job auto-expire, and richer review dimensions (local Docker validation complete; real SMS/FCM delivery remains configuration-gated).
+Version 1.1 Phone OTP, three-language foundation, Provider Portfolio, No-show marker, Job auto-expire, richer review dimensions, and deep business-page localization (local Docker validation complete; real SMS/FCM delivery remains configuration-gated).
 
 ## Current objective
 
-Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Core entry/auth/navigation copy now supports English, Bahasa Melayu, and Chinese; approved-provider portfolio photos are separated from private evidence; no-show reports are participant-derived and duplicate-safe; open jobs now have a service-only expiry worker with event/notification outbox writes; reviews now capture punctuality, quality, and communication dimensions; deep business-page translation remains tracked. Google Play distribution is intentionally deferred for now.
+Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Core entry/auth/navigation and customer/provider/lifecycle business-page copy now supports English, Bahasa Melayu, and Chinese with safe fallback; approved-provider portfolio photos are separated from private evidence; no-show reports are participant-derived and duplicate-safe; open jobs now have a service-only expiry worker with event/notification outbox writes; reviews now capture punctuality, quality, and communication dimensions. Remaining Admin Web/notification copy review and external delivery configuration are tracked separately. Google Play distribution is intentionally deferred for now.
 
 ## Completed
 
@@ -28,6 +28,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Version 1.1 No-show marker added with `mark_no_show`, participant-only authorization, duplicate protection, private event metadata, typed notifications, fake parity, confirmation UI, and local RPC runner.
 - Version 1.1 Job auto-expire added with publish-time seven-day defaults, bounded service-only worker, row locking, pending-bid expiration, event/notification outbox writes, fake parity, and local RPC runner.
 - Version 1.1 richer review dimensions added with required punctuality, quality, and communication scores, database bounds, fake/Supabase persistence, detailed score controls, and local integration runner.
+- Version 1.1 deep business-page localization added across customer, provider, and lifecycle flows with persisted three-language keys, widget coverage, and safe fallback behavior.
 - Auth unit tests added and passing with the prepared Flutter SDK.
 - Step 4 customer job form, photo picker adapter, draft/preview/publish flow, My Jobs, Job Detail, cancellation, and fake/Supabase repositories added.
 - Job draft validation and fake repository lifecycle tests added and passing.
@@ -69,7 +70,7 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 - Hosted Supabase RLS/Storage/multi-account/concurrency scenarios remain pending; the equivalent isolated local Docker run passes, but no cloud project is connected.
 - Closed Beta remains externally gated by a permanent Android application ID, production upload keystore, Google Play Console access, isolated beta project, and real tester accounts.
 - Real Phone OTP delivery remains externally gated by Supabase SMS provider/sender configuration; the local demo path is deterministic and offline.
-- Deep business-page copy still needs migration and review in all three languages; the current switch is intentionally scoped to entry, auth, and shell surfaces.
+- Remaining Admin Web and notification copy still needs migration and review in all three languages; customer, provider, and lifecycle mobile business surfaces are covered.
 - Provider Portfolio hosted rollout still needs the migration applied to the target Supabase project and real public image review; local Docker reset/lint passed.
 - No-show hosted rollout still needs the migration applied to the target Supabase project and real participant/device review; local RPC runner passes.
 - Job auto-expire hosted rollout still needs the migration applied to the target Supabase project and a managed scheduler/service-role runtime; local expiry runner passes.
@@ -123,7 +124,8 @@ Step 2 through Version 1.1 review-dimension migrations are applied and seeded in
 - Version 1.1 No-show contract validation: PASS (`node scripts/validate_version11.mjs`, 48 checks).
 - Version 1.1 Job auto-expire contract validation: PASS (`node scripts/validate_version11.mjs`, 55 checks).
 - Version 1.1 richer review dimension contract validation: PASS (`node scripts/validate_version11.mjs`, 62 checks).
-- Version 1.1 Flutter test: PASS (37 tests passed).
+- Version 1.1 business-page localization contract validation: PASS (`node scripts/validate_version11.mjs`, 65 checks).
+- Version 1.1 Flutter test: PASS (38 tests passed, including business localization fallback coverage).
 - Provider Portfolio migration: PASS in local Docker reset/lint; Step 11 integration suite remains PASS (19 checks).
 - No-show local RPC runner: PASS (`supabase/tests/run_version11_no_show_local.mjs`, 3 checks).
 - Job expiry migration: PASS in local Docker reset/lint; expiry local runner passes (`supabase/tests/run_version11_expiry_local.mjs`, 3 checks).
@@ -133,8 +135,8 @@ Step 2 through Version 1.1 review-dimension migrations are applied and seeded in
 
 ## Commit ID / rollback point
 
-Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). Version 1.1 three-language commit: `11f1a0e` (`feat: add three-language app foundation`). Version 1.1 Provider Portfolio commit: `ad02c18` (`feat: add provider portfolio`). Version 1.1 No-show commit: `46020ab` (`feat: add no-show job marker`). Version 1.1 Job auto-expire commit: `a7c6a89` (`feat: add job auto-expiry worker`). Version 1.1 richer review dimensions commit: `5aafb7c` (`feat: add richer review dimensions`). The paired Version 1.1 docs commit is the current rollback point.
+Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). Version 1.1 three-language commit: `11f1a0e` (`feat: add three-language app foundation`). Version 1.1 Provider Portfolio commit: `ad02c18` (`feat: add provider portfolio`). Version 1.1 No-show commit: `46020ab` (`feat: add no-show job marker`). Version 1.1 Job auto-expire commit: `a7c6a89` (`feat: add job auto-expiry worker`). Version 1.1 richer review dimensions commit: `5aafb7c` (`feat: add richer review dimensions`). Version 1.1 business localization commit: `4db264a` (`feat: localize business pages`). The paired Version 1.1 docs commit is the current rollback point.
 
 ## Next step
 
-Next: Version 1.1 deep business-page translation, FCM provider completion, and real SMS/provider/device verification. Google Play internal/closed testing remains deferred until explicitly requested.
+Next: complete remaining Admin Web/notification copy review, then handle FCM provider completion and real SMS/provider/device verification when credentials and devices are available. Google Play internal/closed testing remains deferred until explicitly requested.
