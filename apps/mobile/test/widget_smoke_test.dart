@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ofrivo_mobile/app.dart';
@@ -6,7 +7,7 @@ import 'package:ofrivo_mobile/shared/widgets/app_widgets.dart';
 
 void main() {
   testWidgets('Ofrivo onboarding renders', (tester) async {
-    await tester.pumpWidget(const OfrivoApp());
+    await tester.pumpWidget(const ProviderScope(child: OfrivoApp()));
     await tester.pumpAndSettle();
     expect(find.text('Post a job.\nCompare offers.\nGet it done.'), findsOneWidget);
     expect(find.text('Explore fake-data preview'), findsOneWidget);

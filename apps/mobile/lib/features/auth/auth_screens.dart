@@ -2,32 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'auth_controller.dart';
+import '../../core/localization/app_localization.dart';
 import '../../shared/widgets/app_widgets.dart';
+import 'auth_controller.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => _AuthScreen(
-      title: 'Welcome back',
-      buttonLabel: 'Log in',
-      footer: 'New to Ofrivo?',
-      footerAction: 'Create an account',
-      onFooter: () => context.go('/register'));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
+    return _AuthScreen(
+        title: strings.text('welcome_back'),
+        buttonLabel: strings.text('login'),
+        footer: strings.text('new_to_ofrivo'),
+        footerAction: strings.text('create_account'),
+        onFooter: () => context.go('/register'));
+  }
 }
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends ConsumerWidget {
   const RegisterScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => _AuthScreen(
-      title: 'Create your account',
-      buttonLabel: 'Register',
-      footer: 'Already have an account?',
-      footerAction: 'Log in',
-      onFooter: () => context.go('/login'),
-      includeName: true);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
+    return _AuthScreen(
+        title: strings.text('create_your_account'),
+        buttonLabel: strings.text('register'),
+        footer: strings.text('already_have_account'),
+        footerAction: strings.text('login'),
+        onFooter: () => context.go('/login'),
+        includeName: true);
+  }
 }
 
 class _AuthScreen extends ConsumerStatefulWidget {
@@ -93,8 +100,9 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(actions: const [LanguagePicker()]),
       body: ListView(padding: const EdgeInsets.all(24), children: [
         const SizedBox(height: 18),
         const CircleAvatar(
@@ -113,27 +121,31 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
           TextField(
               controller: nameController,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(labelText: 'Full name')),
+              decoration:
+                  InputDecoration(labelText: strings.text('full_name'))),
           const SizedBox(height: 14)
         ],
         TextField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(labelText: 'Email address')),
+            decoration:
+                InputDecoration(labelText: strings.text('email_address'))),
         const SizedBox(height: 14),
         TextField(
             controller: passwordController,
             obscureText: true,
             onSubmitted: (_) => _submit(),
-            decoration: const InputDecoration(labelText: 'Password')),
+            decoration: InputDecoration(labelText: strings.text('password'))),
         if (auth.error != null) ...[
           const SizedBox(height: 12),
           Text(auth.error!, style: const TextStyle(color: Color(0xFFB42318)))
         ],
         const SizedBox(height: 22),
         PrimaryButton(
-            label: auth.isLoading ? 'Please wait…' : widget.buttonLabel,
+            label: auth.isLoading
+                ? strings.text('please_wait')
+                : widget.buttonLabel,
             onPressed: auth.isLoading ? null : _submit),
         if (!widget.includeName)
           Align(
@@ -142,7 +154,7 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
                   onPressed: auth.isLoading
                       ? null
                       : () => context.push('/forgot-password'),
-                  child: const Text('Forgot password?'))),
+                  child: Text(strings.text('forgot_password')))),
         if (!widget.includeName)
           Align(
               alignment: Alignment.centerRight,
@@ -150,7 +162,7 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
                   onPressed: auth.isLoading
                       ? null
                       : () => context.push('/phone-login'),
-                  child: const Text('Use phone OTP instead'))),
+                  child: Text(strings.text('use_phone_otp')))),
         const SizedBox(height: 20),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text(widget.footer),
@@ -159,10 +171,9 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
               child: Text(widget.footerAction))
         ]),
         const SizedBox(height: 12),
-        const Text(
-            'No Supabase keys? This build uses local demo mode and does not contact a backend.',
+        Text(strings.text('demo_mode_hint'),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Color(0xFF5B6870), fontSize: 12)),
+            style: const TextStyle(color: Color(0xFF5B6870), fontSize: 12)),
       ]),
     );
   }
@@ -204,21 +215,23 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return AppScaffold(
-      title: 'Phone sign in',
+      title: strings.text('phone_sign_in'),
+      actions: const [LanguagePicker()],
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          const Text(
-              'Use your phone number to receive a one-time verification code.'),
+          Text(strings.text('phone_otp_description')),
           const SizedBox(height: 20),
           TextField(
             controller: phoneController,
             enabled: !codeRequested && !auth.isLoading,
             keyboardType: TextInputType.phone,
             textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(
-                labelText: 'Phone number', hintText: '+60120000101'),
+            decoration: InputDecoration(
+                labelText: strings.text('phone_number'),
+                hintText: '+60120000101'),
           ),
           if (codeRequested) ...[
             const SizedBox(height: 14),
@@ -229,7 +242,8 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
               maxLength: 6,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(labelText: 'Verification code'),
+              decoration:
+                  InputDecoration(labelText: strings.text('verification_code')),
             ),
           ],
           if (auth.error != null) ...[
@@ -243,8 +257,10 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
           const SizedBox(height: 20),
           PrimaryButton(
             label: auth.isLoading
-                ? 'Please wait…'
-                : (codeRequested ? 'Verify code' : 'Send code'),
+                ? strings.text('please_wait')
+                : (codeRequested
+                    ? strings.text('verify_code')
+                    : strings.text('send_code')),
             onPressed: auth.isLoading ? null : _submit,
           ),
           if (codeRequested)
@@ -257,14 +273,14 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
                           codeRequested = false;
                           codeController.clear();
                         }),
-                child: const Text('Change phone number'),
+                child: Text(strings.text('change_phone')),
               ),
             ),
           const SizedBox(height: 14),
           Text(
             ref.read(authRepositoryProvider).isDemoMode
-                ? 'Demo mode code: 123456'
-                : 'The code expires according to your Supabase Auth settings.',
+                ? strings.text('demo_otp')
+                : strings.text('supabase_code_expiry'),
             textAlign: TextAlign.center,
             style: const TextStyle(color: Color(0xFF5B6870), fontSize: 12),
           ),
@@ -272,10 +288,10 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Prefer email?'),
+              Text(strings.text('prefer_email')),
               TextButton(
                   onPressed: auth.isLoading ? null : () => context.go('/login'),
-                  child: const Text('Log in')),
+                  child: Text(strings.text('login'))),
             ],
           ),
         ],
@@ -314,18 +330,23 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return AppScaffold(
-        title: 'Reset password',
+        title: strings.text('reset_password'),
+        actions: const [LanguagePicker()],
         body: ListView(padding: const EdgeInsets.all(24), children: [
-          const Text('Enter your email and we will send reset instructions.'),
+          Text(strings.text('reset_password_description')),
           const SizedBox(height: 20),
           TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email address')),
+              decoration:
+                  InputDecoration(labelText: strings.text('email_address'))),
           const SizedBox(height: 20),
           PrimaryButton(
-              label: auth.isLoading ? 'Please wait…' : 'Send instructions',
+              label: auth.isLoading
+                  ? strings.text('please_wait')
+                  : strings.text('send_instructions'),
               onPressed: auth.isLoading ? null : _submit)
         ]));
   }
