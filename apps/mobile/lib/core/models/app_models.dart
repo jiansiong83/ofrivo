@@ -20,6 +20,7 @@ enum NotificationType {
   bidAccepted,
   jobAssigned,
   jobExpiring,
+  jobExpired,
   providerApproved,
   providerRejected,
   providerSuspended,
@@ -43,6 +44,8 @@ extension NotificationTypeLabel on NotificationType {
         return 'Job assigned';
       case NotificationType.jobExpiring:
         return 'Job expiring soon';
+      case NotificationType.jobExpired:
+        return 'Job expired';
       case NotificationType.providerApproved:
         return 'Provider approved';
       case NotificationType.providerRejected:

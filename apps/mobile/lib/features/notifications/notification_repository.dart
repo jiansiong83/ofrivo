@@ -99,6 +99,8 @@ class SupabaseNotificationRepository implements NotificationRepository {
         return NotificationType.jobAssigned;
       case 'job_expiring':
         return NotificationType.jobExpiring;
+      case 'job_expired':
+        return NotificationType.jobExpired;
       case 'provider_approved':
         return NotificationType.providerApproved;
       case 'provider_rejected':

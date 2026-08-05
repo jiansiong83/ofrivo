@@ -99,6 +99,8 @@ class NotificationsScreen extends ConsumerWidget {
         return Icons.assignment_turned_in_outlined;
       case NotificationType.jobExpiring:
         return Icons.schedule_outlined;
+      case NotificationType.jobExpired:
+        return Icons.timer_off_outlined;
       case NotificationType.providerApproved:
         return Icons.verified_outlined;
       case NotificationType.providerRejected:

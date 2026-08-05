@@ -34,6 +34,10 @@ const notificationModel = read('apps/mobile/lib/core/models/app_models.dart');
 const notificationRepository = read('apps/mobile/lib/features/notifications/notification_repository.dart');
 const lifecycleTests = read('apps/mobile/test/job_lifecycle_test.dart');
 const noShowRunner = read('supabase/tests/run_version11_no_show_local.mjs');
+const expiryMigration = read('supabase/migrations/20260805000400_version11_job_expiry.sql');
+const expiryRunner = read('supabase/tests/run_version11_expiry_local.mjs');
+const customerJobRepository = read('apps/mobile/lib/features/customer/customer_job_repository.dart');
+const expiryTests = read('apps/mobile/test/job_expiry_test.dart');
 
 const checks = [
   ['AuthUser carries an optional phone number', models.includes('final String? phone;')],
@@ -84,6 +88,13 @@ const checks = [
   ['no-show notification maps to a typed mobile event', notificationModel.includes('noShow') && notificationRepository.includes("case 'no_show'")],
   ['job lifecycle tests cover no-show authorization and duplicate guard', lifecycleTests.includes('no-show')],
   ['local no-show runner covers RPC, duplicate, event, and notification paths', noShowRunner.includes("/rpc/mark_no_show") && noShowRunner.includes('duplicate no-show marker') && noShowRunner.includes('reported-user notification')],
+  ['job publish trigger assigns a seven-day expiry', expiryMigration.includes('set_job_expiry_on_publish') && expiryMigration.includes("interval '7 days'")],
+  ['expiry worker is service-role-only and batch bounded', expiryMigration.includes('expire_open_jobs') && expiryMigration.includes('p_limit > 500') && expiryMigration.includes('to service_role')],
+  ['expiry worker locks open jobs and expires pending bids', expiryMigration.includes('for update skip locked') && expiryMigration.includes("status = 'expired'") && expiryMigration.includes("status = 'pending'")],
+  ['expiry worker writes event and notification outbox rows', expiryMigration.includes("'job_expired'") && expiryMigration.includes('job_events') && expiryMigration.includes('notifications')],
+  ['fake customer repository mirrors due-job expiry', customerJobRepository.includes('Future<int> expireOpenJobs') && customerJobRepository.includes('NotificationType.jobExpired')],
+  ['local expiry runner covers browser denial and worker atomicity', expiryRunner.includes('/rpc/expire_open_jobs') && expiryRunner.includes('browser clients cannot run') && expiryRunner.includes('atomically updates bids')],
+  ['expiry has fake lifecycle coverage', expiryTests.includes('fake expiry changes only due open jobs')],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);

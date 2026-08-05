@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/data/fake_data.dart';
 import '../../core/models/app_models.dart';
+import '../job_lifecycle/job_lifecycle_models.dart';
 import 'customer_job_models.dart';
 
 abstract interface class CustomerJobRepository {
@@ -44,6 +46,7 @@ class FakeCustomerJobRepository implements CustomerJobRepository {
       contactWhatsapp: job.contactWhatsapp,
       photoPaths: job.photoPaths,
       createdAt: DateTime.now(),
+      expiresAt: publish ? DateTime.now().add(const Duration(days: 7)) : null,
     );
     _jobs.insert(0, saved);
     return saved;
@@ -60,6 +63,45 @@ class FakeCustomerJobRepository implements CustomerJobRepository {
       throw StateError('This job cannot be cancelled in its current state.');
     }
     _jobs[index] = current.copyWith(status: JobStatus.cancelled);
+  }
+
+  Future<int> expireOpenJobs({DateTime? now}) async {
+    final currentTime = now ?? DateTime.now();
+    var expiredCount = 0;
+    for (var index = 0; index < _jobs.length; index++) {
+      final job = _jobs[index];
+      if (job.status != JobStatus.open ||
+          job.expiresAt == null ||
+          job.expiresAt!.isAfter(currentTime)) {
+        continue;
+      }
+      _jobs[index] = job.copyWith(status: JobStatus.expired);
+      fakeJobEvents.insert(
+        0,
+        JobEventRecord(
+          id: 'local-event-${_sequence++}',
+          jobId: job.id,
+          eventType: 'job_expired',
+          createdAt: currentTime,
+          actorId: null,
+        ),
+      );
+      fakeNotifications.insert(
+        0,
+        AppNotification(
+          id: 'local-notification-${_sequence++}',
+          type: NotificationType.jobExpired,
+          title: 'Job expired',
+          body: 'The job stopped accepting offers after its expiry time.',
+          isRead: false,
+          createdAt: currentTime,
+          referenceType: 'job',
+          referenceId: job.id,
+        ),
+      );
+      expiredCount++;
+    }
+    return expiredCount;
   }
 }
 
@@ -100,6 +142,12 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
           'time_window': draft.timeWindow,
           'urgency': draft.urgent ? 'urgent' : 'normal',
           'status': 'draft',
+          'expires_at': publish
+              ? DateTime.now()
+                  .add(const Duration(days: 7))
+                  .toUtc()
+                  .toIso8601String()
+              : null,
           'contact_phone': draft.contactPhone.trim(),
           'contact_whatsapp': draft.contactWhatsapp.trim().isEmpty
               ? null
