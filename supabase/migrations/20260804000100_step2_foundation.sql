@@ -53,43 +53,6 @@ begin
 end;
 $$;
 
-create or replace function public.is_admin(p_user_id uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select coalesce((select p.is_admin from public.profiles p where p.id = p_user_id), false);
-$$;
-
-create or replace function public.is_active_account(p_user_id uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select coalesce((select p.account_status = 'active' from public.profiles p where p.id = p_user_id), false);
-$$;
-
-create or replace function public.is_approved_provider(p_user_id uuid default auth.uid())
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.profiles p
-    join public.provider_profiles pp on pp.user_id = p.id
-    where p.id = p_user_id
-      and p.account_status = 'active'
-      and pp.verification_status = 'approved'
-  );
-$$;
-
 create or replace function public.path_job_id(object_name text)
 returns uuid
 language plpgsql
@@ -317,6 +280,125 @@ create index if not exists reports_status_created_at_idx on public.reports (stat
 create index if not exists job_events_job_created_at_idx on public.job_events (job_id, created_at desc);
 create index if not exists job_photos_job_sort_order_idx on public.job_photos (job_id, sort_order);
 
+create or replace function public.is_admin(p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce((select p.is_admin from public.profiles p where p.id = p_user_id), false);
+$$;
+
+create or replace function public.is_active_account(p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce((select p.account_status = 'active' from public.profiles p where p.id = p_user_id), false);
+$$;
+
+create or replace function public.is_approved_provider(p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles p
+    join public.provider_profiles pp on pp.user_id = p.id
+    where p.id = p_user_id
+      and p.account_status = 'active'
+      and pp.verification_status = 'approved'
+  );
+$$;
+
+create or replace function public.is_customer_job(p_job_id uuid, p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.jobs j
+    where j.id = p_job_id
+      and j.customer_id = p_user_id
+  );
+$$;
+
+create or replace function public.is_open_job(p_job_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.jobs j
+    where j.id = p_job_id
+      and j.status = 'open'
+  );
+$$;
+
+create or replace function public.is_accepted_job_provider(p_job_id uuid, p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.jobs j
+    join public.bids b on b.id = j.accepted_bid_id
+    where j.id = p_job_id
+      and b.provider_id = p_user_id
+      and j.status in ('assigned', 'in_progress', 'completed', 'cancelled')
+  );
+$$;
+
+create or replace function public.can_read_job(p_job_id uuid, p_user_id uuid default auth.uid())
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.jobs j
+    where j.id = p_job_id
+      and (
+        j.customer_id = p_user_id
+        or public.is_admin(p_user_id)
+        or public.is_accepted_job_provider(p_job_id, p_user_id)
+        or (
+          j.status = 'open'
+          and public.is_approved_provider(p_user_id)
+          and exists (
+            select 1
+            from public.provider_categories pc
+            where pc.provider_id = p_user_id
+              and pc.category_id = j.category_id
+          )
+          and exists (
+            select 1
+            from public.provider_areas pa
+            where pa.provider_id = p_user_id
+              and pa.area_id = j.area_id
+          )
+        )
+      )
+  );
+$$;
+
 create or replace function public.prevent_profile_privilege_escalation()
 returns trigger
 language plpgsql
@@ -353,6 +435,7 @@ $$;
 create or replace function public.enforce_bid_eligibility()
 returns trigger
 language plpgsql
+security definer
 set search_path = public
 as $$
 declare
@@ -394,6 +477,7 @@ $$;
 create or replace function public.validate_review_participants()
 returns trigger
 language plpgsql
+security definer
 set search_path = public
 as $$
 declare
@@ -420,6 +504,7 @@ $$;
 create or replace function public.validate_report_participants()
 returns trigger
 language plpgsql
+security definer
 set search_path = public
 as $$
 declare
@@ -601,13 +686,7 @@ for select to authenticated
 using (
   customer_id = auth.uid()
   or public.is_admin()
-  or exists (
-    select 1
-    from public.bids b
-    where b.id = jobs.accepted_bid_id
-      and b.provider_id = auth.uid()
-      and jobs.status in ('assigned', 'in_progress', 'completed', 'cancelled')
-  )
+  or public.is_accepted_job_provider(id)
 );
 
 create policy jobs_insert_customer on public.jobs
@@ -626,37 +705,23 @@ using (customer_id = auth.uid() and status = 'draft');
 create policy job_photos_select_participant on public.job_photos
 for select to authenticated
 using (
-  exists (
-    select 1 from public.jobs j
-    where j.id = job_photos.job_id
-      and (
-        j.customer_id = auth.uid()
-        or public.is_admin()
-        or (
-          public.is_approved_provider()
-          and j.status = 'open'
-          and exists (select 1 from public.provider_categories pc where pc.provider_id = auth.uid() and pc.category_id = j.category_id)
-          and exists (select 1 from public.provider_areas pa where pa.provider_id = auth.uid() and pa.area_id = j.area_id)
-        )
-        or exists (select 1 from public.bids b where b.id = j.accepted_bid_id and b.provider_id = auth.uid())
-      )
-  )
+  public.can_read_job(job_id)
 );
 
 create policy job_photos_insert_owner on public.job_photos
 for insert to authenticated
-with check (exists (select 1 from public.jobs j where j.id = job_id and j.customer_id = auth.uid()));
+with check (public.is_customer_job(job_id));
 
 create policy job_photos_delete_owner_or_admin on public.job_photos
 for delete to authenticated
-using (exists (select 1 from public.jobs j where j.id = job_id and (j.customer_id = auth.uid() or public.is_admin())));
+using (public.is_customer_job(job_id) or public.is_admin());
 
 create policy bids_select_owner_or_self on public.bids
 for select to authenticated
 using (
   provider_id = auth.uid()
   or public.is_admin()
-  or exists (select 1 from public.jobs j where j.id = bids.job_id and j.customer_id = auth.uid())
+  or public.is_customer_job(job_id)
 );
 
 create policy bids_insert_approved_provider on public.bids
@@ -665,7 +730,7 @@ with check (
   provider_id = auth.uid()
   and status = 'pending'
   and public.is_approved_provider(auth.uid())
-  and exists (select 1 from public.jobs j where j.id = job_id and j.status = 'open')
+  and public.is_open_job(job_id)
 );
 
 create policy bids_update_pending_self_or_admin on public.bids
@@ -713,8 +778,8 @@ for select to authenticated
 using (
   public.is_admin()
   or actor_id = auth.uid()
-  or exists (select 1 from public.jobs j where j.id = job_id and j.customer_id = auth.uid())
-  or exists (select 1 from public.jobs j join public.bids b on b.id = j.accepted_bid_id where j.id = job_id and b.provider_id = auth.uid())
+  or public.is_customer_job(job_id)
+  or public.is_accepted_job_provider(job_id)
 );
 
 grant select, insert, update, delete on
@@ -735,11 +800,36 @@ grant select, insert, update, delete on
   public.job_events
 to authenticated;
 
+-- The service role is server-only and bypasses RLS. Grant it the table and
+-- sequence privileges required by server workers and local integration tests.
+grant select, insert, update, delete on
+  public.profiles,
+  public.provider_profiles,
+  public.service_categories,
+  public.areas,
+  public.provider_categories,
+  public.provider_areas,
+  public.provider_verifications,
+  public.jobs,
+  public.job_photos,
+  public.bids,
+  public.reviews,
+  public.reports,
+  public.notifications,
+  public.device_tokens,
+  public.job_events
+to service_role;
+
 grant usage, select on all sequences in schema public to authenticated;
+grant usage, select on all sequences in schema public to service_role;
 
 revoke all on function public.is_admin(uuid) from public;
 revoke all on function public.is_active_account(uuid) from public;
 revoke all on function public.is_approved_provider(uuid) from public;
+revoke all on function public.is_customer_job(uuid, uuid) from public;
+revoke all on function public.is_open_job(uuid) from public;
+revoke all on function public.is_accepted_job_provider(uuid, uuid) from public;
+revoke all on function public.can_read_job(uuid, uuid) from public;
 revoke all on function public.path_job_id(text) from public;
 revoke all on function public.set_updated_at() from public;
 revoke all on function public.prevent_profile_privilege_escalation() from public;
@@ -751,6 +841,10 @@ revoke all on function public.validate_report_participants() from public;
 grant execute on function public.is_admin(uuid) to authenticated;
 grant execute on function public.is_active_account(uuid) to authenticated;
 grant execute on function public.is_approved_provider(uuid) to authenticated;
+grant execute on function public.is_customer_job(uuid, uuid) to authenticated;
+grant execute on function public.is_open_job(uuid) to authenticated;
+grant execute on function public.is_accepted_job_provider(uuid, uuid) to authenticated;
+grant execute on function public.can_read_job(uuid, uuid) to authenticated;
 grant execute on function public.path_job_id(text) to authenticated;
 
 -- Storage buckets are private except for avatars. Sensitive objects are only
@@ -769,47 +863,33 @@ using (bucket_id = 'avatars');
 
 create policy avatars_owner_insert on storage.objects
 for insert to authenticated
-with check (bucket_id = 'avatars' and owner_id = auth.uid());
+with check (bucket_id = 'avatars' and owner_id = auth.uid()::text);
 
 create policy avatars_owner_update on storage.objects
 for update to authenticated
-using (bucket_id = 'avatars' and owner_id = auth.uid())
-with check (bucket_id = 'avatars' and owner_id = auth.uid());
+using (bucket_id = 'avatars' and owner_id = auth.uid()::text)
+with check (bucket_id = 'avatars' and owner_id = auth.uid()::text);
 
 create policy avatars_owner_delete on storage.objects
 for delete to authenticated
-using (bucket_id = 'avatars' and owner_id = auth.uid());
+using (bucket_id = 'avatars' and owner_id = auth.uid()::text);
 
 create policy job_photos_read_authorized on storage.objects
 for select to authenticated
 using (
   bucket_id = 'job-photos'
-  and exists (
-    select 1 from public.jobs j
-    where j.id = public.path_job_id(name)
-      and (
-        j.customer_id = auth.uid()
-        or public.is_admin()
-        or (
-          public.is_approved_provider()
-          and j.status = 'open'
-          and exists (select 1 from public.provider_categories pc where pc.provider_id = auth.uid() and pc.category_id = j.category_id)
-          and exists (select 1 from public.provider_areas pa where pa.provider_id = auth.uid() and pa.area_id = j.area_id)
-        )
-        or exists (select 1 from public.bids b where b.id = j.accepted_bid_id and b.provider_id = auth.uid())
-      )
-  )
+  and public.can_read_job(public.path_job_id(name))
 );
 
 create policy job_photos_owner_write on storage.objects
 for all to authenticated
 using (
   bucket_id = 'job-photos'
-  and exists (select 1 from public.jobs j where j.id = public.path_job_id(name) and (j.customer_id = auth.uid() or public.is_admin()))
+  and (public.is_customer_job(public.path_job_id(name)) or public.is_admin())
 )
 with check (
   bucket_id = 'job-photos'
-  and exists (select 1 from public.jobs j where j.id = public.path_job_id(name) and (j.customer_id = auth.uid() or public.is_admin()))
+  and (public.is_customer_job(public.path_job_id(name)) or public.is_admin())
 );
 
 create policy provider_verifications_owner_admin on storage.objects

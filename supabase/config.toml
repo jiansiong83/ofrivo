@@ -4,10 +4,24 @@ project_id = "ofrivo-dev"
 # Supabase Cloud project.
 [api]
 enabled = true
+port = 54421
 schemas = ["public", "storage", "graphql_public"]
 
 [db]
-port = 54322
+port = 54422
+shadow_port = 54420
+
+[studio]
+port = 54423
+
+[local_smtp]
+enabled = true
+port = 54424
+smtp_port = 54425
+pop3_port = 54426
+
+[analytics]
+port = 54427
 
 [storage]
 enabled = true

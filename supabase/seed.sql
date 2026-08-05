@@ -72,6 +72,21 @@ begin
   where not exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000199'::uuid);
 end $$;
 
+-- GoTrue expects token fields to be non-null when reading password-login
+-- fixtures. Keep these local demo identities compatible across GoTrue versions.
+update auth.users
+set created_at = coalesce(created_at, now()),
+    updated_at = coalesce(updated_at, now()),
+    confirmation_token = coalesce(confirmation_token, ''),
+    recovery_token = coalesce(recovery_token, ''),
+    email_change = coalesce(email_change, ''),
+    email_change_token_new = coalesce(email_change_token_new, ''),
+    phone_change = coalesce(phone_change, ''),
+    phone_change_token = coalesce(phone_change_token, ''),
+    email_change_token_current = coalesce(email_change_token_current, ''),
+    reauthentication_token = coalesce(reauthentication_token, '')
+where email like '%@example.test';
+
 insert into public.profiles (id, full_name, display_name, phone, whatsapp, account_status, is_admin)
 values
   ('00000000-0000-0000-0000-000000000101', 'Alex Tan', 'Alex', '+60 12 000 0101', '+60 12 000 0101', 'active', false),
