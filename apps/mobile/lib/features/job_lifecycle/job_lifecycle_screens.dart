@@ -51,6 +51,16 @@ class JobLifecycleActions extends ConsumerWidget {
               ? null
               : () => _confirmCancel(context, controller)));
     }
+    if (status == JobStatus.assigned || status == JobStatus.inProgress) {
+      buttons.add(OutlinedButton.icon(
+          onPressed: state.isSubmitting
+              ? null
+              : () => _confirmNoShow(context, controller),
+          icon: const Icon(Icons.person_off_outlined),
+          label: Text(role == AppMode.customer
+              ? 'Mark provider no-show'
+              : 'Report customer no-show')));
+    }
     if (status == JobStatus.completed) {
       buttons.add(Row(children: [
         Expanded(
@@ -104,6 +114,22 @@ class JobLifecycleActions extends ConsumerWidget {
         context,
         () => controller.cancel(jobId, reason: 'Cancelled by provider.'),
         'Job cancelled.');
+  }
+
+  Future<void> _confirmNoShow(
+      BuildContext context, JobLifecycleController controller) async {
+    final confirmed = await ConfirmationDialog.show(context,
+        title: 'Mark a no-show?',
+        message:
+            'This creates a private safety event for the job and notifies the other participant.');
+    if (!confirmed || !context.mounted) return;
+    await _run(
+        context,
+        () => controller.markNoShow(jobId,
+            reason: role == AppMode.customer
+                ? 'Customer marked the provider as a no-show.'
+                : 'Provider marked the customer as a no-show.'),
+        'No-show marked for safety review.');
   }
 
   String _reviewPath() => role == AppMode.provider

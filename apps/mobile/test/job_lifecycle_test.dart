@@ -5,8 +5,11 @@ import 'package:ofrivo_mobile/features/job_lifecycle/job_lifecycle_models.dart';
 import 'package:ofrivo_mobile/features/job_lifecycle/job_lifecycle_repository.dart';
 
 void main() {
-  Job assignedJob({JobStatus status = JobStatus.assigned}) => Job(
-        id: 'job-lifecycle',
+  Job assignedJob(
+          {JobStatus status = JobStatus.assigned,
+          String id = 'job-lifecycle'}) =>
+      Job(
+        id: id,
         title: 'Repair a sink',
         category: 'Plumbing',
         area: 'Mount Austin',
@@ -79,5 +82,30 @@ void main() {
     expect(const ReviewDraft(rating: 0, comment: '').validate(), isNotNull);
     expect(const ReportDraft(reasonCode: '', description: 'short').validate(),
         isNotNull);
+  });
+
+  test('participants can mark one no-show and cannot duplicate the marker',
+      () async {
+    final repository = FakeJobLifecycleRepository(
+      initialJobs: [assignedJob(id: 'job-no-show')],
+      initialBids: [acceptedBid.copyWith(jobId: 'job-no-show')],
+      role: AppMode.customer,
+    );
+
+    final event = await repository.markNoShow('job-no-show',
+        reason: 'Provider did not arrive.');
+    expect(event.eventType, 'no_show_marked');
+    expect(event.metadata['reported_user_id'], 'provider-1');
+    expect(() => repository.markNoShow('job-no-show'), throwsStateError);
+  });
+
+  test('no-show is unavailable before a job is assigned', () async {
+    final repository = FakeJobLifecycleRepository(
+      initialJobs: [assignedJob(id: 'job-open', status: JobStatus.open)],
+      initialBids: [acceptedBid.copyWith(jobId: 'job-open')],
+      role: AppMode.customer,
+    );
+
+    expect(() => repository.markNoShow('job-open'), throwsStateError);
   });
 }

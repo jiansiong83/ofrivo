@@ -25,6 +25,15 @@ const widgets = read('apps/mobile/lib/shared/widgets/app_widgets.dart');
 const customerScreens = read('apps/mobile/lib/features/customer/customer_screens.dart');
 const providerScreens = read('apps/mobile/lib/features/provider/provider_screens.dart');
 const portfolioTests = read('apps/mobile/test/provider_portfolio_test.dart');
+const noShowMigration = read('supabase/migrations/20260805000300_version11_no_show.sql');
+const lifecycleModels = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_models.dart');
+const lifecycleRepository = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_repository.dart');
+const lifecycleController = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_controller.dart');
+const lifecycleScreens = read('apps/mobile/lib/features/job_lifecycle/job_lifecycle_screens.dart');
+const notificationModel = read('apps/mobile/lib/core/models/app_models.dart');
+const notificationRepository = read('apps/mobile/lib/features/notifications/notification_repository.dart');
+const lifecycleTests = read('apps/mobile/test/job_lifecycle_test.dart');
+const noShowRunner = read('supabase/tests/run_version11_no_show_local.mjs');
 
 const checks = [
   ['AuthUser carries an optional phone number', models.includes('final String? phone;')],
@@ -66,6 +75,15 @@ const checks = [
   ['portfolio gallery handles local placeholders and remote images', widgets.includes('class PortfolioGallery') && widgets.includes('Image.network') && widgets.includes('Work photo')],
   ['customer and provider profile screens render portfolio galleries', customerScreens.includes('PortfolioGallery') && providerScreens.includes('PortfolioGallery')],
   ['portfolio has model and widget coverage', portfolioTests.includes('approved demo providers') && portfolioTests.includes('portfolio gallery renders')],
+  ['no-show RPC restricts state and participants', noShowMigration.includes('mark_no_show') && noShowMigration.includes("v_job.status not in ('assigned', 'in_progress')") && noShowMigration.includes('only the customer or accepted provider')],
+  ['no-show RPC prevents duplicate reports and notifies the reported user', noShowMigration.includes('a no-show has already been marked') && noShowMigration.includes("'no_show'") && noShowMigration.includes('notifications')],
+  ['no-show RPC is authenticated-only', noShowMigration.includes('revoke all on function public.mark_no_show') && noShowMigration.includes('grant execute on function public.mark_no_show(uuid, text) to authenticated')],
+  ['lifecycle repository exposes no-show marker', lifecycleRepository.includes('Future<JobEventRecord> markNoShow')],
+  ['fake and Supabase repositories implement no-show marker', lifecycleRepository.includes('No-show reported by a job participant') && lifecycleRepository.includes("client.rpc('mark_no_show'")],
+  ['lifecycle controller and actions expose no-show state', lifecycleController.includes('Future<bool> markNoShow') && lifecycleScreens.includes('Mark provider no-show') && lifecycleScreens.includes('Report customer no-show')],
+  ['no-show notification maps to a typed mobile event', notificationModel.includes('noShow') && notificationRepository.includes("case 'no_show'")],
+  ['job lifecycle tests cover no-show authorization and duplicate guard', lifecycleTests.includes('no-show')],
+  ['local no-show runner covers RPC, duplicate, event, and notification paths', noShowRunner.includes("/rpc/mark_no_show") && noShowRunner.includes('duplicate no-show marker') && noShowRunner.includes('reported-user notification')],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);

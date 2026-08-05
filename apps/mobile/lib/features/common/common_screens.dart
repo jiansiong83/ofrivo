@@ -110,6 +110,8 @@ class NotificationsScreen extends ConsumerWidget {
         return Icons.task_alt_outlined;
       case NotificationType.jobCancelled:
         return Icons.cancel_outlined;
+      case NotificationType.noShow:
+        return Icons.person_off_outlined;
       case NotificationType.generic:
         return Icons.notifications_none;
     }

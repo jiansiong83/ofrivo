@@ -111,6 +111,8 @@ class SupabaseNotificationRepository implements NotificationRepository {
         return NotificationType.jobCompleted;
       case 'job_cancelled':
         return NotificationType.jobCancelled;
+      case 'no_show':
+        return NotificationType.noShow;
       default:
         return NotificationType.generic;
     }

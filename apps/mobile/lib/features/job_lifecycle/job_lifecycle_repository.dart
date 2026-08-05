@@ -11,6 +11,8 @@ abstract interface class JobLifecycleRepository {
 
   Future<JobTransition> cancelJob(String jobId, {String? reason});
 
+  Future<JobEventRecord> markNoShow(String jobId, {String? reason});
+
   Future<List<JobEventRecord>> loadEvents(String jobId);
 
   Future<List<ReviewRecord>> loadReviews(String jobId);
@@ -85,6 +87,61 @@ class FakeJobLifecycleRepository implements JobLifecycleRepository {
         reason?.trim().isNotEmpty == true
             ? reason!.trim()
             : 'A participant cancelled the job.');
+  }
+
+  @override
+  Future<JobEventRecord> markNoShow(String jobId, {String? reason}) async {
+    final job = _findJob(jobId);
+    if (job.status != JobStatus.assigned &&
+        job.status != JobStatus.inProgress) {
+      throw StateError(
+          'A no-show can only be marked on an assigned or in-progress job.');
+    }
+    final acceptedProvider = _acceptedProvider(jobId);
+    if (acceptedProvider == null) {
+      throw StateError('This job has no accepted provider.');
+    }
+    final reportedUserId =
+        role == AppMode.customer ? acceptedProvider : customerId;
+    final reporterId = role == AppMode.customer ? customerId : providerId;
+    if (reporterId == reportedUserId) {
+      throw StateError('You cannot mark yourself as a no-show.');
+    }
+    if (fakeJobEvents.any((event) =>
+        event.jobId == jobId &&
+        event.eventType == 'no_show_marked' &&
+        event.metadata['reported_user_id'] == reportedUserId)) {
+      throw StateError(
+          'A no-show has already been marked for this participant.');
+    }
+    final event = JobEventRecord(
+      id: 'local-event-${_sequence++}',
+      jobId: jobId,
+      eventType: 'no_show_marked',
+      createdAt: DateTime.now(),
+      actorId: reporterId,
+      metadata: {
+        'reported_user_id': reportedUserId,
+        'reason': reason?.trim().isNotEmpty == true
+            ? reason!.trim()
+            : 'No-show reported by a job participant.',
+      },
+    );
+    fakeJobEvents.insert(0, event);
+    fakeNotifications.insert(
+      0,
+      AppNotification(
+        id: 'local-notification-${_sequence++}',
+        type: NotificationType.noShow,
+        title: 'No-show reported',
+        body: 'A job participant reported a no-show event.',
+        isRead: false,
+        createdAt: DateTime.now(),
+        referenceType: 'job',
+        referenceId: jobId,
+      ),
+    );
+    return event;
   }
 
   @override
@@ -226,6 +283,26 @@ class SupabaseJobLifecycleRepository implements JobLifecycleRepository {
   Future<JobTransition> cancelJob(String jobId, {String? reason}) =>
       _rpcTransition(
           'cancel_job', {'p_job_id': jobId, 'p_reason': reason}, jobId);
+
+  @override
+  Future<JobEventRecord> markNoShow(String jobId, {String? reason}) async {
+    final raw = await client.rpc('mark_no_show', params: {
+      'p_job_id': jobId,
+      'p_reason': reason,
+    });
+    final value =
+        raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
+    return JobEventRecord(
+      id: value['event_id'] as String? ?? 'no-show-$jobId',
+      jobId: value['job_id'] as String? ?? jobId,
+      eventType: value['event_type'] as String? ?? 'no_show_marked',
+      createdAt: _date(value['created_at']),
+      actorId: value['actor_id'] as String?,
+      metadata: value['metadata'] is Map
+          ? Map<String, dynamic>.from(value['metadata'] as Map)
+          : const <String, dynamic>{},
+    );
+  }
 
   @override
   Future<List<JobEventRecord>> loadEvents(String jobId) async {

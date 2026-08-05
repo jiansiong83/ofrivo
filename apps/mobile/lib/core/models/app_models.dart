@@ -26,6 +26,7 @@ enum NotificationType {
   jobStarted,
   jobCompleted,
   jobCancelled,
+  noShow,
   generic
 }
 
@@ -54,6 +55,8 @@ extension NotificationTypeLabel on NotificationType {
         return 'Job completed';
       case NotificationType.jobCancelled:
         return 'Job cancelled';
+      case NotificationType.noShow:
+        return 'No-show reported';
       case NotificationType.generic:
         return 'Notification';
     }

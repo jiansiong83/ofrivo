@@ -72,6 +72,26 @@ class JobLifecycleController extends StateNotifier<JobLifecycleState> {
   Future<bool> cancel(String jobId, {String? reason}) => _transition(jobId,
       (id) => repository.cancelJob(id, reason: reason), 'Job cancelled.');
 
+  Future<bool> markNoShow(String jobId, {String? reason}) async {
+    state =
+        state.copyWith(isSubmitting: true, clearError: true, clearInfo: true);
+    try {
+      final event = await repository.markNoShow(jobId, reason: reason);
+      final events = await repository.loadEvents(jobId);
+      state = state.copyWith(
+          isSubmitting: false,
+          initialized: true,
+          events: events,
+          info: 'No-show marked for safety review.');
+      return event.eventType == 'no_show_marked';
+    } catch (error) {
+      state = state.copyWith(
+          isSubmitting: false,
+          error: error.toString().replaceFirst('Bad state: ', ''));
+      return false;
+    }
+  }
+
   Future<bool> _transition(
       String jobId,
       Future<JobTransition> Function(String) action,
