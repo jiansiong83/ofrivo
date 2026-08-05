@@ -118,4 +118,7 @@
 - Version 1.1 contract validation now covers 29 checks; Flutter analyze and 32 tests pass.
 - Added Provider Portfolio support: approved-provider-only public portfolio view, dedicated public `provider-portfolio` bucket, owner-scoped uploads, public profile URL mapping, and demo/gallery coverage.
 - Local Docker reset, schema lint, existing 19-check security integration suite, Flutter analyze, 34 tests, Android debug APK, and 39 Version 1.1 contract checks pass.
+- Added `mark_no_show` for assigned/in-progress jobs with participant-derived target identity, duplicate protection, private `job_events` metadata, and a typed `no_show` notification.
+- Added fake/controller/UI no-show actions, lifecycle tests, and `supabase/tests/run_version11_no_show_local.mjs`; the local runner passes 3/3 checks.
+- Version 1.1 contract validation now covers 48 checks; Flutter analyze, 36 tests, and the Android debug APK pass.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.

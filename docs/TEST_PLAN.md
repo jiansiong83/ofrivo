@@ -127,6 +127,14 @@
 - Customer Provider Profile and provider-mode profile render a placeholder for local demo paths and a network image with an error fallback for public URLs.
 - Run `npx.cmd --yes supabase@2.109.1 db reset --yes`, `npx.cmd --yes supabase@2.109.1 db lint`, `node supabase/tests/run_step11_local.mjs`, `node scripts/validate_version11.mjs`, Flutter analyze/test, and the Android debug build.
 
+## Version 1.1 No-show checks
+
+- Only the customer or accepted provider can mark the other participant as a no-show while the job is `assigned` or `in_progress`; open/completed/cancelled jobs reject the action.
+- The server derives the reported user from the accepted bid and rejects duplicate no-show markers for the same participant; clients cannot supply an arbitrary target identity.
+- The RPC writes a participant-visible `job_events` record with bounded reason metadata and sends a user-scoped `no_show` notification.
+- Fake mode mirrors authorization, duplicate protection, event metadata, and notification behavior; the lifecycle UI exposes a confirmation action for both roles.
+- Run `node supabase/tests/run_version11_no_show_local.mjs` and require all 3 checks, in addition to the full reset/lint and Step 11 security suite.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.

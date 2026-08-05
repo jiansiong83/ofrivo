@@ -81,6 +81,12 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Portfolio uploads are folder-scoped to the authenticated provider (or an admin); public reads expose only approved active-provider photo paths through `public_provider_portfolio`.
 - The portfolio view does not include phone, WhatsApp, address, verification evidence, or account-status fields beyond the approved/active filter.
 
+## Version 1.1 No-show controls
+
+- `mark_no_show` accepts only assigned/in-progress jobs and derives the reported user from the accepted bid; a caller cannot submit an arbitrary target account.
+- Duplicate markers for the same reported participant are rejected under the locked job transaction, while the event metadata reason is bounded to 500 characters.
+- No-show events remain behind the existing participant/admin `job_events` RLS policy, and notifications are inserted only for the reported user.
+
 ## Step 4 Customer Job controls
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.
