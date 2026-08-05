@@ -128,7 +128,9 @@
 - [x] Customer, provider, and lifecycle business pages use persisted English, Bahasa Melayu, and Chinese localization keys with a safe fallback.
 - [x] Business localization widget coverage passes; Version 1.1 contract validation now passes 65 checks.
 - [x] Flutter analyze reports no issues, 38 Flutter tests pass, and the Android debug APK builds.
-- [ ] Remaining Admin Web and notification copy is migrated and reviewed in all three languages.
+- [x] Notification centre, typed notification titles, empty/read states, and suspended/provider-approval guards use the three-language business localization map.
+- [x] Notification/access localization coverage passes; Version 1.1 contract validation now passes 67 checks, 39 Flutter tests pass, and the Android debug APK builds.
+- [ ] Remaining Admin Web and server-generated notification body copy is migrated and reviewed in all three languages.
 - [ ] Supabase SMS provider and sender configuration are supplied for real-device verification.
 - [ ] Google Play distribution remains deferred by current scope.
 

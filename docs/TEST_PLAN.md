@@ -153,8 +153,9 @@
 ## Version 1.1 Business-page localization checks
 
 - Customer job creation, My Jobs, bids, provider application/feed, assigned-job lifecycle, review, and report surfaces resolve copy through the business localization map for English, Bahasa Melayu, and Chinese.
+- Notification centre titles, unread/read states, empty state, suspended-account state, and provider-approval guard resolve through the same map; dynamic notification bodies remain payload fixtures for later server-side translation review.
 - Changing the persisted language rebuilds the active business screen; an unknown business key returns the key safely rather than throwing or changing authorization state.
-- Run the business localization widget test together with `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build; the current baseline is 65 contract checks and 38 Flutter tests.
+- Run the business localization widget test together with `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build; the current baseline is 67 contract checks and 39 Flutter tests.
 
 ## Later test layers
 

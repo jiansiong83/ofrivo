@@ -103,6 +103,7 @@ Edge functions: FCM service credentials only in managed server secrets.
 
 - Business copy is static localization data; the persisted language preference stores only `en`, `ms`, or `zh` and carries no account, token, contact, or job data.
 - Runtime secrets, phone numbers, addresses, review content, and provider evidence are never embedded in translations; an unknown key falls back safely without changing authorization.
+- Notification titles are derived from typed event enums; dynamic notification bodies remain server-supplied content and never grant access or reveal protected job fields.
 
 ## Step 4 Customer Job controls
 
