@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/localization/app_localization.dart';
+import '../../core/config/app_config.dart';
+import '../auth/auth_controller.dart';
 import '../../shared/widgets/app_widgets.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -54,6 +56,27 @@ class _LocalizedOnboardingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authControllerProvider);
+    ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (!AppBootstrap.demoMode &&
+          next.initialized &&
+          next.isAuthenticated &&
+          !next.isSuspended) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) context.go('/customer/home');
+        });
+      }
+    });
+    if (!auth.initialized || auth.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (!AppBootstrap.demoMode && auth.isAuthenticated) {
+      if (auth.isSuspended) return const SizedBox.shrink();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) context.go('/customer/home');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
     return Scaffold(
       body: SafeArea(

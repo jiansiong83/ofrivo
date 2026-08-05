@@ -320,7 +320,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content:
                                 Text(strings.business('review_submitted'))));
-                        context.pop();
+                        final destination = mode == AppMode.provider
+                            ? '/provider/assigned/${widget.jobId}'
+                            : '/customer/jobs/${widget.jobId}';
+                        context.go(destination);
                       }
                     })
         ]);
@@ -377,6 +380,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final mode = ref.watch(appModeProvider);
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final state = ref.watch(jobLifecycleControllerProvider(widget.jobId));
     return ListView(
@@ -438,7 +442,10 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content:
                                 Text(strings.business('report_submitted'))));
-                        context.pop();
+                        final destination = mode == AppMode.provider
+                            ? '/provider/assigned/${widget.jobId}'
+                            : '/customer/jobs/${widget.jobId}';
+                        context.go(destination);
                       }
                     })
         ]);
