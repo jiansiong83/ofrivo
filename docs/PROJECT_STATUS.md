@@ -8,6 +8,15 @@ Version 1.1 Phone OTP, three-language foundation, Provider Portfolio, No-show ma
 
 Continue Version 1.1 hardening while preserving account privacy, transactional invariants, actionable error states, and runtime-only secrets. Core entry/auth/navigation, customer/provider/lifecycle business pages, notification centre, and access guards now support English, Bahasa Melayu, and Chinese with safe fallback; approved-provider portfolio photos are separated from private evidence; no-show reports are participant-derived and duplicate-safe; open jobs now have a service-only expiry worker with event/notification outbox writes; reviews now capture punctuality, quality, and communication dimensions. Remaining Admin Web/server-generated notification copy review and external delivery configuration are tracked separately. Google Play distribution is intentionally deferred for now.
 
+## Local-only validation result (2026-08-05)
+
+- Local Real-Device Validation is the active objective. No Cloudflare, Vercel, Supabase Cloud, Google Play, paid SMS, real FCM, payment, maps, chat, or new feature work was performed.
+- `scripts/local-dev.ps1` and `docs/LOCAL_REAL_DEVICE_RUNBOOK.md` now provide reproducible start/status/health/reset/lint/integration/Admin/Emulator/device/APK commands without copying secrets into source.
+- Supabase local `start`, `status`, `db reset`, `db lint`, and API/Auth, REST, Studio, and Mailpit health checks pass on ports `54420`-`54427`. Core DB/Auth/REST/Storage/Realtime services recover after restart; Windows Docker Analytics/Vector warnings are optional and do not affect the tested core paths.
+- Docker integration runners pass 19 Step 11 checks, 3 no-show checks, 3 expiry checks, and 4 review-dimension checks. Admin lint, production build, and `npm audit` pass with 0 vulnerabilities.
+- Version 1.1 contract validation passes 68 checks; Flutter analyze is clean, all 39 Flutter tests pass, and the debug APK builds.
+- Emulator host connectivity to `10.0.2.2:54421` passes, but the current AVD cannot install the APK because of insufficient `/data` storage. No emulator wipe was performed. No USB phone was connected, so device UI flows remain explicitly blocked rather than claimed as passed.
+
 ## Completed
 
 - Master plan reviewed in full.
@@ -81,6 +90,8 @@ Continue Version 1.1 hardening while preserving account privacy, transactional i
 
 - Android SDK and Docker Desktop are available; `adb` is on PATH but no Android device is currently connected.
 - Admin commands may require `npm.cmd` on this PowerShell host.
+- The `medium_phone` AVD has insufficient install space (approximately 543 MB free after cache trim); use an approved larger AVD or a USB device before claiming UI/device E2E.
+- Supabase Vector may restart on Windows when Docker daemon log access is unavailable; Analytics/Vector are optional for this local core validation. The API/Auth route was recovered with a local stop/start and health then passed.
 
 ## Database migration
 
@@ -125,7 +136,7 @@ Step 2 through Version 1.1 review-dimension migrations are applied and seeded in
 - Version 1.1 No-show contract validation: PASS (`node scripts/validate_version11.mjs`, 48 checks).
 - Version 1.1 Job auto-expire contract validation: PASS (`node scripts/validate_version11.mjs`, 55 checks).
 - Version 1.1 richer review dimension contract validation: PASS (`node scripts/validate_version11.mjs`, 62 checks).
-- Version 1.1 business-page and notification localization contract validation: PASS (`node scripts/validate_version11.mjs`, 67 checks).
+- Version 1.1 business-page, notification/access, and production-auth guard validation: PASS (`node scripts/validate_version11.mjs`, 68 checks).
 - Version 1.1 Flutter test: PASS (39 tests passed, including business and notification fallback coverage).
 - Provider Portfolio migration: PASS in local Docker reset/lint; Step 11 integration suite remains PASS (19 checks).
 - No-show local RPC runner: PASS (`supabase/tests/run_version11_no_show_local.mjs`, 3 checks).
@@ -134,10 +145,20 @@ Step 2 through Version 1.1 review-dimension migrations are applied and seeded in
 - Version 1.1 Android debug APK: PASS (`apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`).
 - Step 3/4/5 static source review: PASS; no runtime Supabase values or service-role key committed.
 
+### Current local validation evidence
+
+- `node scripts/validate_version11.mjs`: PASS, 68 checks.
+- `F:\Dev\FlutterSDK\bin\flutter.bat analyze --no-pub`: PASS; no issues.
+- `F:\Dev\FlutterSDK\bin\flutter.bat test --no-pub`: PASS; 39 tests.
+- `F:\Dev\FlutterSDK\bin\flutter.bat build apk --debug --no-pub`: PASS.
+- `apps/admin`: `npm.cmd run lint`, `npm.cmd run build`, and `npm.cmd audit`: PASS; audit reports 0 vulnerabilities.
+- Local Docker runners: PASS, 19 + 3 + 3 + 4 checks.
+- Emulator: network PASS; APK installation and runtime UI BLOCKED by AVD storage. Physical USB device: BLOCKED (none connected).
+
 ## Commit ID / rollback point
 
 Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 11 commit: `12d3916` (`feat: add security and resilience checks`). Step 11 runtime validation fix: `9e1c49d` (`fix: validate Supabase security locally`). Step 12 release-prep commit: `716799c` (`feat: prepare closed beta release signing`). Version 1.1 Phone OTP commit: `92db847` (`feat: add phone OTP authentication`). Version 1.1 three-language commit: `11f1a0e` (`feat: add three-language app foundation`). Version 1.1 Provider Portfolio commit: `ad02c18` (`feat: add provider portfolio`). Version 1.1 No-show commit: `46020ab` (`feat: add no-show job marker`). Version 1.1 Job auto-expire commit: `a7c6a89` (`feat: add job auto-expiry worker`). Version 1.1 richer review dimensions commit: `5aafb7c` (`feat: add richer review dimensions`). Version 1.1 business localization commit: `4db264a` (`feat: localize business pages`). Version 1.1 notification localization commit: `665ec74` (`feat: localize notification center`). The paired Version 1.1 docs commit is the current rollback point.
 
 ## Next step
 
-Next: complete remaining Admin Web/server-generated notification body copy review, then handle FCM provider completion and real SMS/provider/device verification when credentials and devices are available. Google Play internal/closed testing remains deferred until explicitly requested.
+Next: provide an authorized USB Android phone or an approved larger AVD, run the documented on-device workflow, then review remaining Admin/server-generated notification copy. Real SMS, FCM delivery, Supabase Cloud, and Google Play remain deferred until explicitly requested.

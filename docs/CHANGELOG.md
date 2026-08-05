@@ -130,3 +130,12 @@
 - Localized the notification centre and suspended/provider-approval guards, deriving notification titles from typed events while leaving dynamic payload bodies server-supplied.
 - Notification/access localization tests pass; Version 1.1 contract validation now covers 67 checks, Flutter analyze reports no issues, 39 tests pass, and the Android debug APK builds.
 - Real SMS provider configuration and Google Play distribution remain external follow-up steps.
+
+## 2026-08-05 — Local Real-Device Validation
+
+- Added `docs/LOCAL_REAL_DEVICE_RUNBOOK.md`, `docs/LOCAL_DEVICE_TEST_RESULTS.md`, and `scripts/local-dev.ps1` for repeatable local Docker, Admin, Emulator, USB reverse, integration, and APK workflows.
+- Added a debug-only Android cleartext policy for the local HTTP Supabase endpoint; production Android configuration remains unchanged.
+- Added a production Auth bootstrap guard so Demo OTP cannot be used when `APP_ENV=production` lacks real Supabase runtime configuration.
+- Local Supabase reset/lint/health and Docker suites pass: 19 Step 11 checks, 3 no-show checks, 3 expiry checks, and 4 review checks.
+- Version 1.1 contract validation passes 68 checks; Flutter analyze and 39 tests pass; the debug APK builds. Admin lint/build pass and `npm audit` reports 0 vulnerabilities.
+- Emulator host networking passes, but APK installation is blocked by the current AVD storage; no USB phone was connected. No cloud or paid service was configured.

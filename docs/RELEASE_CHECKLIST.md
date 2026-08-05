@@ -129,10 +129,23 @@
 - [x] Business localization widget coverage passes; Version 1.1 contract validation now passes 65 checks.
 - [x] Flutter analyze reports no issues, 38 Flutter tests pass, and the Android debug APK builds.
 - [x] Notification centre, typed notification titles, empty/read states, and suspended/provider-approval guards use the three-language business localization map.
-- [x] Notification/access localization coverage passes; Version 1.1 contract validation now passes 67 checks, 39 Flutter tests pass, and the Android debug APK builds.
+- [x] Notification/access localization and production-auth guard coverage passes; Version 1.1 contract validation now passes 68 checks, 39 Flutter tests pass, and the Android debug APK builds.
 - [ ] Remaining Admin Web and server-generated notification body copy is migrated and reviewed in all three languages.
 - [ ] Supabase SMS provider and sender configuration are supplied for real-device verification.
 - [ ] Google Play distribution remains deferred by current scope.
+
+## Local Real-Device Validation (2026-08-05)
+
+- [x] Local-only runbook and `scripts/local-dev.ps1` cover start, status, health, reset, lint, integration, Admin, Emulator, USB reverse, and debug APK commands.
+- [x] Local Supabase reset and schema lint pass; API/Auth, REST, Studio, and Mailpit health checks return HTTP 200 after restart.
+- [x] Docker-backed local suites pass: Step 11 (19), no-show (3), expiry (3), and review dimensions (4).
+- [x] Version 1.1 contract validator passes 68 checks; Flutter analyze passes; 39 Flutter tests pass; debug APK builds.
+- [x] Admin lint, production build, and `npm audit` pass; audit reports 0 vulnerabilities.
+- [x] Development-only Demo OTP boundary is documented and production without Supabase config fails closed; service-role is never passed to Flutter.
+- [x] Emulator reaches the host API through `10.0.2.2:54421`; the result is recorded as network PASS.
+- [ ] Emulator app install/runtime UI flow: BLOCKED by insufficient AVD `/data` storage; no wipe performed.
+- [ ] USB physical-device workflow and two-phone UI concurrency: BLOCKED because no authorized phone is connected.
+- [ ] Admin Supabase-backed repository, real SMS, native FCM delivery, cloud deployment, domain, payment, maps, chat, and Google Play remain intentionally out of scope.
 
 ## Before any beta
 

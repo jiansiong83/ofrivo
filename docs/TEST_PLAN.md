@@ -155,7 +155,17 @@
 - Customer job creation, My Jobs, bids, provider application/feed, assigned-job lifecycle, review, and report surfaces resolve copy through the business localization map for English, Bahasa Melayu, and Chinese.
 - Notification centre titles, unread/read states, empty state, suspended-account state, and provider-approval guard resolve through the same map; dynamic notification bodies remain payload fixtures for later server-side translation review.
 - Changing the persisted language rebuilds the active business screen; an unknown business key returns the key safely rather than throwing or changing authorization state.
-- Run the business localization widget test together with `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build; the current baseline is 67 contract checks and 39 Flutter tests.
+- Run the business localization widget test together with `node scripts/validate_version11.mjs`, Flutter analyze, Flutter test, and the Android debug build; the current baseline is 68 contract checks and 39 Flutter tests.
+
+## Local Real-Device Validation (2026-08-05)
+
+- Run the local stack only through `scripts/local-dev.ps1` on the repository's custom ports `54420`-`54427`; require `status`, `health`, `db reset`, and `db lint` to pass before app tests.
+- Run `-Command integration` so the Step 11, no-show, expiry, and review runners receive ephemeral local credentials without copying a service-role key into Flutter or source control.
+- Use `http://10.0.2.2:54421` for an Android Emulator and `http://127.0.0.1:54421` with `adb reverse tcp:54421 tcp:54421` for a USB device. Debug cleartext HTTP is enabled only in the Android debug manifest.
+- Validate seeded Email/Password Customer and Provider accounts for the Supabase-backed flow. Demo OTP `123456` is a development Fake/Demo path only; production config without Supabase values must fail closed.
+- Exercise Customer job/photo upload, Provider feed/bid, Admin local preview, bid acceptance/address isolation, lifecycle/reviews/reports/no-show, notification rows/outbox/unread state, restart/offline recovery, private Storage, RLS, and two-account concurrency. Native FCM, real SMS, cloud, Play, and payment flows are out of scope.
+- Record each device model/API, connection mode, scenario result, and blocker in `docs/LOCAL_DEVICE_TEST_RESULTS.md`. A missing phone or an undersized emulator is `BLOCKED`, never a pass.
+- Current evidence: core local service and automated suites pass; the `medium_phone` AVD reaches the host but cannot install the APK because of storage, and no USB device is connected, so on-device UI scenarios remain blocked.
 
 ## Later test layers
 

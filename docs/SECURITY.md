@@ -120,3 +120,11 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Provider verification status, approval timestamps, suspension timestamps, and admin review fields remain server-controlled.
 - `submit_provider_application` validates category/area IDs, evidence ownership paths, evidence counts, and active-account status in one transaction.
 - Identity evidence and work photos use the private `provider-verifications` bucket; paths are scoped to the authenticated provider and are never public URLs.
+
+## Local Real-Device Validation controls (2026-08-05)
+
+- Local development uses only the public anon key at runtime. `scripts/local-dev.ps1` keeps the service-role key inside the short-lived Docker runner process and never passes it to Flutter or writes it to source.
+- `APP_ENV=development` is explicit for Emulator/USB debug runs. Demo OTP `123456` is available only through Fake/Demo mode; production bootstrap fails closed when Supabase runtime values are absent.
+- HTTP cleartext is enabled only in `apps/mobile/android/app/src/debug/AndroidManifest.xml` for the local `10.0.2.2`/ADB-reverse endpoints. Release/production Android manifests do not receive this exception.
+- Local Docker reset/lint and the 19-check RLS/Storage/concurrency suite, plus no-show, expiry, and review runners, passed after a local stop/start recovery. Hosted services and external delivery were not touched.
+- The Admin Web remains a fake-data local preview in this round; no admin secret or hosted credential is present in the browser bundle.
