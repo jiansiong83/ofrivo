@@ -87,6 +87,12 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Duplicate markers for the same reported participant are rejected under the locked job transaction, while the event metadata reason is bounded to 500 characters.
 - No-show events remain behind the existing participant/admin `job_events` RLS policy, and notifications are inserted only for the reported user.
 
+## Version 1.1 Job auto-expire controls
+
+- Publish-time expiry defaults are assigned by a database trigger; the service worker does not trust a browser-supplied status transition.
+- `expire_open_jobs` is bounded and service-role-only, locks due open rows with `SKIP LOCKED`, and changes only `open` jobs; assigned/in-progress work is unaffected.
+- Pending bids, job events, and customer notifications are written in the same security-definer transaction, preventing half-expired jobs.
+
 ## Step 4 Customer Job controls
 
 - Job creation always uses the authenticated customer ID; the app never accepts a caller-supplied owner ID.

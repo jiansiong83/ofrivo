@@ -117,6 +117,10 @@
 - [x] Fake/UI no-show actions and typed `no_show` notifications are implemented.
 - [x] Local No-show RPC runner passes 3 checks; Version 1.1 contract validation now passes 48 checks.
 - [x] Android debug APK builds with the No-show UI.
+- [x] Publish-time expiry defaults and service-only `expire_open_jobs` worker are implemented.
+- [x] Expiry worker locks due open jobs, expires pending bids, and writes event/notification outbox rows atomically.
+- [x] Local expiry runner passes 3 checks; Version 1.1 contract validation now passes 55 checks.
+- [x] Android debug APK builds with the `job_expired` notification mapping.
 - [ ] Remaining deep business-page copy is migrated and reviewed in all three languages.
 - [ ] Supabase SMS provider and sender configuration are supplied for real-device verification.
 - [ ] Google Play distribution remains deferred by current scope.

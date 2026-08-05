@@ -135,6 +135,14 @@
 - Fake mode mirrors authorization, duplicate protection, event metadata, and notification behavior; the lifecycle UI exposes a confirmation action for both roles.
 - Run `node supabase/tests/run_version11_no_show_local.mjs` and require all 3 checks, in addition to the full reset/lint and Step 11 security suite.
 
+## Version 1.1 Job auto-expire checks
+
+- Publishing a draft with no expiry assigns a seven-day offer window; already-open jobs retain their explicit expiry and assigned/in-progress jobs are never expired by this worker.
+- `expire_open_jobs` is bounded to 1–500 rows, uses `FOR UPDATE SKIP LOCKED`, and is executable only by `service_role`; browser/anon calls are rejected.
+- Each expired open job moves pending bids to `expired`, writes one `job_expired` event, and queues one customer-scoped `job_expired` notification in the same transaction.
+- Fake customer mode expires only due open jobs and emits matching local event/notification fixtures.
+- Run `node supabase/tests/run_version11_expiry_local.mjs` and require all 3 checks, in addition to reset/lint, the Step 11 security suite, and the Version 1.1 contract validator.
+
 ## Later test layers
 
 - Unit: validation, status transitions, provider eligibility, rating calculation, expiry, and contact reveal eligibility.
