@@ -16,6 +16,15 @@ const onboarding = read('apps/mobile/lib/features/onboarding/onboarding_screen.d
 const shell = read('apps/mobile/lib/features/shell/shell_screen.dart');
 const localizationTests = read('apps/mobile/test/localization_test.dart');
 const pubspec = read('apps/mobile/pubspec.yaml');
+const portfolioMigration = read('supabase/migrations/20260805000200_version11_provider_portfolio.sql');
+const appModels = read('apps/mobile/lib/core/models/app_models.dart');
+const fakeData = read('apps/mobile/lib/core/data/fake_data.dart');
+const bidRepository = read('apps/mobile/lib/features/customer/customer_bid_repository.dart');
+const providerRepository = read('apps/mobile/lib/features/provider/provider_application_repository.dart');
+const widgets = read('apps/mobile/lib/shared/widgets/app_widgets.dart');
+const customerScreens = read('apps/mobile/lib/features/customer/customer_screens.dart');
+const providerScreens = read('apps/mobile/lib/features/provider/provider_screens.dart');
+const portfolioTests = read('apps/mobile/test/provider_portfolio_test.dart');
 
 const checks = [
   ['AuthUser carries an optional phone number', models.includes('final String? phone;')],
@@ -47,6 +56,16 @@ const checks = [
   ['shell navigation reacts to language changes', shell.includes('appLanguageProvider') && shell.includes("text('job_feed')")],
   ['localization has language and fallback tests', localizationTests.includes('three supported languages') && localizationTests.includes('falls back to English')],
   ['shared preferences is a direct mobile dependency', pubspec.includes('shared_preferences: ^2.5.5')],
+  ['portfolio bucket is public-read and owner-write', portfolioMigration.includes("'provider-portfolio'") && portfolioMigration.includes('provider_portfolio_public_read') && portfolioMigration.includes('provider_portfolio_owner_write')],
+  ['public portfolio view filters approved active providers', portfolioMigration.includes('public_provider_portfolio') && portfolioMigration.includes("verification_status = 'approved'") && portfolioMigration.includes("account_status = 'active'")],
+  ['portfolio view exposes paths without private verification fields', portfolioMigration.includes('photo_paths') && !portfolioMigration.includes('provider_verifications.')],
+  ['provider model carries portfolio URLs', appModels.includes('portfolioUrls')],
+  ['fake approved providers include portfolio fixtures', fakeData.includes('portfolio-plumbing-1.jpg') && fakeData.includes('portfolio-handyman-1.jpg')],
+  ['customer repository maps public portfolio URLs', bidRepository.includes('public_provider_portfolio') && bidRepository.includes("getPublicUrl(path)")],
+  ['provider application uploads work photos to the public portfolio bucket', providerRepository.includes("bucket: 'provider-portfolio'") && providerRepository.includes("from('provider-portfolio')")],
+  ['portfolio gallery handles local placeholders and remote images', widgets.includes('class PortfolioGallery') && widgets.includes('Image.network') && widgets.includes('Work photo')],
+  ['customer and provider profile screens render portfolio galleries', customerScreens.includes('PortfolioGallery') && providerScreens.includes('PortfolioGallery')],
+  ['portfolio has model and widget coverage', portfolioTests.includes('approved demo providers') && portfolioTests.includes('portfolio gallery renders')],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);

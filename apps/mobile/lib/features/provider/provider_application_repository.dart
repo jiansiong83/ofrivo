@@ -11,13 +11,20 @@ abstract interface class ProviderApplicationRepository {
   Future<ProviderApplication> submit(ProviderApplicationDraft draft);
 }
 
-class FakeProviderApplicationRepository implements ProviderApplicationRepository {
-  FakeProviderApplicationRepository({ProviderApplicationStatus initialStatus = ProviderApplicationStatus.approved}) : _application = ProviderApplication.demo(status: initialStatus);
+class FakeProviderApplicationRepository
+    implements ProviderApplicationRepository {
+  FakeProviderApplicationRepository(
+      {ProviderApplicationStatus initialStatus =
+          ProviderApplicationStatus.approved})
+      : _application = ProviderApplication.demo(status: initialStatus);
 
   ProviderApplication _application;
 
   @override
-  Future<ProviderApplication?> load() async => _application.status == ProviderApplicationStatus.notApplied ? null : _application;
+  Future<ProviderApplication?> load() async =>
+      _application.status == ProviderApplicationStatus.notApplied
+          ? null
+          : _application;
 
   @override
   Future<ProviderApplication> submit(ProviderApplicationDraft draft) async {
@@ -43,7 +50,8 @@ class FakeProviderApplicationRepository implements ProviderApplicationRepository
   }
 }
 
-class SupabaseProviderApplicationRepository implements ProviderApplicationRepository {
+class SupabaseProviderApplicationRepository
+    implements ProviderApplicationRepository {
   SupabaseProviderApplicationRepository(this.client, this.userId);
 
   final SupabaseClient client;
@@ -51,22 +59,53 @@ class SupabaseProviderApplicationRepository implements ProviderApplicationReposi
 
   @override
   Future<ProviderApplication?> load() async {
-    final providerRow = await client.from('provider_profiles').select('user_id,bio,verification_status,is_available').eq('user_id', userId).maybeSingle();
-    final verificationRows = await client.from('provider_verifications').select('ic_front_path,ic_back_path,selfie_path,ssm_path,certificate_paths,status,admin_note,submitted_at').eq('provider_id', userId).order('submitted_at', ascending: false).limit(1);
+    final providerRow = await client
+        .from('provider_profiles')
+        .select('user_id,bio,verification_status,is_available')
+        .eq('user_id', userId)
+        .maybeSingle();
+    final verificationRows = await client
+        .from('provider_verifications')
+        .select(
+            'ic_front_path,ic_back_path,selfie_path,ssm_path,certificate_paths,status,admin_note,submitted_at')
+        .eq('provider_id', userId)
+        .order('submitted_at', ascending: false)
+        .limit(1);
     if (providerRow == null && (verificationRows as List).isEmpty) return null;
 
-    final profileRow = await client.from('profiles').select('display_name,full_name').eq('id', userId).maybeSingle();
-    final categoryRows = await client.from('provider_categories').select('category_id,service_categories(name_en)').eq('provider_id', userId);
-    final areaRows = await client.from('provider_areas').select('area_id,areas(area_name)').eq('provider_id', userId);
-    final workPhotoRows = await client.from('provider_work_photos').select('storage_path,sort_order').eq('provider_id', userId).order('sort_order');
+    final profileRow = await client
+        .from('profiles')
+        .select('display_name,full_name')
+        .eq('id', userId)
+        .maybeSingle();
+    final categoryRows = await client
+        .from('provider_categories')
+        .select('category_id,service_categories(name_en)')
+        .eq('provider_id', userId);
+    final areaRows = await client
+        .from('provider_areas')
+        .select('area_id,areas(area_name)')
+        .eq('provider_id', userId);
+    final workPhotoRows = await client
+        .from('provider_work_photos')
+        .select('storage_path,sort_order')
+        .eq('provider_id', userId)
+        .order('sort_order');
 
-    final verificationMaps = (verificationRows as List).whereType<Map<String, dynamic>>().toList();
-    final verification = verificationMaps.isEmpty ? const <String, dynamic>{} : verificationMaps.first;
+    final verificationMaps =
+        (verificationRows as List).whereType<Map<String, dynamic>>().toList();
+    final verification = verificationMaps.isEmpty
+        ? const <String, dynamic>{}
+        : verificationMaps.first;
     final categoryIds = _ids(categoryRows, 'category_id');
     final areaIds = _ids(areaRows, 'area_id');
     return ProviderApplication(
-      status: providerApplicationStatusFromValue((verification['status'] as String?) ?? providerRow?['verification_status'] as String?),
-      displayName: (profileRow?['display_name'] as String?) ?? (profileRow?['full_name'] as String?) ?? 'Provider',
+      status: providerApplicationStatusFromValue(
+          (verification['status'] as String?) ??
+              providerRow?['verification_status'] as String?),
+      displayName: (profileRow?['display_name'] as String?) ??
+          (profileRow?['full_name'] as String?) ??
+          'Provider',
       bio: providerRow?['bio'] as String? ?? '',
       categories: [for (final id in categoryIds) _categoryOption(id)],
       areas: [for (final id in areaIds) _areaOption(id)],
@@ -77,7 +116,8 @@ class SupabaseProviderApplicationRepository implements ProviderApplicationReposi
       certificatePaths: _stringList(verification['certificate_paths']),
       workPhotoPaths: _workPhotoPaths(workPhotoRows),
       adminNote: verification['admin_note'] as String?,
-      submittedAt: DateTime.tryParse(verification['submitted_at'] as String? ?? ''),
+      submittedAt:
+          DateTime.tryParse(verification['submitted_at'] as String? ?? ''),
       isAvailable: providerRow?['is_available'] as bool? ?? false,
     );
   }
@@ -86,20 +126,28 @@ class SupabaseProviderApplicationRepository implements ProviderApplicationReposi
   Future<ProviderApplication> submit(ProviderApplicationDraft draft) async {
     final validationError = draft.validate();
     if (validationError != null) throw StateError(validationError);
-    final uploadedPaths = <String>[];
+    final uploadedVerificationPaths = <String>[];
+    final uploadedPortfolioPaths = <String>[];
     try {
-      final icFront = await _upload(draft.icFrontPath, 'verification', 'ic-front', uploadedPaths);
-      final icBack = await _upload(draft.icBackPath, 'verification', 'ic-back', uploadedPaths);
-      final selfie = await _upload(draft.selfiePath, 'verification', 'selfie', uploadedPaths);
-      final ssm = await _upload(draft.ssmPath, 'verification', 'ssm', uploadedPaths);
+      final icFront = await _upload(draft.icFrontPath, 'verification',
+          'ic-front', uploadedVerificationPaths);
+      final icBack = await _upload(draft.icBackPath, 'verification', 'ic-back',
+          uploadedVerificationPaths);
+      final selfie = await _upload(draft.selfiePath, 'verification', 'selfie',
+          uploadedVerificationPaths);
+      final ssm = await _upload(
+          draft.ssmPath, 'verification', 'ssm', uploadedVerificationPaths);
       final certificates = <String>[];
       for (var index = 0; index < draft.certificatePaths.length; index++) {
-        final path = await _upload(draft.certificatePaths[index], 'certificates', 'certificate-$index', uploadedPaths);
+        final path = await _upload(draft.certificatePaths[index],
+            'certificates', 'certificate-$index', uploadedVerificationPaths);
         if (path != null) certificates.add(path);
       }
       final workPhotos = <String>[];
       for (var index = 0; index < draft.workPhotoPaths.length; index++) {
-        final path = await _upload(draft.workPhotoPaths[index], 'work', 'work-$index', uploadedPaths);
+        final path = await _upload(draft.workPhotoPaths[index], 'work',
+            'work-$index', uploadedPortfolioPaths,
+            bucket: 'provider-portfolio');
         if (path != null) workPhotos.add(path);
       }
       await client.rpc('submit_provider_application', params: {
@@ -114,11 +162,23 @@ class SupabaseProviderApplicationRepository implements ProviderApplicationReposi
         'p_certificate_paths': jsonEncode(certificates),
         'p_work_photo_paths': workPhotos,
       });
-      return await load() ?? ProviderApplication.demo(status: ProviderApplicationStatus.pending);
+      return await load() ??
+          ProviderApplication.demo(status: ProviderApplicationStatus.pending);
     } catch (error) {
-      if (uploadedPaths.isNotEmpty) {
+      if (uploadedVerificationPaths.isNotEmpty) {
         try {
-          await client.storage.from('provider-verifications').remove(uploadedPaths);
+          await client.storage
+              .from('provider-verifications')
+              .remove(uploadedVerificationPaths);
+        } catch (_) {
+          // Preserve the original submission error; cleanup can be retried by an admin.
+        }
+      }
+      if (uploadedPortfolioPaths.isNotEmpty) {
+        try {
+          await client.storage
+              .from('provider-portfolio')
+              .remove(uploadedPortfolioPaths);
         } catch (_) {
           // Preserve the original submission error; cleanup can be retried by an admin.
         }
@@ -127,13 +187,19 @@ class SupabaseProviderApplicationRepository implements ProviderApplicationReposi
     }
   }
 
-  Future<String?> _upload(String? localPath, String folder, String label, List<String> uploadedPaths) async {
+  Future<String?> _upload(String? localPath, String folder, String label,
+      List<String> uploadedPaths,
+      {String bucket = 'provider-verifications'}) async {
     if (localPath == null || localPath.trim().isEmpty) return null;
     final file = File(localPath);
-    if (!file.existsSync()) throw StateError('A selected verification file is no longer available.');
+    if (!file.existsSync()) {
+      throw StateError('A selected verification file is no longer available.');
+    }
     final extension = _extension(localPath);
-    final storagePath = '$userId/$folder/${DateTime.now().microsecondsSinceEpoch}_$label.$extension';
-    await client.storage.from('provider-verifications').upload(storagePath, file, fileOptions: const FileOptions(upsert: false));
+    final storagePath =
+        '$userId/$folder/${DateTime.now().microsecondsSinceEpoch}_$label.$extension';
+    await client.storage.from(bucket).upload(storagePath, file,
+        fileOptions: const FileOptions(upsert: false));
     uploadedPaths.add(storagePath);
     return storagePath;
   }
@@ -141,17 +207,33 @@ class SupabaseProviderApplicationRepository implements ProviderApplicationReposi
   static String _extension(String path) {
     final dot = path.lastIndexOf('.');
     if (dot < 0 || dot == path.length - 1) return 'jpg';
-    final extension = path.substring(dot + 1).toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    final extension = path
+        .substring(dot + 1)
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]'), '');
     return extension.isEmpty ? 'jpg' : extension;
   }
 
-  static List<String> _ids(dynamic rows, String key) => (rows as List).whereType<Map<String, dynamic>>().map((row) => row[key]).whereType<String>().toList();
+  static List<String> _ids(dynamic rows, String key) => (rows as List)
+      .whereType<Map<String, dynamic>>()
+      .map((row) => row[key])
+      .whereType<String>()
+      .toList();
 
-  static List<String> _stringList(dynamic value) => value is List ? value.whereType<String>().toList() : const [];
+  static List<String> _stringList(dynamic value) =>
+      value is List ? value.whereType<String>().toList() : const [];
 
-  static List<String> _workPhotoPaths(dynamic rows) => (rows as List).whereType<Map<String, dynamic>>().map((row) => row['storage_path']).whereType<String>().toList();
+  static List<String> _workPhotoPaths(dynamic rows) => (rows as List)
+      .whereType<Map<String, dynamic>>()
+      .map((row) => row['storage_path'])
+      .whereType<String>()
+      .toList();
 
-  static ServiceCategoryOption _categoryOption(String id) => serviceCategoryOptions.firstWhere((item) => item.id == id, orElse: () => ServiceCategoryOption(id: id, label: 'Service'));
+  static ServiceCategoryOption _categoryOption(String id) =>
+      serviceCategoryOptions.firstWhere((item) => item.id == id,
+          orElse: () => ServiceCategoryOption(id: id, label: 'Service'));
 
-  static ServiceAreaOption _areaOption(String id) => serviceAreaOptions.firstWhere((item) => item.id == id, orElse: () => ServiceAreaOption(id: id, label: 'Area'));
+  static ServiceAreaOption _areaOption(String id) =>
+      serviceAreaOptions.firstWhere((item) => item.id == id,
+          orElse: () => ServiceAreaOption(id: id, label: 'Area'));
 }

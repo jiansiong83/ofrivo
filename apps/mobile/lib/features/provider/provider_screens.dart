@@ -100,7 +100,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
         await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
     final result = await ImageValidation.validatePaths(
-        files.map((file) => file.path).toList(), maxCount: 5);
+        files.map((file) => file.path).toList(),
+        maxCount: 5);
     if (!mounted) return;
     if (!result.isValid) {
       ScaffoldMessenger.of(context)
@@ -115,7 +116,8 @@ class _BecomeProviderScreenState extends ConsumerState<BecomeProviderScreen> {
         await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
     final result = await ImageValidation.validatePaths(
-        files.map((file) => file.path).toList(), maxCount: 6);
+        files.map((file) => file.path).toList(),
+        maxCount: 6);
     if (!mounted) return;
     if (!result.isValid) {
       ScaffoldMessenger.of(context)
@@ -1431,6 +1433,10 @@ class ProviderProfileModeScreen extends ConsumerWidget {
               title: 'Provider profile',
               subtitle: 'Your public profile and availability.'),
           ProviderCard(provider: provider),
+          if (provider.portfolioUrls.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            PortfolioGallery(urls: provider.portfolioUrls),
+          ],
           const SizedBox(height: 16),
           SwitchListTile(
               value: true,

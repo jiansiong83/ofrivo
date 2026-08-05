@@ -166,6 +166,7 @@ class SupabaseCustomerBidRepository implements CustomerBidRepository {
         .maybeSingle();
     if (row == null) return null;
     final value = Map<String, dynamic>.from(row);
+    final portfolioUrls = await _loadPortfolioUrls(providerId);
     return ProviderProfile(
       id: value['id'] as String? ?? providerId,
       name: value['display_name'] as String? ?? 'Verified provider',
@@ -176,8 +177,28 @@ class SupabaseCustomerBidRepository implements CustomerBidRepository {
       bio: value['bio'] as String? ?? 'Verified local service provider.',
       verification: VerificationStatus.approved,
       avatarPath: value['avatar_path'] as String?,
+      portfolioUrls: portfolioUrls,
       isAvailable: value['is_available'] as bool? ?? true,
     );
+  }
+
+  Future<List<String>> _loadPortfolioUrls(String providerId) async {
+    try {
+      final row = await client
+          .from('public_provider_portfolio')
+          .select('photo_paths')
+          .eq('provider_id', providerId)
+          .maybeSingle();
+      final paths = row?['photo_paths'];
+      if (paths is! List) return const [];
+      return [
+        for (final path in paths.whereType<String>())
+          client.storage.from('provider-portfolio').getPublicUrl(path),
+      ];
+    } catch (_) {
+      // A profile remains usable while a hosted project rolls out the view.
+      return const [];
+    }
   }
 
   @override

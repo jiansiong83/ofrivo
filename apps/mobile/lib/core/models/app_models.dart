@@ -226,6 +226,7 @@ class ProviderProfile {
     required this.verification,
     this.id,
     this.avatarPath,
+    this.portfolioUrls = const [],
     this.isAvailable = true,
   });
 
@@ -238,6 +239,7 @@ class ProviderProfile {
   final String bio;
   final VerificationStatus verification;
   final String? avatarPath;
+  final List<String> portfolioUrls;
   final bool isAvailable;
 }
 

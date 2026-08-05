@@ -164,6 +164,10 @@ const fakeProvider = ProviderProfile(
   completedJobs: 86,
   bio: 'Friendly local plumbing service for homes and small shops.',
   verification: VerificationStatus.approved,
+  portfolioUrls: [
+    'demo/portfolio-plumbing-1.jpg',
+    'demo/portfolio-plumbing-2.jpg'
+  ],
 );
 
 const fakeProviderProfileProvider = fakeProvider;
@@ -178,6 +182,7 @@ const fakeProviderB = ProviderProfile(
   bio:
       'A practical handyman team for quick household repairs and installations.',
   verification: VerificationStatus.approved,
+  portfolioUrls: ['demo/portfolio-handyman-1.jpg'],
 );
 
 const fakeProviderMover = ProviderProfile(
@@ -189,6 +194,7 @@ const fakeProviderMover = ProviderProfile(
   completedJobs: 121,
   bio: 'Careful local movers with trolleys and a flexible weekend crew.',
   verification: VerificationStatus.approved,
+  portfolioUrls: ['demo/portfolio-mover-1.jpg', 'demo/portfolio-mover-2.jpg'],
 );
 
 final fakeProviderProfiles = <ProviderProfile>[

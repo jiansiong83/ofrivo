@@ -136,7 +136,8 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         await imagePicker.pickMultiImage(imageQuality: 82, maxWidth: 1600);
     if (!mounted || files.isEmpty) return;
     final result = await ImageValidation.validatePaths(
-        files.map((file) => file.path).toList(), maxCount: 5);
+        files.map((file) => file.path).toList(),
+        maxCount: 5);
     if (!mounted) return;
     if (!result.isValid) {
       _showValidation(result.error!);
@@ -785,6 +786,10 @@ class ProviderProfileScreen extends ConsumerWidget {
           ProviderCard(provider: provider),
           const SizedBox(height: 18),
           Text(provider.bio, style: Theme.of(context).textTheme.bodyLarge),
+          if (provider.portfolioUrls.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            PortfolioGallery(urls: provider.portfolioUrls),
+          ],
           const SizedBox(height: 18),
           Wrap(spacing: 8, children: [
             StatusBadge(label: provider.verification.name),

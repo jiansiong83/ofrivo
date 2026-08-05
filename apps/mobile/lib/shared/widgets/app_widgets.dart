@@ -4,7 +4,8 @@ import '../../core/models/app_models.dart';
 import '../../core/theme/app_theme.dart';
 
 class AppScaffold extends StatelessWidget {
-  const AppScaffold({required this.title, required this.body, super.key, this.actions});
+  const AppScaffold(
+      {required this.title, required this.body, super.key, this.actions});
 
   final String title;
   final Widget body;
@@ -20,7 +21,8 @@ class AppScaffold extends StatelessWidget {
 }
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({required this.label, required this.onPressed, super.key, this.icon});
+  const PrimaryButton(
+      {required this.label, required this.onPressed, super.key, this.icon});
 
   final String label;
   final VoidCallback? onPressed;
@@ -30,7 +32,11 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final child = icon == null
         ? Text(label)
-        : Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 18), const SizedBox(width: 8), Text(label)]);
+        : Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: 8),
+            Text(label)
+          ]);
     return SizedBox(
       width: double.infinity,
       height: 50,
@@ -40,7 +46,8 @@ class PrimaryButton extends StatelessWidget {
 }
 
 class SecondaryButton extends StatelessWidget {
-  const SecondaryButton({required this.label, required this.onPressed, super.key, this.icon});
+  const SecondaryButton(
+      {required this.label, required this.onPressed, super.key, this.icon});
 
   final String label;
   final VoidCallback? onPressed;
@@ -85,9 +92,21 @@ class StatusBadge extends StatelessWidget {
 
   Color get _color {
     final value = label.toLowerCase();
-    if (value.contains('open') || value.contains('approved') || value.contains('verified') || value.contains('completed')) return AppColors.success;
-    if (value.contains('pending') || value.contains('urgent')) return AppColors.warning;
-    if (value.contains('cancel') || value.contains('reject') || value.contains('suspend') || value.contains('expired')) return AppColors.danger;
+    if (value.contains('open') ||
+        value.contains('approved') ||
+        value.contains('verified') ||
+        value.contains('completed')) {
+      return AppColors.success;
+    }
+    if (value.contains('pending') || value.contains('urgent')) {
+      return AppColors.warning;
+    }
+    if (value.contains('cancel') ||
+        value.contains('reject') ||
+        value.contains('suspend') ||
+        value.contains('expired')) {
+      return AppColors.danger;
+    }
     return AppColors.secondary;
   }
 
@@ -95,8 +114,12 @@ class StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: _color.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(99)),
-      child: Text(label, style: TextStyle(color: _color, fontWeight: FontWeight.w700, fontSize: 12)),
+      decoration: BoxDecoration(
+          color: _color.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(99)),
+      child: Text(label,
+          style: TextStyle(
+              color: _color, fontWeight: FontWeight.w700, fontSize: 12)),
     );
   }
 }
@@ -114,7 +137,9 @@ class CategoryChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Chip(avatar: const Icon(Icons.category_outlined, size: 16), label: Text(label));
+  Widget build(BuildContext context) => Chip(
+      avatar: const Icon(Icons.category_outlined, size: 16),
+      label: Text(label));
 }
 
 class AreaChip extends StatelessWidget {
@@ -123,7 +148,9 @@ class AreaChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => Chip(avatar: const Icon(Icons.location_on_outlined, size: 16), label: Text(label));
+  Widget build(BuildContext context) => Chip(
+      avatar: const Icon(Icons.location_on_outlined, size: 16),
+      label: Text(label));
 }
 
 class JobCard extends StatelessWidget {
@@ -140,23 +167,42 @@ class JobCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Expanded(child: Text(job.title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+              Expanded(
+                  child: Text(job.title,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800))),
               if (job.urgent) const StatusBadge(label: 'Urgent'),
             ]),
             const SizedBox(height: 10),
-            Wrap(spacing: 8, runSpacing: 8, children: [CategoryChip(label: job.category), AreaChip(label: job.area)]),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              CategoryChip(label: job.category),
+              AreaChip(label: job.area)
+            ]),
             const SizedBox(height: 12),
-            Text(job.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyMedium),
+            Text(job.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 14),
             Row(children: [
-              Text('RM${job.budget.toStringAsFixed(0)}', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)),
+              Text('RM${job.budget.toStringAsFixed(0)}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.primary, fontWeight: FontWeight.w800)),
               const Spacer(),
               Text(job.time, style: Theme.of(context).textTheme.bodySmall),
             ]),
             const SizedBox(height: 10),
-            Row(children: [StatusBadge(label: job.status.name), const Spacer(), Text('${job.bidCount} offers received', style: Theme.of(context).textTheme.bodySmall)]),
+            Row(children: [
+              StatusBadge(label: job.status.name),
+              const Spacer(),
+              Text('${job.bidCount} offers received',
+                  style: Theme.of(context).textTheme.bodySmall)
+            ]),
           ]),
         ),
       ),
@@ -178,20 +224,34 @@ class BidCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Expanded(child: Text(bid.providerName, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+              Expanded(
+                  child: Text(bid.providerName,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800))),
               if (bid.verified) const VerifiedBadge(),
             ]),
             const SizedBox(height: 8),
-            Text('${bid.rating.toStringAsFixed(1)} ★  ·  ${bid.completedJobs} jobs completed'),
+            Text(
+                '${bid.rating.toStringAsFixed(1)} ★  ·  ${bid.completedJobs} jobs completed'),
             const SizedBox(height: 12),
-            Row(children: [Text('RM${bid.amount.toStringAsFixed(0)}', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w800)), const Spacer(), StatusBadge(label: bid.status.name)]),
+            Row(children: [
+              Text('RM${bid.amount.toStringAsFixed(0)}',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: AppColors.primary, fontWeight: FontWeight.w800)),
+              const Spacer(),
+              StatusBadge(label: bid.status.name)
+            ]),
             const SizedBox(height: 10),
             Text('Available ${bid.availableAt}'),
             const SizedBox(height: 8),
             Text('Includes: ${bid.inclusions}'),
-            Text('Excludes: ${bid.exclusions}', style: Theme.of(context).textTheme.bodySmall),
+            Text('Excludes: ${bid.exclusions}',
+                style: Theme.of(context).textTheme.bodySmall),
           ]),
         ),
       ),
@@ -227,10 +287,14 @@ class ProviderCard extends StatelessWidget {
                   children: [
                     Text(
                       provider.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     Text(provider.category),
-                    Text('${provider.rating.toStringAsFixed(1)} ★  ·  ${provider.completedJobs} completed'),
+                    Text(
+                        '${provider.rating.toStringAsFixed(1)} ★  ·  ${provider.completedJobs} completed'),
                   ],
                 ),
               ),
@@ -249,21 +313,33 @@ class BudgetInput extends StatelessWidget {
   final TextEditingController? controller;
 
   @override
-  Widget build(BuildContext context) => TextFormField(controller: controller, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Budget', prefixText: 'RM '));
+  Widget build(BuildContext context) => TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration:
+          const InputDecoration(labelText: 'Budget', prefixText: 'RM '));
 }
 
 class DateTimeSelector extends StatelessWidget {
-  const DateTimeSelector({super.key, this.value = 'Choose a date and time', this.onTap});
+  const DateTimeSelector(
+      {super.key, this.value = 'Choose a date and time', this.onTap});
 
   final String value;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => ListTile(onTap: onTap, contentPadding: EdgeInsets.zero, leading: const Icon(Icons.schedule_outlined), title: const Text('Service time'), subtitle: Text(value), trailing: const Icon(Icons.chevron_right));
+  Widget build(BuildContext context) => ListTile(
+      onTap: onTap,
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.schedule_outlined),
+      title: const Text('Service time'),
+      subtitle: Text(value),
+      trailing: const Icon(Icons.chevron_right));
 }
 
 class PhotoUploader extends StatelessWidget {
-  const PhotoUploader({super.key, this.count = 0, this.paths = const [], this.onPick});
+  const PhotoUploader(
+      {super.key, this.count = 0, this.paths = const [], this.onPick});
 
   final int count;
   final List<String> paths;
@@ -275,15 +351,27 @@ class PhotoUploader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.outline)),
+      decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.outline)),
       child: Column(children: [
         const Icon(Icons.add_a_photo_outlined, size: 30),
         const SizedBox(height: 8),
         Text('$selectedCount/5 photos selected'),
         const SizedBox(height: 8),
-        Text(selectedCount == 0 ? 'Add up to 5 photos to help providers understand the job.' : 'Photos are attached to this job.', textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary)),
+        Text(
+            selectedCount == 0
+                ? 'Add up to 5 photos to help providers understand the job.'
+                : 'Photos are attached to this job.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.textSecondary)),
         const SizedBox(height: 12),
-        OutlinedButton.icon(onPressed: onPick, icon: const Icon(Icons.photo_library_outlined), label: Text(selectedCount == 0 ? 'Choose photos' : 'Change photos')),
+        OutlinedButton.icon(
+            onPressed: onPick,
+            icon: const Icon(Icons.photo_library_outlined),
+            label:
+                Text(selectedCount == 0 ? 'Choose photos' : 'Change photos')),
       ]),
     );
   }
@@ -324,8 +412,87 @@ class JobPhotoGallery extends StatelessWidget {
   }
 }
 
+class PortfolioGallery extends StatelessWidget {
+  const PortfolioGallery({required this.urls, super.key});
+
+  final List<String> urls;
+
+  @override
+  Widget build(BuildContext context) {
+    if (urls.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Portfolio',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 112,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: urls.length,
+            separatorBuilder: (_, index) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              final url = urls[index];
+              if (!url.startsWith('http')) {
+                return _PortfolioPlaceholder(index: index);
+              }
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  url,
+                  width: 132,
+                  height: 112,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, error, stackTrace) =>
+                      _PortfolioPlaceholder(index: index),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PortfolioPlaceholder extends StatelessWidget {
+  const _PortfolioPlaceholder({required this.index});
+
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 132,
+      height: 112,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE7EEF0),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.photo_library_outlined),
+          const SizedBox(height: 6),
+          Text('Work photo ${index + 1}'),
+        ],
+      ),
+    );
+  }
+}
+
 class EmptyState extends StatelessWidget {
-  const EmptyState({required this.title, required this.message, super.key, this.icon = Icons.inbox_outlined, this.onAction, this.actionLabel = 'Try again'});
+  const EmptyState(
+      {required this.title,
+      required this.message,
+      super.key,
+      this.icon = Icons.inbox_outlined,
+      this.onAction,
+      this.actionLabel = 'Try again'});
 
   final String title;
   final String message;
@@ -334,7 +501,26 @@ class EmptyState extends StatelessWidget {
   final String actionLabel;
 
   @override
-  Widget build(BuildContext context) => Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 48, color: AppColors.textSecondary), const SizedBox(height: 12), Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary)), if (onAction != null) ...[const SizedBox(height: 14), OutlinedButton(onPressed: onAction, child: Text(actionLabel))]])));
+  Widget build(BuildContext context) => Center(
+      child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 48, color: AppColors.textSecondary),
+            const SizedBox(height: 12),
+            Text(title,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 8),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary)),
+            if (onAction != null) ...[
+              const SizedBox(height: 14),
+              OutlinedButton(onPressed: onAction, child: Text(actionLabel))
+            ]
+          ])));
 }
 
 class ErrorState extends StatelessWidget {
@@ -343,7 +529,11 @@ class ErrorState extends StatelessWidget {
   final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) => EmptyState(title: 'Something went wrong', message: 'Please check your connection and try again.', icon: Icons.error_outline, onAction: onRetry);
+  Widget build(BuildContext context) => EmptyState(
+      title: 'Something went wrong',
+      message: 'Please check your connection and try again.',
+      icon: Icons.error_outline,
+      onAction: onRetry);
 }
 
 class OfflineState extends StatelessWidget {
@@ -352,25 +542,71 @@ class OfflineState extends StatelessWidget {
   final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) => EmptyState(title: 'You are offline', message: 'Your changes stay on this device. Reconnect and try again when you are ready.', icon: Icons.cloud_off_outlined, onAction: onRetry);
+  Widget build(BuildContext context) => EmptyState(
+      title: 'You are offline',
+      message:
+          'Your changes stay on this device. Reconnect and try again when you are ready.',
+      icon: Icons.cloud_off_outlined,
+      onAction: onRetry);
 }
 
 class LoadingSkeleton extends StatelessWidget {
   const LoadingSkeleton({super.key});
 
   @override
-  Widget build(BuildContext context) => Card(child: Container(height: 120, decoration: BoxDecoration(color: const Color(0xFFE7EEF0), borderRadius: BorderRadius.circular(16))));
+  Widget build(BuildContext context) => Card(
+      child: Container(
+          height: 120,
+          decoration: BoxDecoration(
+              color: const Color(0xFFE7EEF0),
+              borderRadius: BorderRadius.circular(16))));
 }
 
 class ConfirmationDialog {
-  static Future<bool> show(BuildContext context, {required String title, required String message}) async {
-    final result = await showDialog<bool>(context: context, builder: (context) => AlertDialog(title: Text(title), content: Text(message), actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Not now')), FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Confirm'))]));
+  static Future<bool> show(BuildContext context,
+      {required String title, required String message}) async {
+    final result = await showDialog<bool>(
+        context: context,
+        builder: (context) =>
+            AlertDialog(title: Text(title), content: Text(message), actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Not now')),
+              FilledButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Confirm'))
+            ]));
     return result ?? false;
   }
 }
 
 class FilterBottomSheet {
   static Future<void> show(BuildContext context) async {
-    await showModalBottomSheet<void>(context: context, showDragHandle: true, builder: (context) => Padding(padding: const EdgeInsets.all(20), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Filter jobs', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)), const SizedBox(height: 16), const Wrap(spacing: 8, runSpacing: 8, children: [CategoryChip(label: 'Plumbing'), CategoryChip(label: 'Electrical'), AreaChip(label: 'Mount Austin'), AreaChip(label: 'Taman Molek')]), const SizedBox(height: 20), PrimaryButton(label: 'Apply filters', onPressed: () => Navigator.pop(context))])));
+    await showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (context) => Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Filter jobs',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 16),
+                  const Wrap(spacing: 8, runSpacing: 8, children: [
+                    CategoryChip(label: 'Plumbing'),
+                    CategoryChip(label: 'Electrical'),
+                    AreaChip(label: 'Mount Austin'),
+                    AreaChip(label: 'Taman Molek')
+                  ]),
+                  const SizedBox(height: 20),
+                  PrimaryButton(
+                      label: 'Apply filters',
+                      onPressed: () => Navigator.pop(context))
+                ])));
   }
 }
