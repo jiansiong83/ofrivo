@@ -38,6 +38,8 @@ const expiryMigration = read('supabase/migrations/20260805000400_version11_job_e
 const expiryRunner = read('supabase/tests/run_version11_expiry_local.mjs');
 const customerJobRepository = read('apps/mobile/lib/features/customer/customer_job_repository.dart');
 const expiryTests = read('apps/mobile/test/job_expiry_test.dart');
+const reviewMigration = read('supabase/migrations/20260805000500_version11_review_dimensions.sql');
+const reviewRunner = read('supabase/tests/run_version11_review_local.mjs');
 
 const checks = [
   ['AuthUser carries an optional phone number', models.includes('final String? phone;')],
@@ -95,6 +97,13 @@ const checks = [
   ['fake customer repository mirrors due-job expiry', customerJobRepository.includes('Future<int> expireOpenJobs') && customerJobRepository.includes('NotificationType.jobExpired')],
   ['local expiry runner covers browser denial and worker atomicity', expiryRunner.includes('/rpc/expire_open_jobs') && expiryRunner.includes('browser clients cannot run') && expiryRunner.includes('atomically updates bids')],
   ['expiry has fake lifecycle coverage', expiryTests.includes('fake expiry changes only due open jobs')],
+  ['review migration stores punctuality, quality, and communication scores', reviewMigration.includes('punctuality_rating') && reviewMigration.includes('quality_rating') && reviewMigration.includes('communication_rating')],
+  ['review dimension scores are bounded and required for new inserts', reviewMigration.includes('between 1 and 5') && reviewMigration.includes('drop default') && reviewMigration.includes('not null')],
+  ['review model validates all detailed scores', lifecycleModels.includes('punctualityRating') && lifecycleModels.includes('qualityRating') && lifecycleModels.includes('communicationRating') && lifecycleModels.includes('Choose a communication rating')],
+  ['fake and Supabase review adapters persist detailed scores', lifecycleRepository.includes('punctuality_rating') && lifecycleRepository.includes('quality_rating') && lifecycleRepository.includes('communication_rating') && lifecycleRepository.includes('punctualityRating: draft.punctualityRating')],
+  ['review screen exposes detailed score controls', lifecycleScreens.includes('Detailed ratings') && lifecycleScreens.includes('Punctuality') && lifecycleScreens.includes('Communication')],
+  ['review tests cover detailed score persistence and bounds', lifecycleTests.includes('punctualityRating: 4') && lifecycleTests.includes('qualityRating: 6')],
+  ['local review runner covers dimensions, bounds, duplicate, and reciprocity', reviewRunner.includes('customer can submit all review dimensions') && reviewRunner.includes('out-of-range review dimensions are rejected') && reviewRunner.includes('accepted provider can submit reciprocal dimensions')],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);

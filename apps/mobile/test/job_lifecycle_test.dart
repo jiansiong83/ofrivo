@@ -49,8 +49,16 @@ void main() {
         JobStatus.completed);
     final review = await repository.submitReview(
         jobId: 'job-lifecycle',
-        draft: const ReviewDraft(rating: 5, comment: 'Clear communication.'));
+        draft: const ReviewDraft(
+            rating: 5,
+            punctualityRating: 4,
+            qualityRating: 5,
+            communicationRating: 4,
+            comment: 'Clear communication.'));
     expect(review.revieweeId, 'customer-demo');
+    expect(review.punctualityRating, 4);
+    expect(review.qualityRating, 5);
+    expect(review.communicationRating, 4);
     final report = await repository.submitReport(
         jobId: 'job-lifecycle',
         draft: const ReportDraft(
@@ -80,6 +88,17 @@ void main() {
 
   test('review and report drafts enforce their input boundaries', () {
     expect(const ReviewDraft(rating: 0, comment: '').validate(), isNotNull);
+    expect(
+        const ReviewDraft(punctualityRating: 0, rating: 5, comment: '')
+            .validate(),
+        isNotNull);
+    expect(
+        const ReviewDraft(qualityRating: 6, rating: 5, comment: '').validate(),
+        isNotNull);
+    expect(
+        const ReviewDraft(communicationRating: 0, rating: 5, comment: '')
+            .validate(),
+        isNotNull);
     expect(const ReportDraft(reasonCode: '', description: 'short').validate(),
         isNotNull);
   });

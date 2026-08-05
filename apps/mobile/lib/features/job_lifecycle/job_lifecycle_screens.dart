@@ -210,6 +210,9 @@ class ReviewScreen extends ConsumerStatefulWidget {
 
 class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   var rating = 5;
+  var punctualityRating = 5;
+  var qualityRating = 5;
+  var communicationRating = 5;
   final commentController = TextEditingController();
 
   @override
@@ -248,7 +251,27 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                   icon: Icon(index <= rating ? Icons.star : Icons.star_border,
                       color: AppColors.warning, size: 34))
           ])),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          const Text('Detailed ratings',
+              style: TextStyle(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 6),
+          _ReviewRatingRow(
+              label: 'Punctuality',
+              value: punctualityRating,
+              enabled: !state.isSubmitting,
+              onChanged: (value) => setState(() => punctualityRating = value)),
+          _ReviewRatingRow(
+              label: 'Quality',
+              value: qualityRating,
+              enabled: !state.isSubmitting,
+              onChanged: (value) => setState(() => qualityRating = value)),
+          _ReviewRatingRow(
+              label: 'Communication',
+              value: communicationRating,
+              enabled: !state.isSubmitting,
+              onChanged: (value) =>
+                  setState(() => communicationRating = value)),
+          const SizedBox(height: 8),
           TextField(
               controller: commentController,
               enabled: !state.isSubmitting,
@@ -274,7 +297,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                               widget.jobId,
                               ReviewDraft(
                                   rating: rating,
-                                  comment: commentController.text));
+                                  comment: commentController.text,
+                                  punctualityRating: punctualityRating,
+                                  qualityRating: qualityRating,
+                                  communicationRating: communicationRating));
                       if (!context.mounted) return;
                       if (ok) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -284,6 +310,35 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                     })
         ]);
   }
+}
+
+class _ReviewRatingRow extends StatelessWidget {
+  const _ReviewRatingRow(
+      {required this.label,
+      required this.value,
+      required this.enabled,
+      required this.onChanged});
+
+  final String label;
+  final int value;
+  final bool enabled;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        SizedBox(
+            width: 112,
+            child: Text(label,
+                style: const TextStyle(color: AppColors.textSecondary))),
+        for (var index = 1; index <= 5; index++)
+          IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(width: 30, height: 34),
+              onPressed: enabled ? () => onChanged(index) : null,
+              icon: Icon(index <= value ? Icons.star : Icons.star_border,
+                  color: AppColors.warning, size: 21)),
+      ]);
 }
 
 class ReportScreen extends ConsumerStatefulWidget {

@@ -41,7 +41,10 @@ class ReviewRecord {
       required this.revieweeId,
       required this.rating,
       required this.comment,
-      required this.createdAt});
+      required this.createdAt,
+      this.punctualityRating = 5,
+      this.qualityRating = 5,
+      this.communicationRating = 5});
 
   final String id;
   final String jobId;
@@ -50,6 +53,9 @@ class ReviewRecord {
   final int rating;
   final String comment;
   final DateTime createdAt;
+  final int punctualityRating;
+  final int qualityRating;
+  final int communicationRating;
 }
 
 class ReportRecord {
@@ -117,13 +123,30 @@ class JobLifecycleState {
 }
 
 class ReviewDraft {
-  const ReviewDraft({required this.rating, required this.comment});
+  const ReviewDraft(
+      {required this.rating,
+      required this.comment,
+      this.punctualityRating = 5,
+      this.qualityRating = 5,
+      this.communicationRating = 5});
 
   final int rating;
   final String comment;
+  final int punctualityRating;
+  final int qualityRating;
+  final int communicationRating;
 
   String? validate() {
     if (rating < 1 || rating > 5) return 'Choose a rating from 1 to 5 stars.';
+    if (punctualityRating < 1 || punctualityRating > 5) {
+      return 'Choose a punctuality rating from 1 to 5 stars.';
+    }
+    if (qualityRating < 1 || qualityRating > 5) {
+      return 'Choose a quality rating from 1 to 5 stars.';
+    }
+    if (communicationRating < 1 || communicationRating > 5) {
+      return 'Choose a communication rating from 1 to 5 stars.';
+    }
     if (comment.trim().length > 1000) {
       return 'Keep your review under 1,000 characters.';
     }

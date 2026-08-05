@@ -179,7 +179,10 @@ class FakeJobLifecycleRepository implements JobLifecycleRepository {
             : customerId,
         rating: draft.rating,
         comment: draft.comment.trim(),
-        createdAt: DateTime.now());
+        createdAt: DateTime.now(),
+        punctualityRating: draft.punctualityRating,
+        qualityRating: draft.qualityRating,
+        communicationRating: draft.communicationRating);
     fakeReviews.insert(0, review);
     return review;
   }
@@ -342,6 +345,9 @@ class SupabaseJobLifecycleRepository implements JobLifecycleRepository {
           'reviewer_id': userId,
           'reviewee_id': revieweeId,
           'rating': draft.rating,
+          'punctuality_rating': draft.punctualityRating,
+          'quality_rating': draft.qualityRating,
+          'communication_rating': draft.communicationRating,
           'comment': draft.comment.trim().isEmpty ? null : draft.comment.trim()
         })
         .select()
@@ -420,7 +426,10 @@ class SupabaseJobLifecycleRepository implements JobLifecycleRepository {
       revieweeId: row['reviewee_id'] as String,
       rating: (row['rating'] as num?)?.toInt() ?? 0,
       comment: row['comment'] as String? ?? '',
-      createdAt: _date(row['created_at']));
+      createdAt: _date(row['created_at']),
+      punctualityRating: (row['punctuality_rating'] as num?)?.toInt() ?? 5,
+      qualityRating: (row['quality_rating'] as num?)?.toInt() ?? 5,
+      communicationRating: (row['communication_rating'] as num?)?.toInt() ?? 5);
 
   ReportRecord _mapReport(Map<String, dynamic> row) => ReportRecord(
       id: row['id'] as String,
