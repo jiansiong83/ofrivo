@@ -1,8 +1,9 @@
 class AuthUser {
-  const AuthUser({required this.id, required this.email});
+  const AuthUser({required this.id, required this.email, this.phone});
 
   final String id;
   final String email;
+  final String? phone;
 }
 
 class ProfileData {
@@ -33,7 +34,9 @@ class ProfileData {
     final provider = map['provider_profiles'];
     final providerMap = provider is Map<String, dynamic>
         ? provider
-        : provider is List && provider.isNotEmpty && provider.first is Map<String, dynamic>
+        : provider is List &&
+                provider.isNotEmpty &&
+                provider.first is Map<String, dynamic>
             ? provider.first as Map<String, dynamic>
             : const <String, dynamic>{};
     return ProfileData(
@@ -44,13 +47,15 @@ class ProfileData {
       whatsapp: map['whatsapp'] as String?,
       accountStatus: (map['account_status'] as String?) ?? 'active',
       isAdmin: (map['is_admin'] as bool?) ?? false,
-      providerVerificationStatus: (providerMap['verification_status'] as String?) ?? 'not_applied',
+      providerVerificationStatus:
+          (providerMap['verification_status'] as String?) ?? 'not_applied',
     );
   }
 }
 
 class AuthOperation {
-  const AuthOperation({this.user, this.error, this.needsEmailConfirmation = false});
+  const AuthOperation(
+      {this.user, this.error, this.needsEmailConfirmation = false});
 
   final AuthUser? user;
   final String? error;

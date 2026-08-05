@@ -14,7 +14,8 @@ void main() {
     expect(profile?.isSuspended, isFalse);
   });
 
-  test('profile parser keeps sensitive fields out of public provider shape', () {
+  test('profile parser keeps sensitive fields out of public provider shape',
+      () {
     final profile = ProfileData.fromMap({
       'id': 'user-1',
       'full_name': 'Alex Tan',
@@ -29,7 +30,8 @@ void main() {
   });
 
   test('suspended profile is represented as a blocked state', () {
-    final profile = ProfileData.fromMap({'id': 'suspended-user', 'account_status': 'suspended'});
+    final profile = ProfileData.fromMap(
+        {'id': 'suspended-user', 'account_status': 'suspended'});
     expect(profile.isSuspended, isTrue);
   });
 
@@ -50,5 +52,36 @@ void main() {
     expect(customer.id, isNot(provider.id));
     expect(customer.isApprovedProvider, isFalse);
     expect(provider.isApprovedProvider, isTrue);
+  });
+
+  test(
+      'demo phone OTP validates the number and accepts the documented demo code',
+      () async {
+    final repository = FakeAuthRepository();
+
+    expect(await repository.requestPhoneOtp('012 000 0101'),
+        contains('valid phone'));
+    expect(await repository.requestPhoneOtp('+60 12 000 0101'), isNull);
+    expect(
+        (await repository.verifyPhoneOtp(
+                phone: '+60 12 000 0101', token: '000000'))
+            .error,
+        contains('not valid'));
+
+    final result = await repository.verifyPhoneOtp(
+        phone: '+60 12 000 0101', token: '123456');
+    final profile = await repository.ensureProfile(result.user!);
+    expect(result.succeeded, isTrue);
+    expect(result.user?.phone, '+60120000101');
+    expect(profile?.phone, '+60120000101');
+  });
+
+  test('demo phone OTP requires a fresh request before verification', () async {
+    final repository = FakeAuthRepository();
+    final result =
+        await repository.verifyPhoneOtp(phone: '+60120000101', token: '123456');
+
+    expect(result.succeeded, isFalse);
+    expect(result.error, contains('Request a new'));
   });
 }

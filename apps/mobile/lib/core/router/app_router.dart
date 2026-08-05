@@ -24,6 +24,9 @@ final appRouter = GoRouter(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen()),
     GoRoute(
+        path: '/phone-login',
+        builder: (context, state) => const PhoneOtpScreen()),
+    GoRoute(
         path: '/notifications',
         builder: (context, state) => const NotificationsScreen()),
     GoRoute(
