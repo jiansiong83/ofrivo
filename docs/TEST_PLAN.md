@@ -189,3 +189,11 @@
 ## Final automated evidence (2026-08-06)
 
 The Provider Profile change is covered by 15 static contract checks, 19 local Supabase integration checks, 2 focused Flutter tests, and the full 42-test Flutter suite. The debug APK and Admin production build both complete successfully; device UI validation remains a separate physical-device gate.
+
+## Admin responsive layout validation (2026-08-06)
+
+- At >=1024px, verify the sidebar, Job list, and Job detail remain visible in the desktop workspace.
+- At 768–1023px, verify the sidebar remains visible, selecting a Job opens a right-side detail drawer, and closing the drawer returns to the list.
+- At <768px, verify the mobile header and navigation drawer replace the stacked desktop sidebar; selecting a Job opens full-screen detail and `← Jobs` returns to the list.
+- Verify mobile Job rows expose title, area, budget, status, offer count, and a touch affordance without horizontal scrolling.
+- Run `node supabase/tests/validate_step9.mjs`; the current Admin contract baseline is 20 checks, followed by `npm.cmd run lint` and `npm.cmd run build`.

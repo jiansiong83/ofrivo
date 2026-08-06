@@ -25,6 +25,11 @@ const checks = [
   ['runtime anon-only boundary', client.includes('NEXT_PUBLIC_SUPABASE_URL') && client.includes('NEXT_PUBLIC_SUPABASE_ANON_KEY') && !client.includes('service_role') && page.includes('Never exposed to browser')],
   ['supabase client dependency', packageJson.includes('"@supabase/supabase-js"')],
   ['taxonomy actions read-only', taxonomy.includes('Read-only') && !taxonomy.includes('Add {title ===') && !taxonomy.includes('>Disable</button>')],
+  ['desktop layout builder', page.includes('hidden min-h-screen lg:flex') && page.includes('variant="desktop"') && page.includes('lg:grid-cols-[1.3fr_0.7fr]')],
+  ['tablet layout builder', page.includes('hidden min-h-screen md:flex lg:hidden') && page.includes('variant="tablet"') && page.includes('TabletJobDrawer')],
+  ['phone layout builder', page.includes('min-h-screen md:hidden') && page.includes('MobileAdminShell') && page.includes("renderContent('mobile')")],
+  ['phone job list and detail', page.includes('MobileJobList') && page.includes('MobileJobDetail') && page.includes('Open admin navigation')],
+  ['job detail remains admin-only', page.includes('Private address') && page.includes('JobDetailCard')],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);

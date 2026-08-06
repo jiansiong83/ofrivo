@@ -30,6 +30,7 @@ import {
 import { isLocalSupabaseConfigured } from '../lib/supabase';
 
 type AdminTab = 'Dashboard' | 'Pending Providers' | 'Users' | 'Jobs' | 'Bids' | 'Reports' | 'Categories' | 'Areas' | 'Audit Log' | 'System Settings' | 'Category Requests';
+type AdminLayout = 'desktop' | 'tablet' | 'mobile';
 
 const navigation: { id: AdminTab; label: string; hint: string }[] = [
   { id: 'Dashboard', label: 'Dashboard', hint: 'Operations overview' },
@@ -52,6 +53,7 @@ export default function AdminHome() {
   const [loading, setLoading] = useState(isLocalSupabaseConfigured());
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const refresh = useCallback(async () => setData(await loadAdminData()), []);
 
@@ -126,46 +128,91 @@ export default function AdminHome() {
   if (!session) return <AdminLogin onLogin={handleLogin} loading={loading} error={error} />;
   if (loading || !data) return <AdminLoading message={error ?? 'Loading local Supabase data…'} />;
 
+  const selectTab = (tab: AdminTab) => {
+    setActiveTab(tab);
+    setMobileNavOpen(false);
+  };
+
+  const signOut = () => {
+    void signOutAdmin().then(() => { setSession(null); setData(null); }).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Sign out failed.'));
+  };
+
+  if (!isLocalSupabaseConfigured()) return <AdminNotConfigured />;
+  if (!session) return <AdminLogin onLogin={handleLogin} loading={loading} error={error} />;
+  if (loading || !data) return <AdminLoading message={error ?? 'Loading local Supabase data…'} />;
+
   const current = navigation.find((item) => item.id === activeTab) ?? navigation[0];
+  const renderContent = (layout: AdminLayout) => <>
+    {activeTab === 'Dashboard' && <DashboardView data={data} onNavigate={selectTab} />}
+    {activeTab === 'Pending Providers' && <ProvidersView providers={data.providers} onAction={providerAction} />}
+    {activeTab === 'Category Requests' && <CategoryRequestsView requests={data.categoryRequests} onAction={categoryAction} />}
+    {activeTab === 'Users' && <UsersView users={data.users} onAction={userAction} />}
+    {activeTab === 'Jobs' && <JobsView jobs={data.jobs} layout={layout} />}
+    {activeTab === 'Bids' && <BidsView bids={data.bids} />}
+    {activeTab === 'Reports' && <ReportsView reports={data.reports} onAction={reportAction} />}
+    {activeTab === 'Categories' && <TaxonomyView title="Categories" items={data.categories} description="Service categories used by customers and approved providers." />}
+    {activeTab === 'Areas' && <TaxonomyView title="Areas" items={data.areas} description="Johor Bahru coverage zones available to matching providers." />}
+    {activeTab === 'Audit Log' && <AuditView audit={data.audit} />}
+    {activeTab === 'System Settings' && <SettingsView />}
+  </>;
+
   return (
-    <main className="min-h-screen lg:flex">
-      <aside className="border-b border-slate-200 bg-white px-5 py-6 lg:min-h-screen lg:w-72 lg:border-b-0 lg:border-r">
-        <div className="mb-8 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-tealbrand text-lg font-black text-white">O</div>
-          <div><p className="font-extrabold tracking-tight">Ofrivo</p><p className="text-xs text-slate-500">Operations console</p></div>
-        </div>
-        <nav aria-label="Admin navigation" className="grid gap-1">
-          {navigation.map((item) => (
-            <button key={item.id} type="button" onClick={() => setActiveTab(item.id)} className={`rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${activeTab === item.id ? 'bg-teal-50 text-tealbrand' : 'text-slate-600 hover:bg-slate-50'}`}>
-              <span className="block">{item.label}</span><span className={`mt-0.5 block text-[11px] font-medium ${activeTab === item.id ? 'text-teal-700' : 'text-slate-400'}`}>{item.hint}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600"><p className="font-bold text-slate-800">Local Supabase Admin</p><p className="mt-1">Authenticated data and moderation actions use local RLS-protected tables. No service-role key is sent to this browser.</p></div>
-      </aside>
-      <section className="min-w-0 flex-1 p-5 sm:p-8">
-        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-          <div><p className="text-sm font-semibold text-tealbrand">{current.hint}</p><h1 className="mt-1 text-3xl font-black tracking-tight">{current.label}</h1><p className="mt-2 text-slate-500">Moderate providers, protect users, and keep marketplace activity healthy.</p></div>
-          <div className="flex items-center gap-3"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">{session.name} · local active</span><button type="button" onClick={() => { void signOutAdmin().then(() => { setSession(null); setData(null); }).catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'Sign out failed.')); }} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:border-slate-300">Sign out</button></div>
-        </header>
-        {error && <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
-        {activeTab === 'Dashboard' && <DashboardView data={data} onNavigate={setActiveTab} />}
-        {activeTab === 'Pending Providers' && <ProvidersView providers={data.providers} onAction={providerAction} />}
-        {activeTab === 'Category Requests' && <CategoryRequestsView requests={data.categoryRequests} onAction={categoryAction} />}
-        {activeTab === 'Users' && <UsersView users={data.users} onAction={userAction} />}
-        {activeTab === 'Jobs' && <JobsView jobs={data.jobs} />}
-        {activeTab === 'Bids' && <BidsView bids={data.bids} />}
-        {activeTab === 'Reports' && <ReportsView reports={data.reports} onAction={reportAction} />}
-        {activeTab === 'Categories' && <TaxonomyView title="Categories" items={data.categories} description="Service categories used by customers and approved providers." />}
-        {activeTab === 'Areas' && <TaxonomyView title="Areas" items={data.areas} description="Johor Bahru coverage zones available to matching providers." />}
-        {activeTab === 'Audit Log' && <AuditView audit={data.audit} />}
-        {activeTab === 'System Settings' && <SettingsView />}
-        {toast && <div role="status" className="fixed bottom-5 right-5 z-20 max-w-sm rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl">{toast}</div>}
-      </section>
-    </main>
+    <>
+      <div className="hidden min-h-screen lg:flex">
+        <AdminSidebar activeTab={activeTab} onNavigate={selectTab} variant="desktop" />
+        <AdminWorkspace current={current} session={session} error={error} toast={toast} onSignOut={signOut}>{renderContent('desktop')}</AdminWorkspace>
+      </div>
+      <div className="hidden min-h-screen md:flex lg:hidden">
+        <AdminSidebar activeTab={activeTab} onNavigate={selectTab} variant="tablet" />
+        <AdminWorkspace current={current} session={session} error={error} toast={toast} onSignOut={signOut}>{renderContent('tablet')}</AdminWorkspace>
+      </div>
+      <div className="min-h-screen md:hidden">
+        <MobileAdminShell activeTab={activeTab} current={current} session={session} error={error} toast={toast} navOpen={mobileNavOpen} onToggleNav={() => setMobileNavOpen((open) => !open)} onNavigate={selectTab} onSignOut={signOut}>{renderContent('mobile')}</MobileAdminShell>
+      </div>
+    </>
   );
 }
 
+function AdminSidebar({ activeTab, onNavigate, variant }: { activeTab: AdminTab; onNavigate: (tab: AdminTab) => void; variant: 'desktop' | 'tablet' }) {
+  const width = variant === 'desktop' ? 'w-72' : 'w-60';
+  return <aside className={`min-h-screen shrink-0 overflow-y-auto border-r border-slate-200 bg-white px-5 py-6 ${width}`}>
+    <div className="mb-8 flex items-center gap-3">
+      <div className="grid h-10 w-10 place-items-center rounded-xl bg-tealbrand text-lg font-black text-white">O</div>
+      <div><p className="font-extrabold tracking-tight">Ofrivo</p><p className="text-xs text-slate-500">Operations console</p></div>
+    </div>
+    <nav aria-label="Admin navigation" className="grid gap-1">
+      {navigation.map((item) => <button key={item.id} type="button" onClick={() => onNavigate(item.id)} className={`rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition ${activeTab === item.id ? 'bg-teal-50 text-tealbrand' : 'text-slate-600 hover:bg-slate-50'}`}>
+        <span className="block">{item.label}</span><span className={`mt-0.5 block text-[11px] font-medium ${activeTab === item.id ? 'text-teal-700' : 'text-slate-400'}`}>{item.hint}</span>
+      </button>)}
+    </nav>
+    <div className="mt-8 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600"><p className="font-bold text-slate-800">Local Supabase Admin</p><p className="mt-1">Authenticated data and moderation actions use local RLS-protected tables. No service-role key is sent to this browser.</p></div>
+  </aside>;
+}
+
+function AdminWorkspace({ current, session, error, toast, onSignOut, children }: { current: { label: string; hint: string }; session: AdminSession; error: string | null; toast: string | null; onSignOut: () => void; children: ReactNode }) {
+  return <section className="min-w-0 flex-1 p-5 sm:p-8">
+    <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div><p className="text-sm font-semibold text-tealbrand">{current.hint}</p><h1 className="mt-1 text-3xl font-black tracking-tight">{current.label}</h1><p className="mt-2 text-slate-500">Moderate providers, protect users, and keep marketplace activity healthy.</p></div>
+      <div className="flex items-center gap-3"><span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">{session.name} · local active</span><button type="button" onClick={onSignOut} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:border-slate-300">Sign out</button></div>
+    </header>
+    {error && <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
+    {children}
+    {toast && <div role="status" className="fixed bottom-5 right-5 z-20 max-w-sm rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl">{toast}</div>}
+  </section>;
+}
+
+function MobileAdminShell({ activeTab, current, session, error, toast, navOpen, onToggleNav, onNavigate, onSignOut, children }: { activeTab: AdminTab; current: { label: string; hint: string }; session: AdminSession; error: string | null; toast: string | null; navOpen: boolean; onToggleNav: () => void; onNavigate: (tab: AdminTab) => void; onSignOut: () => void; children: ReactNode }) {
+  return <main className="min-h-screen bg-page">
+    <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <button type="button" onClick={onToggleNav} aria-label={navOpen ? 'Close admin navigation' : 'Open admin navigation'} aria-expanded={navOpen} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 text-xl font-bold text-slate-700">{navOpen ? '×' : '☰'}</button>
+      <div className="min-w-0 flex-1"><p className="truncate text-base font-black tracking-tight">Ofrivo Admin</p><p className="truncate text-xs font-semibold text-tealbrand">{current.label} · {current.hint}</p></div>
+      <div className="hidden text-right"><p className="text-xs font-bold text-slate-700">{session.name}</p><p className="text-[10px] font-semibold text-emerald-700">Local active</p></div>
+      <button type="button" onClick={onSignOut} aria-label="Sign out" className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600">Sign out</button>
+    </header>
+    {navOpen && <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Admin navigation"><button type="button" onClick={onToggleNav} aria-label="Close navigation" className="absolute inset-0 bg-slate-900/40" /><aside className="relative z-10 h-full w-[min(84vw,320px)] overflow-y-auto bg-white px-4 py-5 shadow-2xl"><div className="mb-6 flex items-center justify-between"><div><p className="font-black tracking-tight">Ofrivo Admin</p><p className="text-xs text-slate-500">Operations console</p></div><button type="button" onClick={onToggleNav} aria-label="Close navigation" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 text-lg">×</button></div><nav aria-label="Admin navigation" className="grid gap-1">{navigation.map((item) => <button key={item.id} type="button" onClick={() => onNavigate(item.id)} className={`rounded-xl px-3 py-3 text-left text-sm font-semibold ${activeTab === item.id ? 'bg-teal-50 text-tealbrand' : 'text-slate-600 hover:bg-slate-50'}`}><span className="block">{item.label}</span><span className="mt-0.5 block text-[11px] font-medium text-slate-400">{item.hint}</span></button>)}</nav><div className="mt-7 rounded-2xl bg-slate-50 p-4 text-xs leading-5 text-slate-600">Authenticated local Supabase data and moderation actions are protected by RLS. No service-role key is sent to this browser.</div></aside></div>}
+    <section className="min-w-0 p-4"><div className="mb-5"><p className="text-sm font-semibold text-tealbrand">{current.hint}</p><h1 className="mt-1 text-2xl font-black tracking-tight">{current.label}</h1><p className="mt-2 text-sm leading-5 text-slate-500">Moderate providers, protect users, and keep marketplace activity healthy.</p></div>{error && <div role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}{children}{toast && <div role="status" className="fixed bottom-5 left-4 right-4 z-30 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-xl">{toast}</div>}</section>
+  </main>;
+}
 function AdminNotConfigured() {
   return <main className="grid min-h-screen place-items-center bg-page px-5 py-10"><section className="w-full max-w-xl rounded-3xl border border-amber-200 bg-white p-8 shadow-sm"><h1 className="text-2xl font-black tracking-tight">Local Supabase is not configured</h1><p className="mt-3 text-sm leading-6 text-slate-600">Start the local stack, then expose only the local URL and anon key to the Admin process.</p><pre className="mt-5 overflow-x-auto rounded-2xl bg-slate-900 p-4 text-xs leading-6 text-slate-100">$env:NEXT_PUBLIC_SUPABASE_URL=&apos;http://127.0.0.1:54421&apos;{`\n`}$env:NEXT_PUBLIC_SUPABASE_ANON_KEY=&apos;(from supabase status)&apos;{`\n`}npm.cmd run dev</pre><p className="mt-4 text-xs text-slate-500">The service-role key is never accepted by this UI.</p></section></main>;
 }
@@ -214,16 +261,46 @@ function CategoryRequestsView({ requests, onAction }: { requests: AdminCategoryR
   return <section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Users" subtitle="Suspend or restore accounts while keeping role and activity visible." /></div><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">User</th><th className="py-3">Role</th><th className="py-3">Activity</th><th className="py-3">Status</th><th className="py-3 pr-5 text-right">Account action</th></tr></thead><tbody>{users.map((user) => <tr key={user.id} className="border-b border-slate-100 last:border-0"><td className="px-5 py-4"><p className="font-bold">{user.name}</p><p className="mt-1 text-xs text-slate-500">{user.email} · Joined {user.joinedAt}</p></td><td className="py-4"><StatusBadge value={user.role} /></td><td className="py-4 text-slate-600">{user.jobs} jobs · {user.bids} bids</td><td className="py-4"><StatusBadge value={user.status} /></td><td className="py-4 pr-5 text-right">{user.status === 'active' ? <ActionButton label="Suspend" tone="danger" onClick={() => onAction(user, 'suspended')} /> : <ActionButton label="Restore" tone="primary" onClick={() => onAction(user, 'active')} />}</td></tr>)}</tbody></table></div></section>;
 }
 
-function JobsView({ jobs }: { jobs: AdminJob[] }) {
+function JobsView({ jobs, layout }: { jobs: AdminJob[]; layout: AdminLayout }) {
   const [selectedId, setSelectedId] = useState(jobs[0]?.id);
+  const [detailOpen, setDetailOpen] = useState(false);
   const selected = jobs.find((job) => job.id === selectedId) ?? jobs[0];
-  return <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]"><section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Jobs" subtitle="Monitor the full marketplace state; private address fields are only shown in the admin detail." /></div><JobTable jobs={jobs} onSelect={setSelectedId} selectedId={selectedId} /></section>{selected && <aside className="admin-card h-fit p-5"><p className="text-xs font-bold uppercase tracking-wide text-tealbrand">Job detail</p><h2 className="mt-1 text-xl font-black">{selected.title}</h2><div className="mt-5 grid gap-3"><Info label="Customer" value={selected.customer} /><Info label="Category" value={selected.category} /><Info label="Area" value={selected.area} /><Info label="Budget" value={`RM${selected.budget}`} /><Info label="Created" value={selected.createdAt} /><Info label="Private address" value={selected.fullAddress} /></div><div className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">{selected.bids} offer(s) · {selected.status.replace('_', ' ')}</div></aside>}</div>;
+  const selectJob = (id: string) => {
+    setSelectedId(id);
+    if (layout !== 'desktop') setDetailOpen(true);
+  };
+
+  if (layout === 'mobile') return <>
+    <MobileJobList jobs={jobs} onSelect={selectJob} />
+    {selected && detailOpen && <MobileJobDetail job={selected} onClose={() => setDetailOpen(false)} />}
+  </>;
+
+  if (layout === 'tablet') return <>
+    <section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Jobs" subtitle="Tap a job to open its detail drawer without leaving the list." /></div><JobTable jobs={jobs} onSelect={selectJob} selectedId={selectedId} /></section>
+    {selected && detailOpen && <TabletJobDrawer job={selected} onClose={() => setDetailOpen(false)} />}
+  </>;
+
+  return <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]"><section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Jobs" subtitle="Monitor the full marketplace state; private address fields are only shown in the admin detail." /></div><JobTable jobs={jobs} onSelect={selectJob} selectedId={selectedId} /></section>{selected && <JobDetailCard job={selected} />}</div>;
 }
 
+function JobDetailCard({ job, onClose }: { job: AdminJob; onClose?: () => void }) {
+  return <aside className="admin-card h-fit p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-tealbrand">Job detail</p><h2 className="mt-1 text-xl font-black">{job.title}</h2></div>{onClose && <button type="button" onClick={onClose} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600">Close</button>}</div><div className="mt-5 grid gap-3"><Info label="Customer" value={job.customer} /><Info label="Category" value={job.category} /><Info label="Area" value={job.area} /><Info label="Budget" value={`RM${job.budget}`} /><Info label="Created" value={job.createdAt} /><Info label="Private address" value={job.fullAddress} /></div><div className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">{job.bids} offer(s) · {job.status.replace('_', ' ')}</div></aside>;
+}
+
+function MobileJobList({ jobs, onSelect }: { jobs: AdminJob[]; onSelect: (id: string) => void }) {
+  return <section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-4"><SectionHeader title="Jobs" subtitle="Tap a job to inspect customer, budget, address, and offers." /></div>{jobs.length === 0 ? <p className="p-5 text-sm text-slate-500">No jobs found.</p> : <div className="divide-y divide-slate-100">{jobs.map((job) => <button key={job.id} type="button" onClick={() => onSelect(job.id)} className="flex w-full items-center gap-3 p-4 text-left transition active:bg-teal-50 hover:bg-slate-50"><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><p className="truncate font-bold text-slate-800">{job.title}</p><span className="shrink-0 text-lg leading-none text-slate-400" aria-hidden="true">›</span></div><p className="mt-1 truncate text-xs text-slate-500">{job.area} · {job.customer}</p><div className="mt-3 flex flex-wrap items-center gap-2"><span className="text-sm font-black text-slate-800">RM{job.budget}</span><StatusBadge value={job.status} /><span className="text-xs font-semibold text-slate-400">{job.bids} offer(s)</span></div></div></button>)}</div>}</section>;
+}
+
+function TabletJobDrawer({ job, onClose }: { job: AdminJob; onClose: () => void }) {
+  return <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={`Job detail for ${job.title}`}><button type="button" onClick={onClose} aria-label="Close job detail" className="absolute inset-0 bg-slate-900/40" /><aside className="relative z-10 ml-auto h-full w-full max-w-xl overflow-y-auto bg-page p-4 shadow-2xl sm:p-6"><JobDetailCard job={job} onClose={onClose} /></aside></div>;
+}
+
+function MobileJobDetail({ job, onClose }: { job: AdminJob; onClose: () => void }) {
+  return <div className="fixed inset-0 z-50 overflow-y-auto bg-page" role="dialog" aria-modal="true" aria-label={`Job detail for ${job.title}`}><header className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 shadow-sm"><button type="button" onClick={onClose} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700">← Jobs</button><div className="min-w-0"><p className="text-xs font-semibold text-tealbrand">Job detail</p><p className="truncate font-black">{job.title}</p></div></header><div className="p-4"><JobDetailCard job={job} /></div></div>;
+}
 function JobTable({ jobs, compact = false, onSelect, selectedId }: { jobs: AdminJob[]; compact?: boolean; onSelect?: (id: string) => void; selectedId?: string }) {
   return <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Job</th><th className="py-3">Area</th><th className="py-3">Status</th><th className="py-3 pr-5 text-right">Bids</th></tr></thead><tbody>{jobs.map((job) => <tr key={job.id} className={`border-b border-slate-100 last:border-0 ${selectedId === job.id ? 'bg-teal-50/50' : ''}`}><td className="px-5 py-4"><button type="button" onClick={() => onSelect?.(job.id)} className="text-left"><p className="font-bold text-slate-800">{job.title}</p><p className="mt-1 text-xs text-slate-500">{compact ? job.createdAt : `${job.customer} · RM${job.budget}`}</p></button></td><td className="py-4 text-slate-600">{job.area}</td><td className="py-4"><StatusBadge value={job.status} /></td><td className="py-4 pr-5 text-right font-bold">{job.bids}</td></tr>)}</tbody></table></div>;
 }
-
 function BidsView({ bids }: { bids: { id: string; jobTitle: string; provider: string; customer: string; amount: number; status: BidStatus; createdAt: string }[] }) {
   return <section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Bids" subtitle="Admin visibility is broader than the provider feed; providers still never receive another provider's amount." /></div><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Job</th><th className="py-3">Provider</th><th className="py-3">Customer</th><th className="py-3">Amount</th><th className="py-3">Status</th><th className="py-3 pr-5">Created</th></tr></thead><tbody>{bids.map((bid) => <tr key={bid.id} className="border-b border-slate-100 last:border-0"><td className="px-5 py-4"><p className="font-bold">{bid.jobTitle}</p><p className="mt-1 text-xs text-slate-500">{bid.id}</p></td><td className="py-4">{bid.provider}</td><td className="py-4">{bid.customer}</td><td className="py-4 font-bold">RM{bid.amount}</td><td className="py-4"><StatusBadge value={bid.status} /></td><td className="py-4 pr-5 text-slate-500">{bid.createdAt}</td></tr>)}</tbody></table></div></section>;
 }

@@ -155,3 +155,8 @@
 - Provider Profile editing with persistent public fields, service areas, portfolio, and availability.
 - Provider category approval lifecycle with pending/rejected resubmission, Admin review notes, notifications, audit events, and approved-only feed matching.
 - Local integration coverage for profile/RLS/feed/availability behavior.
+
+### Changed
+
+- Added independent Admin desktop, tablet, and phone layout builders. Desktop keeps the existing three-column experience; tablet uses a detail drawer; phone uses a touch-first Job list and full-screen detail flow.
+- Added mobile navigation drawer and breakpoint-specific Job detail controls without changing Admin data, RLS, or moderation behavior.

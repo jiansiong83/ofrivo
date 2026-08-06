@@ -165,3 +165,11 @@
 - [x] Local Docker reset, Flutter tests/analyze, Admin lint/build, and Provider Profile integration pass.
 - [ ] Physical Android and dual-device UI validation.
 - [ ] Hosted migration and hosted RLS validation (only when explicitly authorized).
+
+## Admin dual-layout responsive gate (2026-08-06)
+
+- [x] Desktop >=1024px retains sidebar + list + detail workspace.
+- [x] Tablet 768–1023px retains sidebar and uses a Job detail drawer.
+- [x] Phone <768px uses an independent mobile header/navigation drawer and Job list/detail flow.
+- [x] Admin responsive contract validator passes 20 checks; lint and production build pass.
+- [ ] Manual visual checks at all three viewport widths.

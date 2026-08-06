@@ -188,3 +188,11 @@ Next: provide an authorized USB Android phone or an approved larger AVD, then ru
 - Flutter analyze PASS; Flutter test PASS (42 tests); debug APK PASS.
 - Admin lint PASS; production build PASS; `npm audit --audit-level=high` reports 0 vulnerabilities.
 - Isolated `ofrivo-staging` migration `20260806000100_provider_profile_category_approval.sql` applied; read-only provider category metadata API smoke PASS.
+
+## 2026-08-06 Admin dual-layout responsive shell
+
+- Desktop (>=1024px) keeps the existing sidebar + list + detail workspace through a dedicated desktop builder.
+- Tablet (768–1023px) keeps the sidebar and opens Job Detail in a right-side drawer so the list remains visible.
+- Phone (<768px) uses a separate mobile header/navigation drawer and a touch-first Job list; tapping a Job opens a full-screen detail view with a back action.
+- Desktop Job detail remains visible beside the list; no desktop table-to-card replacement or sidebar collapse was introduced.
+- Admin static validation now covers 20 checks; Admin lint and production build pass.
