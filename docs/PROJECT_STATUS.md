@@ -170,3 +170,21 @@ Step 10 commit: `883dcf0` (`feat: add push-ready notification pipeline`). Step 1
 ## Next step
 
 Next: provide an authorized USB Android phone or an approved larger AVD, then run the documented on-device workflow. Real SMS, FCM delivery, Supabase Cloud, Cloudflare, Vercel, and Google Play remain deferred until explicitly requested.
+
+## 2026-08-06 Provider Profile and category approval flow
+
+- Provider Profile card chevron now opens `/provider/profile/edit` with real profile data; display name, bio, phone/WhatsApp, areas, portfolio, and availability are persisted through authenticated RPCs.
+- `provider_categories` now records `pending | approved | rejected` plus submission/review metadata. Existing rows default to approved; newly added categories stay out of the feed until Admin approval.
+- Added `submit_provider_category_changes`, `review_provider_category`, `update_provider_profile`, and `set_provider_availability` with server-side validation, RLS/privilege guards, audit events, and provider notifications.
+- Provider feed and open-job reads require approved category, matching area, and `is_available`; accepted/assigned jobs remain readable when availability is turned off.
+- Admin now has a live Category Requests view with provider/category detail, note input, approve/reject actions, and audit-backed refresh.
+- Local Docker reset and the new Provider Profile integration runner pass. Flutter analyze and tests pass; Admin lint/build pass.
+- Cloud/paid services remain unchanged. Physical-device UI and dual-device UI validation remain separate gates.
+## Final validation snapshot for this change (2026-08-06)
+
+- Local Supabase health: API/Auth, REST, Studio, and Mailpit PASS; `db reset` and `db lint` PASS.
+- Local integration: Step 11 (19), no-show (3), expiry (3), review (4), Admin (6), Provider Profile (19) PASS.
+- Static contracts: Version 1.1 (68) and Provider Profile (15) PASS.
+- Flutter analyze PASS; Flutter test PASS (42 tests); debug APK PASS.
+- Admin lint PASS; production build PASS; `npm audit --audit-level=high` reports 0 vulnerabilities.
+- Isolated `ofrivo-staging` migration `20260806000100_provider_profile_category_approval.sql` applied; read-only provider category metadata API smoke PASS.

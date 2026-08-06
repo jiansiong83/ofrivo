@@ -106,6 +106,10 @@ class NotificationsScreen extends ConsumerWidget {
         'notification_title_provider_rejected',
       NotificationType.providerSuspended =>
         'notification_title_provider_suspended',
+      NotificationType.providerCategoryApproved =>
+        'notification_title_provider_approved',
+      NotificationType.providerCategoryRejected =>
+        'notification_title_provider_rejected',
       NotificationType.jobStarted => 'notification_title_job_started',
       NotificationType.jobCompleted => 'notification_title_job_completed',
       NotificationType.jobCancelled => 'notification_title_job_cancelled',
@@ -129,9 +133,11 @@ class NotificationsScreen extends ConsumerWidget {
       case NotificationType.jobExpired:
         return Icons.timer_off_outlined;
       case NotificationType.providerApproved:
+      case NotificationType.providerCategoryApproved:
         return Icons.verified_outlined;
       case NotificationType.providerRejected:
       case NotificationType.providerSuspended:
+      case NotificationType.providerCategoryRejected:
         return Icons.gpp_bad_outlined;
       case NotificationType.jobStarted:
         return Icons.play_circle_outline;

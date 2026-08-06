@@ -154,3 +154,14 @@
 - [ ] Transactional bid acceptance concurrency test passes.
 - [ ] Privacy Policy, Terms, provider agreement, retention, deletion, and appeals flows exist.
 - [ ] Test accounts and rollback build are documented.
+
+## Provider Profile and category approval gate
+
+- [x] Provider Profile card navigation has a working edit route.
+- [x] Profile, service-area, portfolio, and availability mutations use authenticated RPCs.
+- [x] New provider categories are pending until Admin review.
+- [x] Feed and open-job authorization require approved category and availability.
+- [x] Admin category request review writes notes, notifications, and audit events.
+- [x] Local Docker reset, Flutter tests/analyze, Admin lint/build, and Provider Profile integration pass.
+- [ ] Physical Android and dual-device UI validation.
+- [ ] Hosted migration and hosted RLS validation (only when explicitly authorized).

@@ -1,4 +1,5 @@
 export type ProviderStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
+export type CategoryRequestStatus = 'pending' | 'approved' | 'rejected';
 export type AccountStatus = 'active' | 'suspended';
 export type ReportStatus = 'open' | 'reviewing' | 'resolved' | 'dismissed';
 export type JobStatus = 'draft' | 'open' | 'assigned' | 'in_progress' | 'completed' | 'cancelled' | 'expired';
@@ -17,6 +18,19 @@ export interface AdminProvider {
   bio: string;
   evidence: string[];
   evidenceLinks?: { label: string; path: string; url: string | null }[];
+}
+
+export interface AdminCategoryRequest {
+  id: string;
+  providerId: string;
+  providerName: string;
+  providerEmail: string;
+  categoryId: string;
+  category: string;
+  status: CategoryRequestStatus;
+  submittedAt: string;
+  reviewedAt: string;
+  adminNote: string;
 }
 
 export interface AdminUser {
@@ -73,6 +87,7 @@ export interface AdminAuditEvent {
 }
 
 export interface AdminData {
+  categoryRequests: AdminCategoryRequest[];
   providers: AdminProvider[];
   users: AdminUser[];
   jobs: AdminJob[];
@@ -85,6 +100,7 @@ export interface AdminData {
 
 export function makeFakeAdminData(): AdminData {
   return {
+    categoryRequests: [],
     providers: [
       {
         id: 'provider-102',

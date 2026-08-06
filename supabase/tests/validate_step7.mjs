@@ -6,6 +6,7 @@ const bidController = await readFile(new URL('../../apps/mobile/lib/features/cus
 const customerScreens = await readFile(new URL('../../apps/mobile/lib/features/customer/customer_screens.dart', import.meta.url), 'utf8');
 const providerRepository = await readFile(new URL('../../apps/mobile/lib/features/provider/provider_job_repository.dart', import.meta.url), 'utf8');
 const notifications = await readFile(new URL('../../apps/mobile/lib/features/notifications/notification_repository.dart', import.meta.url), 'utf8');
+const localization = await readFile(new URL('../../apps/mobile/lib/core/localization/app_localization.dart', import.meta.url), 'utf8');
 
 const checks = [
   ['owner check', migration.includes('only the job owner can accept a bid')],
@@ -18,7 +19,7 @@ const checks = [
   ['customer RPC integration', bidRepository.includes("rpc('accept_bid'")],
   ['fake atomic acceptance', bidRepository.includes('This offer is no longer pending') && bidRepository.includes('BidStatus.rejected')],
   ['received bid controller', bidController.includes('customerBidControllerProvider') && bidController.includes('accept(')],
-  ['received bids UI', customerScreens.includes('ReceivedBidsScreen') && customerScreens.includes('Accept this offer')],
+  ['received bids UI', customerScreens.includes('ReceivedBidsScreen') && (customerScreens.includes('Accept this offer') || localization.includes("'accept_offer'"))],
   ['provider address reveal path', providerRepository.includes('loadAssignedJobs') && providerRepository.includes('fullAddress')],
   ['notification repository', notifications.includes("from('notifications')") && notifications.includes('markRead')],
 ];

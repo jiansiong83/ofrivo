@@ -175,3 +175,17 @@
 - Integration: register → post → approve → feed → bid → accept → address reveal → complete → review.
 - RLS: cross-account privacy, verification files, suspended users, admin-only actions, and no service-role exposure.
 - Concurrency: two devices accepting different bids leaves exactly one accepted bid and one assigned job.
+
+## 2026-08-06 Provider Profile and category approval validation
+
+- Profile card chevron opens the edit route and shows the authenticated provider profile.
+- Profile edits persist display name, bio, phone/WhatsApp, service areas, portfolio paths, and availability.
+- Existing approved categories remain approved; a newly selected category is pending and cannot expose matching jobs.
+- Admin can approve/reject a pending category with a note; approval creates a provider notification and makes matching jobs visible.
+- Rejected categories can be resubmitted; removed categories stop matching immediately.
+- Provider availability off hides new feed jobs while assigned-job reads remain available.
+- Direct provider attempts to insert an approved category are denied by RLS/trigger guards.
+- `supabase/tests/run_provider_profile_local.mjs` covers 19 local RPC, RLS, feed, notification, profile, and availability checks.
+## Final automated evidence (2026-08-06)
+
+The Provider Profile change is covered by 15 static contract checks, 19 local Supabase integration checks, 2 focused Flutter tests, and the full 42-test Flutter suite. The debug APK and Admin production build both complete successfully; device UI validation remains a separate physical-device gate.

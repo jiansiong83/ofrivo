@@ -5,6 +5,7 @@ const models = await readFile(new URL('../../apps/mobile/lib/features/provider/p
 const repository = await readFile(new URL('../../apps/mobile/lib/features/provider/provider_job_repository.dart', import.meta.url), 'utf8');
 const controller = await readFile(new URL('../../apps/mobile/lib/features/provider/provider_job_controller.dart', import.meta.url), 'utf8');
 const screens = await readFile(new URL('../../apps/mobile/lib/features/provider/provider_screens.dart', import.meta.url), 'utf8');
+const localization = await readFile(new URL('../../apps/mobile/lib/core/localization/app_localization.dart', import.meta.url), 'utf8');
 
 const checks = [
   ['transaction wrapper', /^begin;[\s\S]*commit;\s*$/m.test(migration.trim())],
@@ -18,8 +19,8 @@ const checks = [
   ['Supabase public feed repository', repository.includes("from('public_job_feed')")],
   ['Supabase private photo signing', repository.includes("from('job-photos')") && repository.includes('createSignedUrl')],
   ['provider controller', controller.includes('providerJobControllerProvider') && controller.includes('submitBid')],
-  ['feed filters UI', screens.includes('ProviderFiltersScreen') && screens.includes('No bids yet')],
-  ['bid edit and withdraw UI', screens.includes('Edit your bid') && screens.includes('Withdraw bid')],
+  ['feed filters UI', screens.includes('ProviderFiltersScreen') && (screens.includes('No bids yet') || localization.includes("'no_bids'"))],
+  ['bid edit and withdraw UI', (screens.includes('Edit your bid') || localization.includes("'edit_bid'")) && (screens.includes('Withdraw bid') || localization.includes("'withdraw_bid'"))],
 ];
 
 const failures = checks.filter(([, passed]) => !passed);

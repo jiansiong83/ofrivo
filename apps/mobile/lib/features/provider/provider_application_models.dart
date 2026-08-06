@@ -1,6 +1,41 @@
 import '../../core/models/service_options.dart';
 
-enum ProviderApplicationStatus { notApplied, pending, approved, rejected, suspended }
+enum ProviderApplicationStatus {
+  notApplied,
+  pending,
+  approved,
+  rejected,
+  suspended
+}
+
+enum ProviderCategoryStatus { pending, approved, rejected }
+
+ProviderCategoryStatus providerCategoryStatusFromValue(String? value) {
+  switch (value) {
+    case 'approved':
+      return ProviderCategoryStatus.approved;
+    case 'rejected':
+      return ProviderCategoryStatus.rejected;
+    default:
+      return ProviderCategoryStatus.pending;
+  }
+}
+
+class ProviderCategorySelection {
+  const ProviderCategorySelection({
+    required this.category,
+    required this.status,
+    this.submittedAt,
+    this.reviewedAt,
+    this.adminNote,
+  });
+
+  final ServiceCategoryOption category;
+  final ProviderCategoryStatus status;
+  final DateTime? submittedAt;
+  final DateTime? reviewedAt;
+  final String? adminNote;
+}
 
 ProviderApplicationStatus providerApplicationStatusFromValue(String? value) {
   switch (value) {
@@ -46,19 +81,26 @@ class ProviderApplicationDraft {
   List<String> get areaIds => [for (final item in areas) item.id];
 
   String? validate() {
-    if (displayName.trim().length < 2) return 'Add a business or display name.';
-    if (bio.trim().length < 10) return 'Tell customers a little more about your work.';
+    if (displayName.trim().length < 2) {
+      return 'Add a business or display name.';
+    }
+    if (bio.trim().length < 10) {
+      return 'Tell customers a little more about your work.';
+    }
     if (categories.isEmpty) return 'Choose at least one service category.';
     if (areas.isEmpty) return 'Choose at least one service area.';
     if (_isMissing(icFrontPath)) return 'Upload the front of your ID.';
     if (_isMissing(icBackPath)) return 'Upload the back of your ID.';
     if (_isMissing(selfiePath)) return 'Upload a verification selfie.';
-    if (certificatePaths.length > 5) return 'Choose no more than 5 certificates.';
+    if (certificatePaths.length > 5) {
+      return 'Choose no more than 5 certificates.';
+    }
     if (workPhotoPaths.length > 6) return 'Choose no more than 6 work photos.';
     return null;
   }
 
-  static bool _isMissing(String? value) => value == null || value.trim().isEmpty;
+  static bool _isMissing(String? value) =>
+      value == null || value.trim().isEmpty;
 
   static ProviderApplicationDraft demo() => ProviderApplicationDraft(
         displayName: 'Ahmad Plumbing',
@@ -88,6 +130,9 @@ class ProviderApplication {
     required this.adminNote,
     required this.submittedAt,
     required this.isAvailable,
+    this.phone = '',
+    this.whatsapp = '',
+    this.categorySelections = const [],
   });
 
   final ProviderApplicationStatus status;
@@ -104,8 +149,14 @@ class ProviderApplication {
   final String? adminNote;
   final DateTime? submittedAt;
   final bool isAvailable;
+  final String phone;
+  final String whatsapp;
+  final List<ProviderCategorySelection> categorySelections;
 
-  factory ProviderApplication.demo({ProviderApplicationStatus status = ProviderApplicationStatus.approved}) => ProviderApplication(
+  factory ProviderApplication.demo(
+          {ProviderApplicationStatus status =
+              ProviderApplicationStatus.approved}) =>
+      ProviderApplication(
         status: status,
         displayName: 'Ahmad Plumbing',
         bio: 'Friendly local plumbing service for homes and small shops.',
@@ -117,8 +168,21 @@ class ProviderApplication {
         ssmPath: null,
         certificatePaths: const [],
         workPhotoPaths: const ['demo/work-1.jpg', 'demo/work-2.jpg'],
-        adminNote: status == ProviderApplicationStatus.rejected ? 'Please upload a clearer ID image.' : null,
+        adminNote: status == ProviderApplicationStatus.rejected
+            ? 'Please upload a clearer ID image.'
+            : null,
         submittedAt: DateTime(2026, 8, 1),
         isAvailable: status == ProviderApplicationStatus.approved,
+        categorySelections: [
+          for (final category in [
+            serviceCategoryOptions.first,
+            serviceCategoryOptions.last
+          ])
+            ProviderCategorySelection(
+              category: category,
+              status: ProviderCategoryStatus.approved,
+              submittedAt: DateTime(2026, 8, 1),
+            ),
+        ],
       );
 }

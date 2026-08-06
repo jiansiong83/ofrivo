@@ -7,6 +7,7 @@ import '../../features/customer/customer_job_models.dart';
 import '../models/app_models.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/provider/provider_screens.dart';
+import '../../features/provider/provider_profile_edit_screen.dart';
 import '../../features/job_lifecycle/job_lifecycle_screens.dart';
 import '../../features/shell/shell_screen.dart';
 
@@ -118,6 +119,9 @@ final appRouter = GoRouter(
         GoRoute(
             path: '/provider/profile',
             builder: (context, state) => const ProviderProfileModeScreen()),
+        GoRoute(
+            path: '/provider/profile/edit',
+            builder: (context, state) => const ProviderProfileEditScreen()),
       ],
     ),
   ],

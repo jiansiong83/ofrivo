@@ -6,11 +6,13 @@ import type { FormEvent, ReactNode } from 'react';
 import {
   type AccountStatus,
   type AdminData,
+  type AdminCategoryRequest,
   type AdminJob,
   type AdminProvider,
   type AdminReport,
   type AdminUser,
   type BidStatus,
+  type CategoryRequestStatus,
   type ProviderStatus,
   type ReportStatus,
 } from '../lib/admin-data';
@@ -18,6 +20,7 @@ import {
   loadAdminData,
   restoreAdminSession,
   reviewProvider,
+  reviewProviderCategory,
   reviewReport,
   signInAdmin,
   signOutAdmin,
@@ -26,11 +29,12 @@ import {
 } from '../lib/admin-repository';
 import { isLocalSupabaseConfigured } from '../lib/supabase';
 
-type AdminTab = 'Dashboard' | 'Pending Providers' | 'Users' | 'Jobs' | 'Bids' | 'Reports' | 'Categories' | 'Areas' | 'Audit Log' | 'System Settings';
+type AdminTab = 'Dashboard' | 'Pending Providers' | 'Users' | 'Jobs' | 'Bids' | 'Reports' | 'Categories' | 'Areas' | 'Audit Log' | 'System Settings' | 'Category Requests';
 
 const navigation: { id: AdminTab; label: string; hint: string }[] = [
   { id: 'Dashboard', label: 'Dashboard', hint: 'Operations overview' },
   { id: 'Pending Providers', label: 'Pending Providers', hint: 'Review applications' },
+  { id: 'Category Requests', label: 'Category Requests', hint: 'Approve new services' },
   { id: 'Users', label: 'Users', hint: 'Account controls' },
   { id: 'Jobs', label: 'Jobs', hint: 'Marketplace activity' },
   { id: 'Bids', label: 'Bids', hint: 'Offer monitoring' },
@@ -105,6 +109,10 @@ export default function AdminHome() {
     void mutate(`Provider ${provider.name} ${label}.`, () => reviewProvider(provider.id, status));
   };
 
+  const categoryAction = (request: AdminCategoryRequest, status: CategoryRequestStatus, note: string | null) => {
+    const label = status === 'approved' ? 'approved' : 'rejected';
+    void mutate(`Category ${request.category} for ${request.providerName} ${label}.`, () => reviewProviderCategory(request.providerId, request.categoryId, status, note));
+  };
   const userAction = (user: AdminUser, status: AccountStatus) => {
     const label = status === 'suspended' ? 'suspended' : 'restored';
     void mutate(`Account ${user.name} ${label}.`, () => updateAccountStatus(user.id, status));
@@ -143,6 +151,7 @@ export default function AdminHome() {
         {error && <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
         {activeTab === 'Dashboard' && <DashboardView data={data} onNavigate={setActiveTab} />}
         {activeTab === 'Pending Providers' && <ProvidersView providers={data.providers} onAction={providerAction} />}
+        {activeTab === 'Category Requests' && <CategoryRequestsView requests={data.categoryRequests} onAction={categoryAction} />}
         {activeTab === 'Users' && <UsersView users={data.users} onAction={userAction} />}
         {activeTab === 'Jobs' && <JobsView jobs={data.jobs} />}
         {activeTab === 'Bids' && <BidsView bids={data.bids} />}
@@ -195,7 +204,13 @@ function ProviderDetail({ provider, onAction }: { provider: AdminProvider; onAct
   return <aside className="admin-card h-fit p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-tealbrand">Provider detail</p><h2 className="mt-1 text-xl font-black">{provider.name}</h2><p className="mt-1 text-sm text-slate-500">{provider.email}</p></div><StatusBadge value={provider.status} /></div><div className="mt-6 grid grid-cols-2 gap-3"><Info label="Rating" value={`${provider.rating.toFixed(1)} / 5`} /><Info label="Completed" value={`${provider.completedJobs} jobs`} /><Info label="Category" value={provider.category} /><Info label="Area" value={provider.area} /></div><div className="mt-6 rounded-2xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Profile bio</p><p className="mt-2 text-sm leading-6 text-slate-700">{provider.bio}</p></div><div className="mt-5"><p className="text-sm font-bold text-slate-800">Private evidence</p><div className="mt-3 grid gap-2">{evidence.map((item) => <div key={`${item.label}-${item.path}`} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2 text-sm"><span>{item.label}</span>{item.url ? <a href={item.url} target="_blank" rel="noreferrer" className="text-xs font-bold text-tealbrand hover:underline">Open signed URL</a> : <span className="text-xs font-bold text-slate-400">Unavailable locally</span>}</div>)}</div><p className="mt-3 text-xs leading-5 text-slate-500">URLs expire after five minutes and are generated only for this authenticated Admin session.</p></div><div className="mt-6 flex flex-wrap gap-2">{provider.status === 'pending' && <><ActionButton label="Approve" tone="primary" onClick={() => onAction(provider, 'approved')} /><ActionButton label="Reject" tone="muted" onClick={() => onAction(provider, 'rejected')} /></>}{provider.status === 'approved' && <ActionButton label="Suspend provider" tone="danger" onClick={() => onAction(provider, 'suspended')} />}{(provider.status === 'rejected' || provider.status === 'suspended') && <ActionButton label="Approve provider" tone="primary" onClick={() => onAction(provider, 'approved')} />}</div></aside>;
 }
 
-function UsersView({ users, onAction }: { users: AdminUser[]; onAction: (user: AdminUser, status: AccountStatus) => void }) {
+function CategoryRequestsView({ requests, onAction }: { requests: AdminCategoryRequest[]; onAction: (request: AdminCategoryRequest, status: CategoryRequestStatus, note: string | null) => void }) {
+  const [selectedId, setSelectedId] = useState(requests.find((request) => request.status === 'pending')?.id ?? requests[0]?.id);
+  const [note, setNote] = useState('');
+  const selected = requests.find((request) => request.id === selectedId) ?? requests[0];
+  if (!selected) return <section className="admin-card p-5"><SectionHeader title="Category requests" subtitle="No provider category requests are waiting for review." /></section>;
+  return <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]"><section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Provider category requests" subtitle="Approved categories can match jobs. Pending and rejected categories stay out of the provider feed." /></div><div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Provider</th><th className="py-3">Category</th><th className="py-3">Submitted</th><th className="py-3">Status</th><th className="py-3 pr-5 text-right">Action</th></tr></thead><tbody>{requests.map((request) => <tr key={request.id} className={`border-b border-slate-100 last:border-0 ${request.id === selected.id ? 'bg-teal-50/40' : ''}`}><td className="px-5 py-4"><button type="button" onClick={() => { setSelectedId(request.id); setNote(request.adminNote); }} className="text-left"><p className="font-bold text-slate-800">{request.providerName}</p><p className="mt-1 text-xs text-slate-500">{request.providerEmail}</p></button></td><td className="py-4">{request.category}</td><td className="py-4 text-slate-500">{request.submittedAt}</td><td className="py-4"><StatusBadge value={request.status} /></td><td className="py-4 pr-5 text-right"><button type="button" onClick={() => { setSelectedId(request.id); setNote(request.adminNote); }} className="font-bold text-tealbrand hover:underline">Review</button></td></tr>)}</tbody></table></div></section><aside className="admin-card h-fit p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-tealbrand">Category detail</p><h2 className="mt-1 text-xl font-black">{selected.category}</h2><p className="mt-1 text-sm text-slate-500">{selected.providerName} · {selected.providerEmail}</p></div><StatusBadge value={selected.status} /></div><div className="mt-6 grid gap-3"><Info label="Submitted" value={selected.submittedAt} /><Info label="Reviewed" value={selected.reviewedAt} /></div><label className="mt-6 block text-sm font-bold text-slate-700">Admin note<textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none ring-teal-200 focus:ring-2" placeholder="Optional guidance for the provider" /></label>{selected.adminNote && <p className="mt-3 text-xs text-slate-500">Previous note: {selected.adminNote}</p>}<div className="mt-6 flex flex-wrap gap-2">{selected.status === 'pending' && <><ActionButton label="Approve category" tone="primary" onClick={() => onAction(selected, 'approved', note.trim() || null)} /><ActionButton label="Reject category" tone="danger" onClick={() => onAction(selected, 'rejected', note.trim() || null)} /></>}</div></aside></div>;
+}function UsersView({ users, onAction }: { users: AdminUser[]; onAction: (user: AdminUser, status: AccountStatus) => void }) {
   return <section className="admin-card overflow-hidden"><div className="border-b border-slate-200 p-5"><SectionHeader title="Users" subtitle="Suspend or restore accounts while keeping role and activity visible." /></div><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">User</th><th className="py-3">Role</th><th className="py-3">Activity</th><th className="py-3">Status</th><th className="py-3 pr-5 text-right">Account action</th></tr></thead><tbody>{users.map((user) => <tr key={user.id} className="border-b border-slate-100 last:border-0"><td className="px-5 py-4"><p className="font-bold">{user.name}</p><p className="mt-1 text-xs text-slate-500">{user.email} · Joined {user.joinedAt}</p></td><td className="py-4"><StatusBadge value={user.role} /></td><td className="py-4 text-slate-600">{user.jobs} jobs · {user.bids} bids</td><td className="py-4"><StatusBadge value={user.status} /></td><td className="py-4 pr-5 text-right">{user.status === 'active' ? <ActionButton label="Suspend" tone="danger" onClick={() => onAction(user, 'suspended')} /> : <ActionButton label="Restore" tone="primary" onClick={() => onAction(user, 'active')} />}</td></tr>)}</tbody></table></div></section>;
 }
 

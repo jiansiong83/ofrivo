@@ -147,3 +147,11 @@
 - Local Supabase reset/lint/health and Docker suites pass: 19 Step 11 checks, 3 no-show checks, 3 expiry checks, and 4 review checks.
 - Version 1.1 contract validation passes 68 checks; Flutter analyze and 39 tests pass; the debug APK builds. Admin lint/build pass and `npm audit` reports 0 vulnerabilities.
 - Emulator host networking passes, but APK installation is blocked by the current AVD storage; no USB phone was connected. No cloud or paid service was configured.
+
+## Unreleased - 2026-08-06
+
+### Added
+
+- Provider Profile editing with persistent public fields, service areas, portfolio, and availability.
+- Provider category approval lifecycle with pending/rejected resubmission, Admin review notes, notifications, audit events, and approved-only feed matching.
+- Local integration coverage for profile/RLS/feed/availability behavior.

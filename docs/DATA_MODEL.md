@@ -36,3 +36,9 @@ Step 8 lifecycle writes are routed through `start_job`, `complete_job`, and `can
 ## Local fixtures
 
 `supabase/seed.sql` creates Customer, two approved providers, one pending provider, an Admin fixture, Johor Bahru areas, six categories, open jobs, pending bids, and an assigned job. Fixture credentials are local-only and must never be reused in a hosted environment.
+
+## Provider category approval (2026-08-06)
+
+`provider_categories` now includes `status` (`pending`, `approved`, `rejected`), `submitted_at`, `reviewed_at`, `reviewed_by`, and `admin_note`. Existing rows are backfilled as `approved`. A provider may remove a category immediately, while a new or resubmitted category is `pending` until an Admin approves it.
+
+The server-owned RPCs are `submit_provider_category_changes(uuid[])`, `review_provider_category(uuid, uuid, provider_category_status, text)`, `update_provider_profile(text, text, text, text, uuid[], text[])`, and `set_provider_availability(boolean)`. `public_job_feed` and the open-job branch of `can_read_job` require an approved category, matching area, and available approved provider; accepted/assigned access remains independent of availability.

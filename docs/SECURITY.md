@@ -128,3 +128,11 @@ Edge functions: FCM service credentials only in managed server secrets.
 - HTTP cleartext is enabled only in `apps/mobile/android/app/src/debug/AndroidManifest.xml` for the local `10.0.2.2`/ADB-reverse endpoints. Release/production Android manifests do not receive this exception.
 - Local Docker reset/lint and the 19-check RLS/Storage/concurrency suite, plus no-show, expiry, and review runners, passed after a local stop/start recovery. Hosted services and external delivery were not touched.
 - The Admin Web is now backed by local Docker Supabase for this phase; production/cloud deployment, hosted claims, and external delivery remain deferred.
+
+## Provider Profile and category approval controls (2026-08-06)
+
+- Category review fields are server-managed. Non-admin clients cannot insert an approved category or alter review metadata directly.
+- Category submissions validate active service IDs, duplicate-free bounds, and authenticated ownership; rejected requests clear review metadata when resubmitted.
+- `review_provider_category` requires an active Admin, records the reviewer/note in `provider_categories`, appends an audit event, and inserts a user-scoped notification.
+- Provider Profile and availability writes are authenticated RPCs. Turning availability off affects only new feed/open-job matching; accepted/assigned job access remains intact.
+- Feed matching and new-job notifications both require `provider_categories.status = 'approved'`, the provider's approved verification, a matching area, and `is_available`.

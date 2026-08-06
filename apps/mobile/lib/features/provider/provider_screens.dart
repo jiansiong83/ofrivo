@@ -1457,37 +1457,113 @@ class ProviderProfileModeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
-    final provider = ref.watch(providerProfileProvider);
+    final applicationState = ref.watch(providerApplicationControllerProvider);
+    final application = applicationState.application;
+    final base = ref.watch(providerProfileProvider);
+    final provider = application == null
+        ? base
+        : ProviderProfile(
+            id: base.id,
+            name: application.displayName,
+            category:
+                application.categories.map((item) => item.label).join(', '),
+            area: application.areas.map((item) => item.label).join(', '),
+            rating: base.rating,
+            completedJobs: base.completedJobs,
+            bio: application.bio,
+            verification: _verificationStatus(application.status),
+            avatarPath: base.avatarPath,
+            portfolioUrls: application.workPhotoPaths,
+            isAvailable: application.isAvailable,
+          );
+    if (!applicationState.initialized && application == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return ListView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        children: [
-          PageHeader(
-              title: strings.business('provider_profile'),
-              subtitle: strings.business('provider_profile_subtitle')),
-          ProviderCard(provider: provider),
-          if (provider.portfolioUrls.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            PortfolioGallery(urls: provider.portfolioUrls),
-          ],
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        PageHeader(
+            title: strings.business('provider_profile'),
+            subtitle: strings.business('provider_profile_subtitle')),
+        ProviderCard(
+          provider: provider,
+          onTap: () => context.go('/provider/profile/edit'),
+        ),
+        if (provider.portfolioUrls.isNotEmpty) ...[
           const SizedBox(height: 16),
-          SwitchListTile(
-              value: true,
-              onChanged: (_) {},
-              title: Text(strings.business('available_new_jobs')),
-              subtitle: Text(strings.business('show_matching_requests'))),
-          ListTile(
-              leading: const Icon(Icons.verified_outlined),
-              title: Text(strings.business('verification_status')),
-              subtitle: Text(strings.business('approved')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.go('/provider/verification')),
-          ListTile(
-              leading: const Icon(Icons.logout),
-              title: Text(strings.business('sign_out')),
-              onTap: () async {
-                await ref.read(authControllerProvider.notifier).signOut();
-                if (context.mounted) context.go('/onboarding');
-              })
-        ]);
+          PortfolioGallery(urls: provider.portfolioUrls),
+        ],
+        const SizedBox(height: 16),
+        SwitchListTile.adaptive(
+          value: application?.isAvailable ?? provider.isAvailable,
+          onChanged: application == null
+              ? null
+              : (value) async {
+                  final result = await ref
+                      .read(providerApplicationControllerProvider.notifier)
+                      .setAvailability(value);
+                  if (!context.mounted || result != null) return;
+                  final error =
+                      ref.read(providerApplicationControllerProvider).error;
+                  if (error != null) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(error)));
+                  }
+                },
+          title: Text(strings.business('available_new_jobs')),
+          subtitle: Text(strings.business('show_matching_requests')),
+        ),
+        ListTile(
+            leading: const Icon(Icons.verified_outlined),
+            title: Text(strings.business('verification_status')),
+            subtitle: Text(_verificationLabel(application?.status)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.go('/provider/verification')),
+        if (applicationState.error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 8),
+            child: Text(applicationState.error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ListTile(
+            leading: const Icon(Icons.logout),
+            title: Text(strings.business('sign_out')),
+            onTap: () async {
+              await ref.read(authControllerProvider.notifier).signOut();
+              if (context.mounted) context.go('/onboarding');
+            })
+      ],
+    );
+  }
+
+  static VerificationStatus _verificationStatus(
+      ProviderApplicationStatus status) {
+    switch (status) {
+      case ProviderApplicationStatus.pending:
+        return VerificationStatus.pending;
+      case ProviderApplicationStatus.approved:
+        return VerificationStatus.approved;
+      case ProviderApplicationStatus.rejected:
+        return VerificationStatus.rejected;
+      case ProviderApplicationStatus.suspended:
+        return VerificationStatus.suspended;
+      case ProviderApplicationStatus.notApplied:
+        return VerificationStatus.notApplied;
+    }
+  }
+
+  static String _verificationLabel(ProviderApplicationStatus? status) {
+    switch (status) {
+      case ProviderApplicationStatus.approved:
+        return 'Approved';
+      case ProviderApplicationStatus.pending:
+        return 'Pending review';
+      case ProviderApplicationStatus.rejected:
+        return 'Needs changes';
+      case ProviderApplicationStatus.suspended:
+        return 'Suspended';
+      default:
+        return 'Not applied';
+    }
   }
 }

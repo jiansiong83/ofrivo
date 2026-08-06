@@ -24,6 +24,8 @@ enum NotificationType {
   providerApproved,
   providerRejected,
   providerSuspended,
+  providerCategoryApproved,
+  providerCategoryRejected,
   jobStarted,
   jobCompleted,
   jobCancelled,
@@ -52,6 +54,10 @@ extension NotificationTypeLabel on NotificationType {
         return 'Provider verification update';
       case NotificationType.providerSuspended:
         return 'Provider account update';
+      case NotificationType.providerCategoryApproved:
+        return 'Service category approved';
+      case NotificationType.providerCategoryRejected:
+        return 'Service category needs changes';
       case NotificationType.jobStarted:
         return 'Job started';
       case NotificationType.jobCompleted:

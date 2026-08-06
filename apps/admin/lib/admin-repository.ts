@@ -3,11 +3,13 @@ import type {
   AdminAuditEvent,
   AdminBid,
   AdminData,
+  AdminCategoryRequest,
   AdminJob,
   AdminProvider,
   AdminReport,
   AdminUser,
   BidStatus,
+  CategoryRequestStatus,
   JobStatus,
   ProviderStatus,
   ReportStatus,
@@ -108,7 +110,7 @@ export async function loadAdminData(): Promise<AdminData> {
     read<unknown>(client.from('profiles').select('id, full_name, display_name, account_status, is_admin, created_at')),
     read<unknown>(client.from('provider_profiles').select('user_id, bio, verification_status, rating_average, rating_count, completed_jobs, updated_at, approved_at, suspended_at')),
     read<unknown>(client.from('provider_verifications').select('provider_id, ic_front_path, ic_back_path, selfie_path, ssm_path, certificate_paths, status, submitted_at, reviewed_at, admin_note').order('submitted_at', { ascending: false })),
-    read<unknown>(client.from('provider_categories').select('provider_id, category_id')),
+    read<unknown>(client.from('provider_categories').select('provider_id, category_id, status, submitted_at, reviewed_at, admin_note')),
     read<unknown>(client.from('provider_areas').select('provider_id, area_id')),
     read<unknown>(client.from('service_categories').select('id, name_en, is_active, sort_order').order('sort_order')),
     read<unknown>(client.from('areas').select('id, area_name, city, is_active, sort_order').order('sort_order')),
@@ -204,6 +206,23 @@ export async function loadAdminData(): Promise<AdminData> {
     };
   }));
 
+  const categoryRequests: AdminCategoryRequest[] = providerCategories.map((item) => {
+    const providerId = text(item.provider_id);
+    const categoryId = text(item.category_id);
+    const user = userById.get(providerId);
+    return {
+      id: `${providerId}:${categoryId}`,
+      providerId,
+      providerName: providerName(providerId),
+      providerEmail: text(user?.email, `${providerId}@local.invalid`),
+      categoryId,
+      category: categoryById.get(categoryId) ?? categoryId,
+      status: text(item.status, 'approved') as CategoryRequestStatus,
+      submittedAt: formatDate(item.submitted_at),
+      reviewedAt: formatDate(item.reviewed_at),
+      adminNote: text(item.admin_note),
+    };
+  });
   const adminUsers: AdminUser[] = users.map((user) => {
     const id = text(user.id);
     const role = user.is_admin === true ? 'admin' : providerById.has(id) ? 'provider' : 'customer';
@@ -268,6 +287,7 @@ export async function loadAdminData(): Promise<AdminData> {
   }));
 
   return {
+    categoryRequests,
     providers: adminProviders,
     users: adminUsers,
     jobs: adminJobs,
@@ -289,4 +309,17 @@ export async function updateAccountStatus(userId: string, status: AccountStatus)
 
 export async function reviewReport(reportId: string, status: ReportStatus): Promise<void> {
   await read(getSupabaseClient().rpc('admin_review_report', { p_report_id: reportId, p_status: status, p_admin_note: null }));
+}
+export async function reviewProviderCategory(
+  providerId: string,
+  categoryId: string,
+  status: CategoryRequestStatus,
+  adminNote: string | null = null,
+): Promise<void> {
+  await read(getSupabaseClient().rpc('review_provider_category', {
+    p_provider_id: providerId,
+    p_category_id: categoryId,
+    p_status: status,
+    p_admin_note: adminNote,
+  }));
 }

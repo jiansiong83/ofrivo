@@ -130,7 +130,8 @@ function Invoke-LocalIntegration {
         'supabase/tests/run_version11_no_show_local.mjs',
         'supabase/tests/run_version11_expiry_local.mjs',
         'supabase/tests/run_version11_review_local.mjs',
-        'supabase/tests/run_admin_local.mjs'
+        'supabase/tests/run_admin_local.mjs',
+        'supabase/tests/run_provider_profile_local.mjs'
     )
     Push-Location $RepoRoot
     try {
@@ -143,7 +144,7 @@ function Invoke-LocalIntegration {
     } finally {
         Pop-Location
     }
-    Write-Output 'Local Docker integration runners: PASS (step11, no-show, expiry, review, admin)'
+    Write-Output 'Local Docker integration runners: PASS (step11, no-show, expiry, review, admin, provider-profile)'
 }
 
 function Invoke-AdbReverse {
@@ -221,6 +222,7 @@ switch ($Command) {
         Push-Location $RepoRoot
         try {
             & node scripts/validate_version11.mjs
+            & node supabase/tests/validate_provider_profile.mjs
             if ($LASTEXITCODE -ne 0) { throw 'Version 1.1 contract validation failed.' }
             Invoke-Flutter -Arguments @('analyze', '--no-pub')
             Invoke-Flutter -Arguments @('test', '--no-pub')

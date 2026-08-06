@@ -107,6 +107,10 @@ class SupabaseNotificationRepository implements NotificationRepository {
         return NotificationType.providerRejected;
       case 'provider_suspended':
         return NotificationType.providerSuspended;
+      case 'provider_category_approved':
+        return NotificationType.providerCategoryApproved;
+      case 'provider_category_rejected':
+        return NotificationType.providerCategoryRejected;
       case 'job_started':
         return NotificationType.jobStarted;
       case 'job_completed':
