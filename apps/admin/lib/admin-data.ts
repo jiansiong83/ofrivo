@@ -54,6 +54,7 @@ export interface AdminJob {
   status: JobStatus;
   bids: number;
   createdAt: string;
+  scheduledTime: string;
   fullAddress: string;
 }
 
@@ -149,10 +150,10 @@ export function makeFakeAdminData(): AdminData {
       { id: 'customer-109', name: 'Suspended customer', email: 'suspended@example.test', role: 'customer', status: 'suspended', joinedAt: '18 Jul 2026', jobs: 1, bids: 0 },
     ],
     jobs: [
-      { id: 'job-301', title: 'Toilet blockage', customer: 'Alex Tan', area: 'Mount Austin', category: 'Plumbing / Toilet', budget: 100, status: 'open', bids: 3, createdAt: 'Today, 08:00', fullAddress: '15 Example Street, Mount Austin, Johor Bahru' },
-      { id: 'job-302', title: 'Install ceiling fan', customer: 'Alex Tan', area: 'Taman Molek', category: 'Electrical / Lighting / Fan', budget: 160, status: 'open', bids: 1, createdAt: 'Yesterday, 19:00', fullAddress: '18 Example Street, Taman Molek, Johor Bahru' },
-      { id: 'job-303', title: 'Move a washing machine', customer: 'Alex Tan', area: 'Permas Jaya', category: 'Moving / Delivery', budget: 80, status: 'assigned', bids: 4, createdAt: '02 Aug 2026', fullAddress: '22 Example Street, Permas Jaya, Johor Bahru' },
-      { id: 'job-304', title: 'Repair kitchen sink pipe', customer: 'Alex Tan', area: 'Mount Austin', category: 'Plumbing / Toilet', budget: 140, status: 'completed', bids: 2, createdAt: '01 Aug 2026', fullAddress: '8 Example Street, Mount Austin, Johor Bahru' },
+      { id: 'job-301', title: 'Toilet blockage', customer: 'Alex Tan', area: 'Mount Austin', category: 'Plumbing / Toilet', budget: 100, status: 'open', bids: 3, createdAt: 'Today, 08:00', scheduledTime: 'Today, 2:00 PM - 6:00 PM', fullAddress: '15 Example Street, Mount Austin, Johor Bahru' },
+      { id: 'job-302', title: 'Install ceiling fan', customer: 'Alex Tan', area: 'Taman Molek', category: 'Electrical / Lighting / Fan', budget: 160, status: 'open', bids: 1, createdAt: 'Yesterday, 19:00', scheduledTime: 'Tomorrow, 10:00 AM - 1:00 PM', fullAddress: '18 Example Street, Taman Molek, Johor Bahru' },
+      { id: 'job-303', title: 'Move a washing machine', customer: 'Alex Tan', area: 'Permas Jaya', category: 'Moving / Delivery', budget: 80, status: 'assigned', bids: 4, createdAt: '02 Aug 2026', scheduledTime: '08 Aug, 9:00 AM - 12:00 PM', fullAddress: '22 Example Street, Permas Jaya, Johor Bahru' },
+      { id: 'job-304', title: 'Repair kitchen sink pipe', customer: 'Alex Tan', area: 'Mount Austin', category: 'Plumbing / Toilet', budget: 140, status: 'completed', bids: 2, createdAt: '01 Aug 2026', scheduledTime: '04 Aug, 6:00 PM - 8:00 PM', fullAddress: '8 Example Street, Mount Austin, Johor Bahru' },
     ],
     bids: [
       { id: 'bid-401', jobTitle: 'Toilet blockage', provider: 'Ahmad Plumbing', customer: 'Alex Tan', amount: 120, status: 'pending', createdAt: 'Today, 09:20' },

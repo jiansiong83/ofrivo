@@ -24,11 +24,18 @@ abstract interface class ProviderApplicationRepository {
 
 class FakeProviderApplicationRepository
     implements ProviderApplicationRepository {
-  FakeProviderApplicationRepository(
-      {ProviderApplicationStatus initialStatus =
-          ProviderApplicationStatus.approved})
-      : _application = ProviderApplication.demo(status: initialStatus);
-
+  FakeProviderApplicationRepository({
+    ProviderApplicationStatus initialStatus =
+        ProviderApplicationStatus.approved,
+    String initialDisplayName = 'Ahmad Plumbing',
+    double initialRating = 4.9,
+    int initialCompletedJobs = 86,
+  }) : _application = ProviderApplication.demo(
+          status: initialStatus,
+          displayName: initialDisplayName,
+          rating: initialRating,
+          completedJobs: initialCompletedJobs,
+        );
   ProviderApplication _application;
 
   @override
@@ -66,6 +73,8 @@ class FakeProviderApplicationRepository
       submittedAt: now,
       isAvailable: false,
       categorySelections: List.unmodifiable(selections),
+      rating: 0,
+      completedJobs: 0,
     );
     return _application;
   }
@@ -181,6 +190,9 @@ class FakeProviderApplicationRepository
         whatsapp: whatsapp ?? _application.whatsapp,
         categorySelections:
             categorySelections ?? _application.categorySelections,
+        rating: _application.rating,
+        completedJobs: _application.completedJobs,
+        avatarPath: _application.avatarPath,
       );
 }
 
@@ -195,7 +207,8 @@ class SupabaseProviderApplicationRepository
   Future<ProviderApplication?> load() async {
     final providerRow = await client
         .from('provider_profiles')
-        .select('user_id,bio,verification_status,is_available')
+        .select(
+            'user_id,bio,verification_status,is_available,rating_average,completed_jobs')
         .eq('user_id', userId)
         .maybeSingle();
     final verificationRows = await client
@@ -209,7 +222,7 @@ class SupabaseProviderApplicationRepository
 
     final profileRow = await client
         .from('profiles')
-        .select('display_name,full_name,phone,whatsapp')
+        .select('display_name,full_name,phone,whatsapp,avatar_path')
         .eq('id', userId)
         .maybeSingle();
     final categoryRows = await client
@@ -272,6 +285,9 @@ class SupabaseProviderApplicationRepository
       phone: profileRow?['phone'] as String? ?? '',
       whatsapp: profileRow?['whatsapp'] as String? ?? '',
       categorySelections: List.unmodifiable(selections),
+      rating: (providerRow?['rating_average'] as num?)?.toDouble() ?? 0,
+      completedJobs: (providerRow?['completed_jobs'] as num?)?.toInt() ?? 0,
+      avatarPath: profileRow?['avatar_path'] as String?,
     );
   }
 

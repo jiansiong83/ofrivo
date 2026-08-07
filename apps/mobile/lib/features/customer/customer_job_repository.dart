@@ -35,6 +35,8 @@ class FakeCustomerJobRepository implements CustomerJobRepository {
       area: job.area,
       budget: job.budget,
       time: job.time,
+      scheduledAt: draft.scheduledAt,
+      scheduledEndAt: draft.scheduledEndAt,
       status: job.status,
       bidCount: 0,
       description: job.description,
@@ -140,6 +142,8 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
           'full_address': draft.fullAddress.trim(),
           'budget_amount': draft.budgetAmount,
           'time_window': draft.timeWindow,
+          'scheduled_at': draft.scheduledAt?.toUtc().toIso8601String(),
+          'scheduled_end_at': draft.scheduledEndAt?.toUtc().toIso8601String(),
           'urgency': draft.urgent ? 'urgent' : 'normal',
           'status': 'draft',
           'expires_at': publish
@@ -227,6 +231,7 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
       photoPaths: _photoPaths(row),
       createdAt: _parseDate(row['created_at']),
       scheduledAt: _parseDate(row['scheduled_at']),
+      scheduledEndAt: _parseDate(row['scheduled_end_at']),
       expiresAt: _parseDate(row['expires_at']),
       acceptedBidId: row['accepted_bid_id'] as String?,
     );

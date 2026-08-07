@@ -6,5 +6,3 @@ import '../models/app_models.dart';
 final appModeProvider = StateProvider<AppMode>((ref) => AppMode.customer);
 final fakeJobsProvider = Provider<List<Job>>((ref) => fakeJobs);
 final fakeBidsProvider = Provider<List<Bid>>((ref) => fakeBids);
-final providerProfileProvider = Provider<ProviderProfile>((ref) => fakeProviderProfileProvider);
-

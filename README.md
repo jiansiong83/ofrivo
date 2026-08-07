@@ -60,6 +60,8 @@ npm run build
 
 Environment variables are documented in `docs/SECURITY.md`; no backend values are committed. Without the defines, the mobile app clearly runs in local demo mode.
 
+For account-isolated mobile testing, build through scripts/local-dev.ps1 -Command apk (or set OFRIVO_SUPABASE_URL and OFRIVO_SUPABASE_ANON_KEY first). A plain `flutter build apk --debug` intentionally remains Demo-only and must not be used to validate real Customer/Provider accounts.
+
 ## Source of truth
 
 The full product baseline is [`Ofrivo_Project_Master_Plan.md`](./Ofrivo_Project_Master_Plan.md). Each implementation round must remain inside its stated step and update `docs/PROJECT_STATUS.md` and `docs/CHANGELOG.md`.

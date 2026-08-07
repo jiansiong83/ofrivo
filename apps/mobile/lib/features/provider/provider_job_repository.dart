@@ -338,7 +338,7 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
   }
 
   dynamic _bidsQuery() => client.from('bids').select(
-      '*, jobs!inner(id, category_id, area_id, title, description, public_location_text, budget_amount, time_window, urgency, status, created_at, service_categories(name_en), areas(area_name))');
+      '*, jobs!inner(id, category_id, area_id, title, description, public_location_text, budget_amount, time_window, scheduled_at, scheduled_end_at, urgency, status, created_at, service_categories(name_en), areas(area_name))');
 
   Future<Job> _mapFeedJob(Map<String, dynamic> row) async {
     final rawPhotoPaths = row['photo_paths'];
@@ -368,6 +368,7 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       photoPaths: signedPaths.where((path) => path.isNotEmpty).toList(),
       createdAt: _parseDate(row['created_at']),
       scheduledAt: _parseDate(row['scheduled_at']),
+      scheduledEndAt: _parseDate(row['scheduled_end_at']),
       expiresAt: _parseDate(row['expires_at']),
     );
   }
@@ -412,6 +413,7 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       photoPaths: signedPaths.where((path) => path.isNotEmpty).toList(),
       createdAt: _parseDate(row['created_at']),
       scheduledAt: _parseDate(row['scheduled_at']),
+      scheduledEndAt: _parseDate(row['scheduled_end_at']),
       expiresAt: _parseDate(row['expires_at']),
       acceptedBidId: row['accepted_bid_id'] as String?,
     );
@@ -450,6 +452,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       categoryId: row['category_id'] as String?,
       areaId: row['area_id'] as String?,
       createdAt: _parseDate(row['created_at']),
+      scheduledAt: _parseDate(row['scheduled_at']),
+      scheduledEndAt: _parseDate(row['scheduled_end_at']),
     );
   }
 

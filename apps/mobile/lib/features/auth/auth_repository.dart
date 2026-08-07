@@ -32,20 +32,10 @@ bool isValidPhoneNumber(String value) {
 
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository()
-      : _user = const AuthUser(id: 'demo-user', email: 'demo@ofrivo.local'),
-        _profile = const ProfileData(
-          id: 'demo-user',
-          fullName: 'Alex Tan',
-          displayName: 'Alex',
-          phone: '+60 12 000 0101',
-          whatsapp: '+60 12 000 0101',
-          accountStatus: 'active',
-          isAdmin: false,
-          providerVerificationStatus: 'approved',
-        );
+      : _user = const AuthUser(id: 'demo-user', email: 'demo@ofrivo.local');
 
   AuthUser? _user;
-  final ProfileData _profile;
+  String? _registeredFullName;
   String? _pendingPhone;
 
   @override
@@ -56,16 +46,51 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<ProfileData?> ensureProfile(AuthUser user) async {
-    if (user.phone == null) return _profile;
+    final email = user.email.trim().toLowerCase();
+    final knownPhone = switch (email) {
+      'customer@example.test' => '+60 12 000 0101',
+      'provider@example.test' => '+60 12 000 0102',
+      'pending-provider@example.test' => '+60 12 000 0103',
+      'provider-b@example.test' => '+60 12 000 0104',
+      'demo@ofrivo.local' => '+60 12 000 0101',
+      _ => null,
+    };
+    final displayName = switch (email) {
+      'customer@example.test' || 'demo@ofrivo.local' => 'Alex',
+      'provider@example.test' => 'Ahmad Plumbing',
+      'pending-provider@example.test' => 'Pending Provider',
+      'provider-b@example.test' => 'JB Home Fix',
+      'admin@example.test' => 'Ofrivo Admin',
+      _ => _registeredFullName?.trim().isNotEmpty == true
+          ? _registeredFullName!.trim()
+          : authDisplayName(user, null),
+    };
+    final fullName = switch (email) {
+      'customer@example.test' || 'demo@ofrivo.local' => 'Alex Tan',
+      'provider@example.test' => 'Ahmad Plumbing',
+      'pending-provider@example.test' => 'Pending Provider',
+      'provider-b@example.test' => 'JB Home Fix',
+      'admin@example.test' => 'Ofrivo Admin',
+      _ => _registeredFullName?.trim().isNotEmpty == true
+          ? _registeredFullName!.trim()
+          : displayName,
+    };
     return ProfileData(
-      id: _profile.id,
-      fullName: _profile.fullName,
-      displayName: _profile.displayName,
-      phone: user.phone,
-      whatsapp: user.phone,
-      accountStatus: _profile.accountStatus,
-      isAdmin: _profile.isAdmin,
-      providerVerificationStatus: _profile.providerVerificationStatus,
+      id: user.id,
+      fullName: fullName,
+      displayName: displayName,
+      phone: user.phone ?? knownPhone,
+      whatsapp: user.phone ?? knownPhone,
+      accountStatus: 'active',
+      isAdmin: email == 'admin@example.test',
+      providerVerificationStatus: switch (email) {
+        'provider@example.test' ||
+        'provider-b@example.test' ||
+        'demo@ofrivo.local' =>
+          'approved',
+        'pending-provider@example.test' => 'pending',
+        _ => 'not_applied',
+      },
     );
   }
 
@@ -75,7 +100,8 @@ class FakeAuthRepository implements AuthRepository {
     if (email.trim().isEmpty || password.isEmpty) {
       return const AuthOperation(error: 'Enter your email and password.');
     }
-    _user = AuthUser(id: 'demo-user', email: email.trim());
+    _registeredFullName = null;
+    _user = AuthUser(id: _fakeUserId(email), email: email.trim());
     return AuthOperation(user: _user);
   }
 
@@ -91,7 +117,8 @@ class FakeAuthRepository implements AuthRepository {
           error:
               'Use a name, a valid email, and a password of at least 6 characters.');
     }
-    _user = AuthUser(id: 'demo-user', email: email.trim());
+    _registeredFullName = fullName.trim();
+    _user = AuthUser(id: _fakeUserId(email), email: email.trim());
     return AuthOperation(user: _user);
   }
 
@@ -120,7 +147,9 @@ class FakeAuthRepository implements AuthRepository {
     if (token.trim() != '123456') {
       return const AuthOperation(error: 'That verification code is not valid.');
     }
-    _user = AuthUser(id: 'demo-user', email: '', phone: normalized);
+    _registeredFullName = null;
+    _user =
+        AuthUser(id: 'demo-phone-$normalized', email: '', phone: normalized);
     return AuthOperation(user: _user);
   }
 
@@ -131,8 +160,18 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Future<String?> signOut() async {
     _user = null;
+    _registeredFullName = null;
     _pendingPhone = null;
     return null;
+  }
+
+  static String _fakeUserId(String email) {
+    final normalized = email.trim().toLowerCase();
+    if (normalized == 'demo@ofrivo.local') return 'demo-user';
+    final safe = normalized
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+    return safe.isEmpty ? 'demo-user' : 'demo-user-$safe';
   }
 }
 

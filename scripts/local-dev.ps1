@@ -156,6 +156,35 @@ function Invoke-AdbReverse {
     & $adb reverse --list
 }
 
+function Get-MobileRuntimeConfig {
+    param([Parameter(Mandatory = $true)][string]$DefaultUrl)
+
+    if ($env:OFRIVO_SUPABASE_URL -and $env:OFRIVO_SUPABASE_ANON_KEY) {
+        return @{
+            Url = $env:OFRIVO_SUPABASE_URL
+            AnonKey = $env:OFRIVO_SUPABASE_ANON_KEY
+        }
+    }
+
+    $localEnv = Get-LocalSupabaseEnvironment
+    return @{
+        Url = $DefaultUrl
+        AnonKey = $localEnv.ANON_KEY
+    }
+}
+
+function Invoke-MobileBuild {
+    $runtime = Get-MobileRuntimeConfig -DefaultUrl 'http://10.0.2.2:54421'
+    Invoke-Flutter -Arguments @(
+        'build',
+        'apk',
+        '--debug',
+        '--no-pub',
+        "--dart-define=SUPABASE_URL=$($runtime.Url)",
+        "--dart-define=SUPABASE_ANON_KEY=$($runtime.AnonKey)",
+        '--dart-define=APP_ENV=development'
+    )
+}
 function Invoke-MobileRun {
     param(
         [Parameter(Mandatory = $true)][string]$Url,
@@ -165,13 +194,13 @@ function Invoke-MobileRun {
     if ($Reverse) {
         Invoke-AdbReverse
     }
-    $localEnv = Get-LocalSupabaseEnvironment
+    $runtime = Get-MobileRuntimeConfig -DefaultUrl $Url
     $arguments = @(
         'run',
         '--debug',
         '--no-pub',
-        "--dart-define=SUPABASE_URL=$Url",
-        "--dart-define=SUPABASE_ANON_KEY=$($localEnv.ANON_KEY)",
+        "--dart-define=SUPABASE_URL=$($runtime.Url)",
+        "--dart-define=SUPABASE_ANON_KEY=$($runtime.AnonKey)",
         '--dart-define=APP_ENV=development'
     )
     if ($env:OFRIVO_FLUTTER_DEVICE_ID) {
@@ -216,7 +245,7 @@ switch ($Command) {
         Invoke-MobileRun -Url 'http://127.0.0.1:54421' -Reverse
     }
     'apk' {
-        Invoke-Flutter -Arguments @('build', 'apk', '--debug', '--no-pub')
+        Invoke-MobileBuild
     }
     'validate' {
         Push-Location $RepoRoot

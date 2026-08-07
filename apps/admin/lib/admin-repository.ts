@@ -42,9 +42,34 @@ function formatDate(value: unknown): string {
   const date = new Date(String(value));
   return Number.isNaN(date.getTime())
     ? String(value)
-    : new Intl.DateTimeFormat('en-MY', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+    : new Intl.DateTimeFormat('en-MY', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kuala_Lumpur' }).format(date);
 }
 
+function formatScheduleRange(startValue: unknown, endValue: unknown, legacyValue: unknown): string {
+  const legacy = text(legacyValue);
+  const start = startValue ? new Date(String(startValue)) : null;
+  const end = endValue ? new Date(String(endValue)) : null;
+  if (!start || Number.isNaN(start.getTime())) return legacy || 'Flexible';
+  const dateFormatter = new Intl.DateTimeFormat('en-MY', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Kuala_Lumpur',
+  });
+  const timeFormatter = new Intl.DateTimeFormat('en-MY', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Kuala_Lumpur',
+  });
+  const clock = (value: Date): string => timeFormatter.format(value).replace(/\b(am|pm)\b/i, (token) => token.toUpperCase());
+  const startText = `${dateFormatter.format(start)}, ${clock(start)}`;
+  if (!end || Number.isNaN(end.getTime())) return startText;
+  const endText = dateFormatter.format(start) === dateFormatter.format(end)
+    ? clock(end)
+    : `${dateFormatter.format(end)}, ${clock(end)}`;
+  return `${startText} - ${endText}`;
+}
 async function read<T>(request: PromiseLike<{ data: T | null; error: { message: string } | null }>): Promise<T> {
   const result = await request;
   if (result.error) throw new Error(result.error.message);
@@ -114,7 +139,7 @@ export async function loadAdminData(): Promise<AdminData> {
     read<unknown>(client.from('provider_areas').select('provider_id, area_id')),
     read<unknown>(client.from('service_categories').select('id, name_en, is_active, sort_order').order('sort_order')),
     read<unknown>(client.from('areas').select('id, area_name, city, is_active, sort_order').order('sort_order')),
-    read<unknown>(client.from('jobs').select('id, customer_id, category_id, area_id, title, budget_amount, status, created_at, full_address').order('created_at', { ascending: false })),
+    read<unknown>(client.from('jobs').select('id, customer_id, category_id, area_id, title, budget_amount, status, created_at, time_window, scheduled_at, scheduled_end_at, full_address').order('created_at', { ascending: false })),
     read<unknown>(client.from('bids').select('id, job_id, provider_id, amount, status, created_at').order('created_at', { ascending: false })),
     read<unknown>(client.from('reports').select('id, job_id, reporter_id, reported_user_id, reason_code, description, status, created_at, admin_note').order('created_at', { ascending: false })),
     read<unknown>(client.from('admin_audit_events').select('id, actor_id, action, target_type, target_id, created_at').order('created_at', { ascending: false }).limit(100)),
@@ -248,6 +273,7 @@ export async function loadAdminData(): Promise<AdminData> {
     status: text(job.status, 'draft') as JobStatus,
     bids: bidCountByJob.get(text(job.id)) ?? 0,
     createdAt: formatDate(job.created_at),
+    scheduledTime: formatScheduleRange(job.scheduled_at, job.scheduled_end_at, job.time_window),
     fullAddress: text(job.full_address, 'Address unavailable'),
   }));
 

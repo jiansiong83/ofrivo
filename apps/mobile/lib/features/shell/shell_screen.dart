@@ -21,6 +21,9 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
     ref.listen<AuthState>(authControllerProvider, (previous, next) {
+      if (previous?.user?.id != next.user?.id) {
+        ref.read(appModeProvider.notifier).state = AppMode.customer;
+      }
       if (previous?.user == null && next.user != null && !next.isSuspended) {
         ref.read(pushRegistrationControllerProvider.notifier).register();
       }

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/localization/app_localization.dart';
 import '../../core/models/app_models.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/validation/image_validation.dart';
 import '../auth/auth_controller.dart';
+import '../auth/auth_models.dart';
 import '../shell/shell_screen.dart';
 import '../../shared/widgets/app_widgets.dart';
 import 'customer_job_models.dart';
@@ -22,13 +24,15 @@ class CustomerHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
+    final auth = ref.watch(authControllerProvider);
     final jobsState = ref.watch(customerJobsControllerProvider);
     final jobs = jobsState.jobs;
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
         PageHeader(
-            title: strings.business('good_morning'),
+            title: strings
+                .businessGreeting(authDisplayName(auth.user, auth.profile)),
             subtitle: strings.business('customer_home_subtitle')),
         Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -99,13 +103,24 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
   final phoneController = TextEditingController();
   final whatsappController = TextEditingController();
   final budgetController = TextEditingController();
-  final timeController = TextEditingController(text: 'Today, 2pm–6pm');
+  late DateTime selectedDate;
+  late TimeOfDay startTime;
+  late TimeOfDay endTime;
   final imagePicker = ImagePicker();
 
   JobCategoryOption selectedCategory = jobCategoryOptions.first;
   JobAreaOption selectedArea = jobAreaOptions.first;
   bool urgent = false;
   List<String> photoPaths = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    selectedDate = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
+    startTime = const TimeOfDay(hour: 9, minute: 0);
+    endTime = const TimeOfDay(hour: 11, minute: 0);
+  }
 
   @override
   void dispose() {
@@ -115,7 +130,6 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
     phoneController.dispose();
     whatsappController.dispose();
     budgetController.dispose();
-    timeController.dispose();
     super.dispose();
   }
 
@@ -128,10 +142,63 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         contactPhone: phoneController.text,
         contactWhatsapp: whatsappController.text,
         budget: budgetController.text,
-        timeWindow: timeController.text,
+        timeWindow: _timeWindowText,
+        scheduledAt: _scheduledStart,
+        scheduledEndAt: _scheduledEnd,
         urgent: urgent,
         photoPaths: photoPaths,
       );
+
+  DateTime get _scheduledStart => DateTime(selectedDate.year,
+      selectedDate.month, selectedDate.day, startTime.hour, startTime.minute);
+
+  DateTime get _scheduledEnd => DateTime(selectedDate.year, selectedDate.month,
+      selectedDate.day, endTime.hour, endTime.minute);
+
+  String get _timeWindowText {
+    final day = DateFormat('EEE, d MMM').format(selectedDate);
+    final start = DateFormat('h:mm a').format(_scheduledStart);
+    final end = DateFormat('h:mm a').format(_scheduledEnd);
+    return '$day, $start - $end';
+  }
+
+  Future<void> _pickSchedule() async {
+    final today = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(today.year, today.month, today.day),
+      lastDate: DateTime.now().add(const Duration(days: 90)),
+    );
+    if (!mounted || date == null) return;
+
+    final start = await showTimePicker(
+      context: context,
+      initialTime: startTime,
+    );
+    if (!mounted || start == null) return;
+
+    final end = await showTimePicker(
+      context: context,
+      initialTime: endTime,
+    );
+    if (!mounted || end == null) return;
+
+    final startDateTime =
+        DateTime(date.year, date.month, date.day, start.hour, start.minute);
+    final endDateTime =
+        DateTime(date.year, date.month, date.day, end.hour, end.minute);
+    if (!endDateTime.isAfter(startDateTime)) {
+      _showValidation(
+          'End time must be later on the same day as the start time.');
+      return;
+    }
+    setState(() {
+      selectedDate = DateTime(date.year, date.month, date.day);
+      startTime = start;
+      endTime = end;
+    });
+  }
 
   Future<void> _pickPhotos() async {
     final files =
@@ -268,13 +335,11 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         const SizedBox(height: 14),
         BudgetInput(controller: budgetController),
         const SizedBox(height: 8),
-        TextField(
-            controller: timeController,
-            enabled: !busy,
-            decoration: InputDecoration(
-                labelText: strings.business('time_window'),
-                prefixIcon: const Icon(Icons.schedule_outlined),
-                hintText: 'e.g. Today, 2pm–6pm')),
+        DateTimeSelector(
+            title: strings.business('time_window'),
+            value: _timeWindowText,
+            onTap: busy ? null : _pickSchedule),
+        const SizedBox(height: 8),
         SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(strings.business('mark_urgent')),
@@ -729,6 +794,12 @@ class CustomerProfileScreen extends ConsumerWidget {
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final auth = ref.watch(authControllerProvider);
     final profile = auth.profile;
+    final displayName = profile?.fullName?.trim().isNotEmpty == true
+        ? profile!.fullName!.trim()
+        : authDisplayName(auth.user, profile);
+    final initial = displayName.trim().isEmpty
+        ? 'O'
+        : displayName.trim().substring(0, 1).toUpperCase();
     return ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
@@ -739,13 +810,13 @@ class CustomerProfileScreen extends ConsumerWidget {
               child: Padding(
                   padding: const EdgeInsets.all(18),
                   child: Row(children: [
-                    const CircleAvatar(radius: 28, child: Text('A')),
+                    CircleAvatar(radius: 28, child: Text(initial)),
                     const SizedBox(width: 12),
                     Expanded(
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                          Text(profile?.fullName ?? 'Alex Tan',
+                          Text(displayName,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w800, fontSize: 18)),
                           Text(auth.user?.email ?? 'demo@ofrivo.local')

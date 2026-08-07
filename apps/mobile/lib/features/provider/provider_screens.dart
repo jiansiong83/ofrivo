@@ -1459,26 +1459,27 @@ class ProviderProfileModeScreen extends ConsumerWidget {
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
     final applicationState = ref.watch(providerApplicationControllerProvider);
     final application = applicationState.application;
-    final base = ref.watch(providerProfileProvider);
-    final provider = application == null
-        ? base
-        : ProviderProfile(
-            id: base.id,
-            name: application.displayName,
-            category:
-                application.categories.map((item) => item.label).join(', '),
-            area: application.areas.map((item) => item.label).join(', '),
-            rating: base.rating,
-            completedJobs: base.completedJobs,
-            bio: application.bio,
-            verification: _verificationStatus(application.status),
-            avatarPath: base.avatarPath,
-            portfolioUrls: application.workPhotoPaths,
-            isAvailable: application.isAvailable,
-          );
-    if (!applicationState.initialized && application == null) {
-      return const Center(child: CircularProgressIndicator());
+    final auth = ref.watch(authControllerProvider);
+    if (application == null) {
+      if (!applicationState.initialized) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return ErrorState(
+          onRetry: () => ref.invalidate(providerApplicationControllerProvider));
     }
+    final provider = ProviderProfile(
+      id: auth.user?.id,
+      name: application.displayName,
+      category: application.categories.map((item) => item.label).join(', '),
+      area: application.areas.map((item) => item.label).join(', '),
+      rating: application.rating,
+      completedJobs: application.completedJobs,
+      bio: application.bio,
+      verification: _verificationStatus(application.status),
+      avatarPath: application.avatarPath,
+      portfolioUrls: application.workPhotoPaths,
+      isAvailable: application.isAvailable,
+    );
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
@@ -1495,28 +1496,25 @@ class ProviderProfileModeScreen extends ConsumerWidget {
         ],
         const SizedBox(height: 16),
         SwitchListTile.adaptive(
-          value: application?.isAvailable ?? provider.isAvailable,
-          onChanged: application == null
-              ? null
-              : (value) async {
-                  final result = await ref
-                      .read(providerApplicationControllerProvider.notifier)
-                      .setAvailability(value);
-                  if (!context.mounted || result != null) return;
-                  final error =
-                      ref.read(providerApplicationControllerProvider).error;
-                  if (error != null) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text(error)));
-                  }
-                },
+          value: application.isAvailable,
+          onChanged: (value) async {
+            final result = await ref
+                .read(providerApplicationControllerProvider.notifier)
+                .setAvailability(value);
+            if (!context.mounted || result != null) return;
+            final error = ref.read(providerApplicationControllerProvider).error;
+            if (error != null) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(error)));
+            }
+          },
           title: Text(strings.business('available_new_jobs')),
           subtitle: Text(strings.business('show_matching_requests')),
         ),
         ListTile(
             leading: const Icon(Icons.verified_outlined),
             title: Text(strings.business('verification_status')),
-            subtitle: Text(_verificationLabel(application?.status)),
+            subtitle: Text(_verificationLabel(application.status)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.go('/provider/verification')),
         if (applicationState.error != null)

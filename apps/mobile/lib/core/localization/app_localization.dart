@@ -1409,6 +1409,12 @@ const businessTranslations = <String, Map<AppLanguage, String>>{
 extension BusinessLocalizations on AppLocalizations {
   String business(String key) =>
       businessTranslations[key]?[language] ?? text(key);
+
+  String businessGreeting(String name) => switch (language) {
+        AppLanguage.malay => 'Selamat pagi, $name',
+        AppLanguage.chinese => '\u65e9\u5b89\uff0c$name',
+        AppLanguage.english => 'Good morning, $name',
+      };
 }
 
 class LanguagePicker extends ConsumerWidget {

@@ -92,6 +92,7 @@ class Job {
     this.photoPaths = const [],
     this.createdAt,
     this.scheduledAt,
+    this.scheduledEndAt,
     this.expiresAt,
     this.acceptedBidId,
   });
@@ -114,6 +115,7 @@ class Job {
   final List<String> photoPaths;
   final DateTime? createdAt;
   final DateTime? scheduledAt;
+  final DateTime? scheduledEndAt;
   final DateTime? expiresAt;
   final String? acceptedBidId;
 
@@ -122,6 +124,7 @@ class Job {
           int? bidCount,
           DateTime? createdAt,
           DateTime? scheduledAt,
+          DateTime? scheduledEndAt,
           DateTime? expiresAt,
           String? acceptedBidId}) =>
       Job(
@@ -143,6 +146,7 @@ class Job {
         photoPaths: photoPaths,
         createdAt: createdAt ?? this.createdAt,
         scheduledAt: scheduledAt ?? this.scheduledAt,
+        scheduledEndAt: scheduledEndAt ?? this.scheduledEndAt,
         expiresAt: expiresAt ?? this.expiresAt,
         acceptedBidId: acceptedBidId ?? this.acceptedBidId,
       );

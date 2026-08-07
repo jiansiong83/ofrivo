@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/config/app_config.dart';
 import '../../core/models/service_options.dart';
 import '../auth/auth_controller.dart';
+import '../auth/auth_models.dart';
 import 'provider_application_models.dart';
 import 'provider_application_repository.dart';
 
@@ -13,7 +14,8 @@ final providerApplicationRepositoryProvider =
   if (client == null || auth.user == null) {
     return FakeProviderApplicationRepository(
         initialStatus: providerApplicationStatusFromValue(
-            auth.profile?.providerVerificationStatus));
+            auth.profile?.providerVerificationStatus),
+        initialDisplayName: authDisplayName(auth.user, auth.profile));
   }
   return SupabaseProviderApplicationRepository(client, auth.user!.id);
 });

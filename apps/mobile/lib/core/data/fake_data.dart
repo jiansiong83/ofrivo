@@ -18,6 +18,7 @@ final fakeJobs = <Job>[
     areaId: '00000000-0000-0000-0000-000000000251',
     createdAt: DateTime(2026, 8, 4, 8),
     scheduledAt: DateTime(2026, 8, 4, 14),
+    scheduledEndAt: DateTime(2026, 8, 4, 18),
     fullAddress: '15 Example Street, Mount Austin, Johor Bahru',
     contactPhone: '+60 12 000 0101',
     contactWhatsapp: '+60 12 000 0101',
@@ -37,6 +38,7 @@ final fakeJobs = <Job>[
     areaId: '00000000-0000-0000-0000-000000000252',
     createdAt: DateTime(2026, 8, 3, 19),
     scheduledAt: DateTime(2026, 8, 5, 10),
+    scheduledEndAt: DateTime(2026, 8, 5, 13),
     fullAddress: '18 Example Street, Taman Molek, Johor Bahru',
     contactPhone: '+60 12 000 0101',
     contactWhatsapp: '+60 12 000 0101',
@@ -56,6 +58,7 @@ final fakeJobs = <Job>[
     areaId: '00000000-0000-0000-0000-000000000253',
     createdAt: DateTime(2026, 8, 2, 12),
     scheduledAt: DateTime(2026, 8, 8, 9),
+    scheduledEndAt: DateTime(2026, 8, 8, 12),
     fullAddress: '22 Example Street, Permas Jaya, Johor Bahru',
     contactPhone: '+60 12 000 0101',
     contactWhatsapp: '+60 12 000 0101',
@@ -79,6 +82,7 @@ final fakeJobs = <Job>[
     acceptedBidId: 'bid-005',
     createdAt: DateTime(2026, 8, 3, 10),
     scheduledAt: DateTime(2026, 8, 4, 18),
+    scheduledEndAt: DateTime(2026, 8, 4, 20),
   ),
 ];
 
@@ -169,8 +173,6 @@ const fakeProvider = ProviderProfile(
     'demo/portfolio-plumbing-2.jpg'
   ],
 );
-
-const fakeProviderProfileProvider = fakeProvider;
 
 const fakeProviderB = ProviderProfile(
   id: 'provider-b',

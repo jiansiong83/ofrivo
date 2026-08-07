@@ -133,6 +133,9 @@ class ProviderApplication {
     this.phone = '',
     this.whatsapp = '',
     this.categorySelections = const [],
+    this.rating = 0,
+    this.completedJobs = 0,
+    this.avatarPath,
   });
 
   final ProviderApplicationStatus status;
@@ -152,13 +155,20 @@ class ProviderApplication {
   final String phone;
   final String whatsapp;
   final List<ProviderCategorySelection> categorySelections;
+  final double rating;
+  final int completedJobs;
+  final String? avatarPath;
 
-  factory ProviderApplication.demo(
-          {ProviderApplicationStatus status =
-              ProviderApplicationStatus.approved}) =>
+  factory ProviderApplication.demo({
+    ProviderApplicationStatus status = ProviderApplicationStatus.approved,
+    String displayName = 'Ahmad Plumbing',
+    double rating = 4.9,
+    int completedJobs = 86,
+    String? avatarPath,
+  }) =>
       ProviderApplication(
         status: status,
-        displayName: 'Ahmad Plumbing',
+        displayName: displayName,
         bio: 'Friendly local plumbing service for homes and small shops.',
         categories: [serviceCategoryOptions.first, serviceCategoryOptions.last],
         areas: [serviceAreaOptions.first, serviceAreaOptions[1]],
@@ -173,6 +183,9 @@ class ProviderApplication {
             : null,
         submittedAt: DateTime(2026, 8, 1),
         isAvailable: status == ProviderApplicationStatus.approved,
+        rating: rating,
+        completedJobs: completedJobs,
+        avatarPath: avatarPath,
         categorySelections: [
           for (final category in [
             serviceCategoryOptions.first,

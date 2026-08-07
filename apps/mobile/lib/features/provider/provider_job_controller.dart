@@ -4,6 +4,7 @@ import '../../core/config/app_config.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../auth/auth_controller.dart';
+import '../auth/auth_models.dart';
 import 'provider_job_models.dart';
 import 'provider_job_repository.dart';
 
@@ -11,12 +12,20 @@ final providerJobRepositoryProvider = Provider<ProviderJobRepository>((ref) {
   final auth = ref.watch(authControllerProvider);
   final client = AppBootstrap.client;
   if (client == null || auth.user == null) {
-    final profile = ref.watch(providerProfileProvider);
+    final providerId = auth.user?.id ?? 'demo-user';
+    final providerName = authDisplayName(auth.user, auth.profile);
+    final scopedBids = [
+      for (final bid in ref.watch(fakeBidsProvider))
+        if (bid.providerId == 'demo-user')
+          bid.copyWith(providerId: providerId, providerName: providerName)
+        else
+          bid,
+    ];
     return FakeProviderJobRepository(
       initialJobs: ref.watch(fakeJobsProvider),
-      initialBids: ref.watch(fakeBidsProvider),
-      providerId: auth.user?.id ?? 'demo-user',
-      providerName: profile.name,
+      initialBids: scopedBids,
+      providerId: providerId,
+      providerName: providerName,
     );
   }
   return SupabaseProviderJobRepository(client, auth.user!.id);

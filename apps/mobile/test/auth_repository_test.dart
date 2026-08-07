@@ -14,6 +14,21 @@ void main() {
     expect(profile?.isSuspended, isFalse);
   });
 
+  test('demo account profile data follows the signed-in identity', () async {
+    final repository = FakeAuthRepository();
+    final customerResult = await repository.signIn(
+        email: 'customer@example.test', password: 'local-dev-only');
+    final customer = await repository.ensureProfile(customerResult.user!);
+    final providerResult = await repository.signIn(
+        email: 'provider@example.test', password: 'local-dev-only');
+    final provider = await repository.ensureProfile(providerResult.user!);
+
+    expect(customerResult.user?.id, isNot(providerResult.user?.id));
+    expect(customer?.fullName, 'Alex Tan');
+    expect(customer?.isApprovedProvider, isFalse);
+    expect(provider?.fullName, 'Ahmad Plumbing');
+    expect(provider?.isApprovedProvider, isTrue);
+  });
   test('profile parser keeps sensitive fields out of public provider shape',
       () {
     final profile = ProfileData.fromMap({

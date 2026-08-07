@@ -11,9 +11,16 @@ flutter create --platforms=android .
 flutter pub get
 flutter analyze
 flutter test
-flutter build apk --debug
+flutter build apk --debug  # demo preview only
 ```
 
+For account-isolated device testing, do not install an APK built with the plain command above: omitted defines intentionally use FakeAuthRepository. From the repository root, use the configured build helper:
+
+```powershell
+.\scripts\local-dev.ps1 -Command apk
+```
+
+The helper injects the local Supabase URL (`10.0.2.2:54421` for an emulator) and anon key. To build against Supabase Cloud without committing credentials, set `OFRIVO_SUPABASE_URL` and `OFRIVO_SUPABASE_ANON_KEY` in the current PowerShell process before running the helper. Never pass a service-role key to Flutter.
 For a real `ofrivo-dev` connection, pass values at runtime instead of committing them:
 
 ```text

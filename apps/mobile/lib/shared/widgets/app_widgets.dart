@@ -322,9 +322,13 @@ class BudgetInput extends StatelessWidget {
 
 class DateTimeSelector extends StatelessWidget {
   const DateTimeSelector(
-      {super.key, this.value = 'Choose a date and time', this.onTap});
+      {super.key,
+      this.value = 'Choose a date and time',
+      this.onTap,
+      this.title = 'Service time'});
 
   final String value;
+  final String title;
   final VoidCallback? onTap;
 
   @override
@@ -332,7 +336,7 @@ class DateTimeSelector extends StatelessWidget {
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
       leading: const Icon(Icons.schedule_outlined),
-      title: const Text('Service time'),
+      title: Text(title),
       subtitle: Text(value),
       trailing: const Icon(Icons.chevron_right));
 }

@@ -63,3 +63,30 @@ class AuthOperation {
 
   bool get succeeded => user != null && error == null;
 }
+
+/// Returns the display name that belongs to the currently authenticated user.
+///
+/// The profile returned by Supabase is the source of truth. The fallback is
+/// only used while a newly-created profile is being hydrated (or by the local
+/// demo adapter), and is derived from that same user's email/phone instead of
+/// a hard-coded demo identity.
+String authDisplayName(AuthUser? user, ProfileData? profile) {
+  final profileName = profile?.displayName?.trim();
+  if (profileName != null && profileName.isNotEmpty) return profileName;
+  final fullName = profile?.fullName?.trim();
+  if (fullName != null && fullName.isNotEmpty) return fullName;
+
+  final email = user?.email.trim() ?? '';
+  final localPart = email.isEmpty ? '' : email.split('@').first;
+  final source = localPart.isNotEmpty ? localPart : (user?.phone ?? '');
+  if (source.isEmpty) return 'Ofrivo member';
+  final words = source
+      .replaceAll(RegExp(r'[^A-Za-z0-9]+'), ' ')
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .map((word) =>
+          '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}')
+      .toList();
+  return words.isEmpty ? 'Ofrivo member' : words.join(' ');
+}
