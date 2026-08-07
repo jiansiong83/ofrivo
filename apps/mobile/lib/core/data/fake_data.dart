@@ -1,6 +1,31 @@
 import '../models/app_models.dart';
 import '../../features/job_lifecycle/job_lifecycle_models.dart';
 
+const demoCustomerUserIds = <String>{
+  'demo-user',
+  'demo-user-customer-example-test',
+};
+
+const demoProviderUserIds = <String>{
+  'demo-user',
+  'demo-user-provider-example-test',
+  'demo-user-provider-b-example-test',
+};
+
+List<Job> fakeJobsForCustomer(String userId, List<Job> jobs) =>
+    demoCustomerUserIds.contains(userId) ? List<Job>.from(jobs) : <Job>[];
+
+List<Job> fakeJobsForProvider(String userId, List<Job> jobs) =>
+    demoProviderUserIds.contains(userId) ? List<Job>.from(jobs) : <Job>[];
+
+List<Bid> fakeBidsForJobs(List<Job> jobs, List<Bid> bids) {
+  final jobIds = jobs.map((job) => job.id).toSet();
+  return [
+    for (final bid in bids)
+      if (jobIds.contains(bid.jobId)) bid
+  ];
+}
+
 final fakeJobs = <Job>[
   Job(
     id: 'job-001',
@@ -247,6 +272,24 @@ final fakeNotifications = <AppNotification>[
     referenceId: 'demo-user',
   ),
 ];
+
+List<AppNotification> fakeNotificationsForUser(
+    String userId, List<AppNotification> notifications) {
+  return [
+    for (final notification in notifications)
+      if (notification.recipientId == userId ||
+          (notification.recipientId == null &&
+              (userId == 'demo-user' ||
+                  (demoCustomerUserIds.contains(userId) &&
+                      (notification.type == NotificationType.jobExpiring ||
+                          notification.type == NotificationType.newBid)) ||
+                  (demoProviderUserIds.contains(userId) &&
+                      (notification.type == NotificationType.newJob ||
+                          notification.type ==
+                              NotificationType.providerApproved)))))
+        notification
+  ];
+}
 
 final fakeJobEvents = <JobEventRecord>[];
 final fakeReviews = <ReviewRecord>[];

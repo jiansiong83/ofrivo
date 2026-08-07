@@ -29,7 +29,8 @@ class FakeJobLifecycleRepository implements JobLifecycleRepository {
       {required List<Job> initialJobs,
       required List<Bid> initialBids,
       required this.role,
-      this.providerId = 'demo-user'})
+      this.providerId = 'demo-user',
+      this.customerId = 'customer-demo'})
       : _jobs = initialJobs,
         _bids = initialBids;
 
@@ -37,7 +38,7 @@ class FakeJobLifecycleRepository implements JobLifecycleRepository {
   final List<Bid> _bids;
   final AppMode role;
   final String providerId;
-  final String customerId = 'customer-demo';
+  final String customerId;
   var _sequence = 1000;
 
   @override
@@ -139,22 +140,27 @@ class FakeJobLifecycleRepository implements JobLifecycleRepository {
         createdAt: DateTime.now(),
         referenceType: 'job',
         referenceId: jobId,
+        recipientId: reportedUserId,
       ),
     );
     return event;
   }
 
   @override
-  Future<List<JobEventRecord>> loadEvents(String jobId) async =>
-      List<JobEventRecord>.unmodifiable(
-          fakeJobEvents.where((event) => event.jobId == jobId).toList()
-            ..sort((left, right) => right.createdAt.compareTo(left.createdAt)));
+  Future<List<JobEventRecord>> loadEvents(String jobId) async {
+    if (!_jobs.any((job) => job.id == jobId)) return const [];
+    return List<JobEventRecord>.unmodifiable(
+        fakeJobEvents.where((event) => event.jobId == jobId).toList()
+          ..sort((left, right) => right.createdAt.compareTo(left.createdAt)));
+  }
 
   @override
-  Future<List<ReviewRecord>> loadReviews(String jobId) async =>
-      List<ReviewRecord>.unmodifiable(
-          fakeReviews.where((review) => review.jobId == jobId).toList()
-            ..sort((left, right) => right.createdAt.compareTo(left.createdAt)));
+  Future<List<ReviewRecord>> loadReviews(String jobId) async {
+    if (!_jobs.any((job) => job.id == jobId)) return const [];
+    return List<ReviewRecord>.unmodifiable(
+        fakeReviews.where((review) => review.jobId == jobId).toList()
+          ..sort((left, right) => right.createdAt.compareTo(left.createdAt)));
+  }
 
   @override
   Future<ReviewRecord> submitReview(
@@ -262,7 +268,8 @@ class FakeJobLifecycleRepository implements JobLifecycleRepository {
             isRead: false,
             createdAt: DateTime.now(),
             referenceType: 'job',
-            referenceId: job.id));
+            referenceId: job.id,
+            recipientId: role == AppMode.customer ? providerId : customerId));
     return JobTransition(
         jobId: job.id, status: status, providerId: _acceptedProvider(job.id));
   }

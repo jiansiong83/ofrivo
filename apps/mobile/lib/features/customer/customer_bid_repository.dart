@@ -17,20 +17,25 @@ class FakeCustomerBidRepository implements CustomerBidRepository {
   FakeCustomerBidRepository(
       {required List<Job> initialJobs,
       required List<Bid> initialBids,
-      List<ProviderProfile>? profiles})
-      : _jobs = initialJobs,
-        _bids = initialBids,
+      List<ProviderProfile>? profiles,
+      String userId = 'demo-user'})
+      : userId = userId,
+        _jobs = fakeJobsForCustomer(userId, initialJobs),
+        _bids = fakeBidsForJobs(
+            fakeJobsForCustomer(userId, initialJobs), initialBids),
         _profiles = {
           for (final profile in profiles ?? fakeProviderProfiles)
             if (profile.id != null) profile.id!: profile
         };
 
+  final String userId;
   final List<Job> _jobs;
   final List<Bid> _bids;
   final Map<String, ProviderProfile> _profiles;
 
   @override
   Future<List<CustomerBidOffer>> loadReceivedBids(String jobId) async {
+    if (!_jobs.any((job) => job.id == jobId)) return const [];
     final offers = _bids.where((bid) => bid.jobId == jobId).toList()
       ..sort((left, right) {
         final statusOrder =
@@ -93,6 +98,7 @@ class FakeCustomerBidRepository implements CustomerBidRepository {
         createdAt: DateTime.now(),
         referenceType: 'job',
         referenceId: jobId,
+        recipientId: userId,
       ),
     );
     return BidAcceptance(jobId: jobId, bidId: bidId, providerId: providerId);
@@ -132,16 +138,18 @@ class FakeCustomerBidRepository implements CustomerBidRepository {
 }
 
 class SupabaseCustomerBidRepository implements CustomerBidRepository {
-  SupabaseCustomerBidRepository(this.client);
+  SupabaseCustomerBidRepository(this.client, this.userId);
 
   final SupabaseClient client;
+  final String userId;
 
   @override
   Future<List<CustomerBidOffer>> loadReceivedBids(String jobId) async {
     final rows = await client
         .from('bids')
-        .select()
+        .select('*, jobs!inner(customer_id)')
         .eq('job_id', jobId)
+        .eq('jobs.customer_id', userId)
         .order('created_at', ascending: false);
     final offers = <CustomerBidOffer>[];
     for (final raw in (rows as List).whereType<Map<String, dynamic>>()) {

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ofrivo_mobile/core/data/fake_data.dart';
 import 'package:ofrivo_mobile/core/models/app_models.dart';
 import 'package:ofrivo_mobile/features/customer/customer_bid_repository.dart';
 
@@ -106,5 +107,18 @@ void main() {
     await repository.acceptBid(jobId: 'job-test', bidId: 'bid-a');
     expect(() => repository.acceptBid(jobId: 'job-test', bidId: 'bid-b'),
         throwsStateError);
+  });
+  test('fake customer bids are empty for an unrelated account', () async {
+    final repository = FakeCustomerBidRepository(
+      initialJobs: fakeJobs,
+      initialBids: fakeBids,
+      userId: 'demo-user-new-222-222-com',
+    );
+
+    expect(await repository.loadReceivedBids('job-001'), isEmpty);
+    expect(
+      () => repository.acceptBid(jobId: 'job-001', bidId: 'bid-001'),
+      throwsStateError,
+    );
   });
 }

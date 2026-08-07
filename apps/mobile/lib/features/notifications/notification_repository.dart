@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/data/fake_data.dart';
 import '../../core/models/app_models.dart';
 
 abstract interface class NotificationRepository {
@@ -11,13 +12,14 @@ abstract interface class NotificationRepository {
 }
 
 class FakeNotificationRepository implements NotificationRepository {
-  FakeNotificationRepository(this._notifications);
+  FakeNotificationRepository(this._notifications, {this.userId = 'demo-user'});
 
   final List<AppNotification> _notifications;
+  final String userId;
 
   @override
   Future<List<AppNotification>> loadNotifications() async {
-    final items = List<AppNotification>.from(_notifications)
+    final items = fakeNotificationsForUser(userId, _notifications)
       ..sort((left, right) => right.createdAt.compareTo(left.createdAt));
     return List<AppNotification>.unmodifiable(items);
   }
@@ -85,6 +87,7 @@ class SupabaseNotificationRepository implements NotificationRepository {
                 DateTime.now(),
         referenceType: row['reference_type'] as String?,
         referenceId: row['reference_id'] as String?,
+        recipientId: row['user_id'] as String?,
       );
 
   NotificationType _type(String? value) {

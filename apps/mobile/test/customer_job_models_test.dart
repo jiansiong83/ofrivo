@@ -100,6 +100,15 @@ void main() {
     expect(draft.validate(), isNotNull);
   });
 
+  test('fake customer repository scopes seed jobs by account', () async {
+    final newAccount = FakeCustomerJobRepository(fakeJobs,
+        userId: 'demo-user-new-222-222-com');
+    expect(await newAccount.loadMyJobs(), isEmpty);
+
+    final demoAccount = FakeCustomerJobRepository(fakeJobs,
+        userId: 'demo-user-customer-example-test');
+    expect(await demoAccount.loadMyJobs(), hasLength(fakeJobs.length));
+  });
   test('fake customer repository persists publish and cancel state', () async {
     final repository = FakeCustomerJobRepository(fakeJobs);
     final saved = await repository.saveDraft(JobDraft.demo(), publish: true);

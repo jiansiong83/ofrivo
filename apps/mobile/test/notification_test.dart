@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:ofrivo_mobile/core/data/fake_data.dart';
 import 'package:ofrivo_mobile/core/models/app_models.dart';
 import 'package:ofrivo_mobile/features/notifications/device_token_repository.dart';
 import 'package:ofrivo_mobile/features/notifications/device_token_source.dart';
@@ -28,8 +29,7 @@ void main() {
 
   test('device token registration is user-scoped in fake mode', () async {
     final repository = FakeDeviceTokenRepository();
-    await repository.register(
-        token: 'token-android-001', platform: 'android');
+    await repository.register(token: 'token-android-001', platform: 'android');
     expect(repository.registeredTokens['token-android-001'], 'android');
     await repository.unregister(token: 'token-android-001');
     expect(repository.registeredTokens, isEmpty);
@@ -51,5 +51,13 @@ void main() {
     expect(controller.state.tokenRegistered, isFalse);
     expect(repository.registeredTokens, isEmpty);
     controller.dispose();
+  });
+  test('fake notifications are empty for an unrelated account', () async {
+    final repository = FakeNotificationRepository(
+      fakeNotifications,
+      userId: 'demo-user-new-222-222-com',
+    );
+
+    expect(await repository.loadNotifications(), isEmpty);
   });
 }

@@ -3,18 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/config/app_config.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
+import '../auth/auth_controller.dart';
 import 'customer_bid_models.dart';
 import 'customer_bid_repository.dart';
 import 'customer_jobs_controller.dart';
 
 final customerBidRepositoryProvider = Provider<CustomerBidRepository>((ref) {
+  final auth = ref.watch(authControllerProvider);
   final client = AppBootstrap.client;
-  if (client == null) {
+  if (client == null || auth.user == null) {
     return FakeCustomerBidRepository(
         initialJobs: ref.watch(fakeJobsProvider),
-        initialBids: ref.watch(fakeBidsProvider));
+        initialBids: ref.watch(fakeBidsProvider),
+        userId: auth.user?.id ?? '');
   }
-  return SupabaseCustomerBidRepository(client);
+  return SupabaseCustomerBidRepository(client, auth.user!.id);
 });
 
 final customerBidControllerProvider = StateNotifierProvider.family<

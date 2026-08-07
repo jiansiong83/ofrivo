@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/data/fake_data.dart';
+import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../auth/auth_controller.dart';
 import '../customer/customer_jobs_controller.dart';
@@ -12,11 +14,17 @@ final jobLifecycleRepositoryProvider = Provider<JobLifecycleRepository>((ref) {
   final auth = ref.watch(authControllerProvider);
   final client = AppBootstrap.client;
   if (client == null || auth.user == null) {
+    final userId = auth.user?.id ?? '';
+    final role = ref.watch(appModeProvider);
+    final jobs = role == AppMode.provider
+        ? fakeJobsForProvider(userId, ref.watch(fakeJobsProvider))
+        : fakeJobsForCustomer(userId, ref.watch(fakeJobsProvider));
     return FakeJobLifecycleRepository(
-        initialJobs: ref.watch(fakeJobsProvider),
-        initialBids: ref.watch(fakeBidsProvider),
-        role: ref.watch(appModeProvider),
-        providerId: auth.user?.id ?? 'demo-user');
+        initialJobs: jobs,
+        initialBids: fakeBidsForJobs(jobs, ref.watch(fakeBidsProvider)),
+        role: role,
+        providerId: userId,
+        customerId: userId);
   }
   return SupabaseJobLifecycleRepository(client, auth.user!.id);
 });

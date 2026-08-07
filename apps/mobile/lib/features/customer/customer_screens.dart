@@ -27,6 +27,12 @@ class CustomerHomeScreen extends ConsumerWidget {
     final auth = ref.watch(authControllerProvider);
     final jobsState = ref.watch(customerJobsControllerProvider);
     final jobs = jobsState.jobs;
+    final activeJobs = jobs
+        .where((job) =>
+            job.status == JobStatus.open ||
+            job.status == JobStatus.assigned ||
+            job.status == JobStatus.inProgress)
+        .toList();
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
@@ -59,14 +65,14 @@ class CustomerHomeScreen extends ConsumerWidget {
               child: ErrorState(
                   onRetry: () =>
                       ref.read(customerJobsControllerProvider.notifier).load()))
-        else if (jobs.isEmpty)
+        else if (activeJobs.isEmpty)
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: EmptyState(
                   title: strings.business('no_jobs_yet'),
                   message: strings.business('first_request')))
         else
-          for (final job in jobs.take(2))
+          for (final job in activeJobs.take(2))
             Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                 child: JobCard(

@@ -10,7 +10,8 @@ final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
   final auth = ref.watch(authControllerProvider);
   final client = AppBootstrap.client;
   if (client == null || auth.user == null) {
-    return FakeNotificationRepository(fakeNotifications);
+    return FakeNotificationRepository(fakeNotifications,
+        userId: auth.user?.id ?? '');
   }
   return SupabaseNotificationRepository(client, auth.user!.id);
 });

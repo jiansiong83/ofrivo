@@ -14,9 +14,12 @@ abstract interface class CustomerJobRepository {
 }
 
 class FakeCustomerJobRepository implements CustomerJobRepository {
-  FakeCustomerJobRepository(List<Job> initialJobs)
-      : _jobs = List<Job>.from(initialJobs);
+  FakeCustomerJobRepository(List<Job> initialJobs,
+      {String userId = 'demo-user'})
+      : userId = userId,
+        _jobs = fakeJobsForCustomer(userId, initialJobs);
 
+  final String userId;
   final List<Job> _jobs;
   var _sequence = 900;
 
@@ -99,6 +102,7 @@ class FakeCustomerJobRepository implements CustomerJobRepository {
           createdAt: currentTime,
           referenceType: 'job',
           referenceId: job.id,
+          recipientId: userId,
         ),
       );
       expiredCount++;

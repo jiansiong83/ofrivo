@@ -269,6 +269,7 @@ class AppNotification {
     required this.createdAt,
     this.referenceType,
     this.referenceId,
+    this.recipientId,
   });
 
   final String id;
@@ -279,6 +280,7 @@ class AppNotification {
   final DateTime createdAt;
   final String? referenceType;
   final String? referenceId;
+  final String? recipientId;
 
   AppNotification copyWith({bool? isRead}) => AppNotification(
         id: id,
@@ -289,5 +291,6 @@ class AppNotification {
         createdAt: createdAt,
         referenceType: referenceType,
         referenceId: referenceId,
+        recipientId: recipientId,
       );
 }

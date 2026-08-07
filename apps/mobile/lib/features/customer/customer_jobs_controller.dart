@@ -11,7 +11,8 @@ final customerJobRepositoryProvider = Provider<CustomerJobRepository>((ref) {
   final auth = ref.watch(authControllerProvider);
   final client = AppBootstrap.client;
   if (client == null || auth.user == null) {
-    return FakeCustomerJobRepository(ref.watch(fakeJobsProvider));
+    return FakeCustomerJobRepository(ref.watch(fakeJobsProvider),
+        userId: auth.user?.id ?? '');
   }
   return SupabaseCustomerJobRepository(client, auth.user!.id);
 });
