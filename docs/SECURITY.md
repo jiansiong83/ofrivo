@@ -53,7 +53,7 @@ Step 2 adds the local SQL implementation of these controls. The mobile app can u
 
 ## Environment contract
 
-Mobile: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `APP_ENV=development`, supplied with `--dart-define` or a CI secret. No values are committed.
+Mobile: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `APP_ENV` are supplied with `--dart-define` or a CI secret. `development` may intentionally use the local demo adapter when values are absent; `staging` and `production` fail closed and require both Supabase values. No values are committed.
 
 Admin browser: public Supabase values only. A service-role key, if later needed, belongs exclusively in a server environment and is never exposed to the client bundle.
 
@@ -124,7 +124,7 @@ Edge functions: FCM service credentials only in managed server secrets.
 ## Local Real-Device Validation controls (2026-08-05)
 
 - Local development uses only the public anon key at runtime. `scripts/local-dev.ps1` keeps the service-role key inside the short-lived Docker runner process and never passes it to Flutter or writes it to source.
-- `APP_ENV=development` is explicit for Emulator/USB debug runs. Demo OTP `123456` is available only through Fake/Demo mode; production bootstrap fails closed when Supabase runtime values are absent.
+- `APP_ENV=development` is explicit for Emulator/USB debug runs. Demo OTP `123456` is available only through Fake/Demo mode; staging and production bootstrap fail closed when Supabase runtime values are absent. `scripts/local-dev.ps1` accepts `OFRIVO_APP_ENV=staging` only together with both hosted Supabase overrides.
 - HTTP cleartext is enabled only in `apps/mobile/android/app/src/debug/AndroidManifest.xml` for the local `10.0.2.2`/ADB-reverse endpoints. Release/production Android manifests do not receive this exception.
 - Local Docker reset/lint and the 19-check RLS/Storage/concurrency suite, plus no-show, expiry, and review runners, passed after a local stop/start recovery. Hosted services and external delivery were not touched.
 - The Admin Web is now backed by local Docker Supabase for this phase; production/cloud deployment, hosted claims, and external delivery remain deferred.

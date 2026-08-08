@@ -13,6 +13,12 @@ abstract final class AppConfig {
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 
   static bool get isProduction => appEnv.toLowerCase() == 'production';
+
+  /// Hosted builds must never silently fall back to the local demo adapter.
+  /// Development remains the only environment where missing Supabase values
+  /// intentionally enables the offline demo experience.
+  static bool get requiresSupabaseConfig =>
+      isProduction || appEnv.toLowerCase() == 'staging';
 }
 
 abstract final class AppBootstrap {
@@ -21,9 +27,9 @@ abstract final class AppBootstrap {
 
   static Future<void> initialize() async {
     if (!AppConfig.hasSupabaseConfig) {
-      if (AppConfig.isProduction) {
+      if (AppConfig.requiresSupabaseConfig) {
         throw StateError(
-            'Production requires SUPABASE_URL and SUPABASE_ANON_KEY.');
+            '${AppConfig.appEnv} requires SUPABASE_URL and SUPABASE_ANON_KEY.');
       }
       demoMode = true;
       return;

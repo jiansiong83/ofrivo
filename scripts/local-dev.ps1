@@ -156,10 +156,30 @@ function Invoke-AdbReverse {
     & $adb reverse --list
 }
 
+function Get-MobileAppEnv {
+    if (-not [string]::IsNullOrWhiteSpace($env:OFRIVO_APP_ENV)) {
+        $appEnv = $env:OFRIVO_APP_ENV.Trim().ToLowerInvariant()
+        if ($appEnv -notin @('development', 'staging', 'production')) {
+            throw "Unsupported OFRIVO_APP_ENV '$appEnv'. Use development, staging, or production."
+        }
+        return $appEnv
+    }
+    return 'development'
+}
 function Get-MobileRuntimeConfig {
     param([Parameter(Mandatory = $true)][string]$DefaultUrl)
 
-    if ($env:OFRIVO_SUPABASE_URL -and $env:OFRIVO_SUPABASE_ANON_KEY) {
+    $appEnv = Get-MobileAppEnv
+    $hasUrl = -not [string]::IsNullOrWhiteSpace($env:OFRIVO_SUPABASE_URL)
+    $hasAnonKey = -not [string]::IsNullOrWhiteSpace($env:OFRIVO_SUPABASE_ANON_KEY)
+    if ($hasUrl -xor $hasAnonKey) {
+        throw 'Set both OFRIVO_SUPABASE_URL and OFRIVO_SUPABASE_ANON_KEY, or clear both.'
+    }
+    if ($appEnv -in @('staging', 'production') -and -not ($hasUrl -and $hasAnonKey)) {
+        throw "OFRIVO_APP_ENV=$appEnv requires OFRIVO_SUPABASE_URL and OFRIVO_SUPABASE_ANON_KEY."
+    }
+
+    if ($hasUrl -and $hasAnonKey) {
         return @{
             Url = $env:OFRIVO_SUPABASE_URL
             AnonKey = $env:OFRIVO_SUPABASE_ANON_KEY
@@ -174,6 +194,7 @@ function Get-MobileRuntimeConfig {
 }
 
 function Invoke-MobileBuild {
+    $appEnv = Get-MobileAppEnv
     $runtime = Get-MobileRuntimeConfig -DefaultUrl 'http://10.0.2.2:54421'
     Invoke-Flutter -Arguments @(
         'build',
@@ -182,7 +203,7 @@ function Invoke-MobileBuild {
         '--no-pub',
         "--dart-define=SUPABASE_URL=$($runtime.Url)",
         "--dart-define=SUPABASE_ANON_KEY=$($runtime.AnonKey)",
-        '--dart-define=APP_ENV=development'
+        "--dart-define=APP_ENV=$appEnv"
     )
 }
 function Invoke-MobileRun {
@@ -194,6 +215,7 @@ function Invoke-MobileRun {
     if ($Reverse) {
         Invoke-AdbReverse
     }
+    $appEnv = Get-MobileAppEnv
     $runtime = Get-MobileRuntimeConfig -DefaultUrl $Url
     $arguments = @(
         'run',
@@ -201,7 +223,7 @@ function Invoke-MobileRun {
         '--no-pub',
         "--dart-define=SUPABASE_URL=$($runtime.Url)",
         "--dart-define=SUPABASE_ANON_KEY=$($runtime.AnonKey)",
-        '--dart-define=APP_ENV=development'
+        "--dart-define=APP_ENV=$appEnv"
     )
     if ($env:OFRIVO_FLUTTER_DEVICE_ID) {
         $arguments += @('-d', $env:OFRIVO_FLUTTER_DEVICE_ID)

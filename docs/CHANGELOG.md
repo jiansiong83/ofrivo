@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — Security hardening
+
+- Hosted mobile builds now fail closed when `APP_ENV=staging` or `production` is missing Supabase runtime values; only development may use the local demo adapter.
+- The local mobile run/build script now requires explicit hosted overrides for staging/production and propagates `OFRIVO_APP_ENV` into the APK/runtime.
+- Provider Profile validation continues to assert that pending/rejected categories cannot enter `public_job_feed`; the latest category-approval migration also applies the approved-status filter to job access and notification fan-out.
+
 ## Unreleased — Step 0 + Step 1
 
 - Added Ofrivo repository layout and local development guidance.

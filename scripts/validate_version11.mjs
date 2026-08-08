@@ -12,6 +12,7 @@ const router = read('apps/mobile/lib/core/router/app_router.dart');
 const tests = read('apps/mobile/test/auth_repository_test.dart');
 const localization = read('apps/mobile/lib/core/localization/app_localization.dart');
 const appConfig = read('apps/mobile/lib/core/config/app_config.dart');
+const localDevScript = read('scripts/local-dev.ps1');
 const app = read('apps/mobile/lib/app.dart');
 const onboarding = read('apps/mobile/lib/features/onboarding/onboarding_screen.dart');
 const shell = read('apps/mobile/lib/features/shell/shell_screen.dart');
@@ -63,7 +64,8 @@ const checks = [
   ['demo hint is visible only through the repository mode', screens.includes('authRepositoryProvider).isDemoMode')],
   ['phone OTP behavior has unit coverage', tests.includes('demo phone OTP validates') && tests.includes('requires a fresh request')],
   ['mobile auth source does not contain service-role credentials', !/service[_-]?role|SUPABASE_SERVICE_ROLE/i.test(repository)],
-  ['production refuses to fall back to demo auth without Supabase config', appConfig.includes("isProduction => appEnv.toLowerCase() == 'production'") && appConfig.includes('Production requires SUPABASE_URL and SUPABASE_ANON_KEY')],
+  ['hosted auth refuses to fall back to demo without Supabase config', appConfig.includes('requiresSupabaseConfig') && appConfig.includes(`appEnv.toLowerCase() == 'staging'`) && appConfig.includes('AppConfig.requiresSupabaseConfig')],
+  ['mobile run/build script requires hosted runtime overrides', localDevScript.includes('OFRIVO_APP_ENV') && localDevScript.includes(`@('staging', 'production')`) && localDevScript.includes('APP_ENV=')],
   ['three supported languages are declared', localization.includes('AppLanguage.english') && localization.includes('AppLanguage.malay') && localization.includes('AppLanguage.chinese')],
   ['language selection is persisted locally', localization.includes('SharedPreferences') && localization.includes("ofrivo.language")],
   ['translations include English, Malay, and Chinese copy', localization.includes('AppLanguage.malay:') && localization.includes('AppLanguage.chinese:')],

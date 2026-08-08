@@ -60,7 +60,7 @@ npm run build
 
 Environment variables are documented in `docs/SECURITY.md`; no backend values are committed. Without the defines, the mobile app clearly runs in local demo mode.
 
-For account-isolated mobile testing, build through scripts/local-dev.ps1 -Command apk (or set OFRIVO_SUPABASE_URL and OFRIVO_SUPABASE_ANON_KEY first). A plain `flutter build apk --debug` intentionally remains Demo-only and must not be used to validate real Customer/Provider accounts.
+For account-isolated mobile testing, build through scripts/local-dev.ps1 -Command apk (or set OFRIVO_SUPABASE_URL and OFRIVO_SUPABASE_ANON_KEY first). A plain `flutter build apk --debug` intentionally remains Demo-only and must not be used to validate real Customer/Provider accounts. Hosted staging builds must also set `OFRIVO_APP_ENV=staging`; they fail closed instead of falling back to Demo when the hosted values are missing.
 
 ## Source of truth
 
