@@ -208,3 +208,22 @@ The Provider Profile change is covered by 15 static contract checks, 19 local Su
 - Hosted Supabase, physical-device, dual-device UI, real SMS, native FCM, and formal history secret scanner remain separate BLOCKED gates.
 
 Phase 1 result: no confirmed local P0/P1 security defect; retain the negative tests and do not convert unavailable hosted/device checks into PASS.
+
+## Phase 2 account/profile and product-logic checks (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Clean migration/seed reset with provider display-name column | PASS | `supabase db reset --local` |
+| Schema lint | PASS | `supabase db lint --local` |
+| Provider RPC preserves customer profile name | PASS | Provider runner, identity-preservation assertions |
+| Provider business name updates independently | PASS | Provider runner, provider-profile assertion |
+| New-account fake Provider jobs/bids are empty | PASS | Flutter regression tests |
+| Provider detail route cannot fall back to arbitrary fake job | PASS | Phase 2 static validator |
+| Admin separates provider/customer names | PASS | Admin live source + production build |
+| Docker integration matrix | PASS | Step 11 19; no-show 3; expiry 3; review 4; Admin; Provider Profile 22 |
+| Phase 2 static contracts | PASS | `node supabase/tests/validate_phase2.mjs`, 13 checks |
+| Flutter analyze/tests/debug APK | PASS | Analyze clean; 50 tests; APK built |
+| Admin lint/build/audit | PASS | Lint/build clean; npm audit 0 vulnerabilities |
+| Hosted/physical/dual-device validation | BLOCKED/DEFERRED | No cloud/device execution authorized in this phase |
+
+Use the local Docker workflow as the reproducible baseline; do not promote these results to hosted or real-device claims.

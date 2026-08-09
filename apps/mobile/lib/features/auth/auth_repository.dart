@@ -65,6 +65,13 @@ class FakeAuthRepository implements AuthRepository {
           ? _registeredFullName!.trim()
           : authDisplayName(user, null),
     };
+    final providerDisplayName = switch (email) {
+      'demo@ofrivo.local' => 'Alex Home Services',
+      'provider@example.test' => 'Ahmad Plumbing',
+      'pending-provider@example.test' => 'Pending Provider',
+      'provider-b@example.test' => 'JB Home Fix',
+      _ => null,
+    };
     final fullName = switch (email) {
       'customer@example.test' || 'demo@ofrivo.local' => 'Alex Tan',
       'provider@example.test' => 'Ahmad Plumbing',
@@ -79,6 +86,7 @@ class FakeAuthRepository implements AuthRepository {
       id: user.id,
       fullName: fullName,
       displayName: displayName,
+      providerDisplayName: providerDisplayName,
       phone: user.phone ?? knownPhone,
       whatsapp: user.phone ?? knownPhone,
       accountStatus: 'active',
@@ -195,7 +203,7 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<ProfileData?> ensureProfile(AuthUser user) async {
     final existing = await client
         .from('profiles')
-        .select('*, provider_profiles(verification_status)')
+        .select('*, provider_profiles(display_name,verification_status)')
         .eq('id', user.id)
         .maybeSingle();
     if (existing != null) return ProfileData.fromMap(existing, id: user.id);
@@ -211,7 +219,7 @@ class SupabaseAuthRepository implements AuthRepository {
           'display_name': identity,
           if (user.phone != null) 'phone': user.phone
         })
-        .select('*, provider_profiles(verification_status)')
+        .select('*, provider_profiles(display_name,verification_status)')
         .single();
     return ProfileData.fromMap(created, id: user.id);
   }

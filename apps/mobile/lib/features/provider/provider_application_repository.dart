@@ -208,7 +208,7 @@ class SupabaseProviderApplicationRepository
     final providerRow = await client
         .from('provider_profiles')
         .select(
-            'user_id,bio,verification_status,is_available,rating_average,completed_jobs')
+            'user_id,display_name,bio,verification_status,is_available,rating_average,completed_jobs')
         .eq('user_id', userId)
         .maybeSingle();
     final verificationRows = await client
@@ -266,7 +266,8 @@ class SupabaseProviderApplicationRepository
       status: providerApplicationStatusFromValue(
           (verification['status'] as String?) ??
               providerRow?['verification_status'] as String?),
-      displayName: (profileRow?['display_name'] as String?) ??
+      displayName: (providerRow?['display_name'] as String?) ??
+          (profileRow?['display_name'] as String?) ??
           (profileRow?['full_name'] as String?) ??
           'Provider',
       bio: providerRow?['bio'] as String? ?? '',

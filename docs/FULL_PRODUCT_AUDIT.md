@@ -205,3 +205,32 @@ This section supersedes the Phase 0 local-runtime BLOCKED snapshot above. Docker
 Local P1-001 is closed for the Docker environment and C-001, C-002, C-005, and C-006 now have local runtime evidence. Hosted Supabase, formal Git-history secret scanning, physical-device UI, dual-device UI, SMS, and FCM remain blocked. No migration or business-code fix was required.
 
 The control-document drift finding is addressed by the Phase 1 updates in PROJECT_STATUS.md, TEST_PLAN.md, RELEASE_CHECKLIST.md, SECURITY.md, and CHANGELOG.md. The next phase is account/profile and product-logic edge-case validation; this local PASS must not be promoted to hosted or real-device PASS.
+
+## Phase 2 update (2026-08-09): account/profile and product-logic audit
+
+This section supersedes the earlier Phase 2 “blocked” snapshot for the local Docker environment. The audit found and fixed a real identity-binding defect: provider business names were stored in `profiles.display_name`, so editing Provider Profile could change the Customer identity.
+
+### Findings fixed
+
+- Added `provider_profiles.display_name` with a backfill and provider-directory view update.
+- Renamed/revoked the legacy provider application/update RPCs and added authenticated wrappers that preserve `profiles.display_name`.
+- Updated mobile profile parsing, Supabase hydration, Provider application loading, fake Provider account mapping, and Provider detail routing.
+- Updated Admin live mapping so provider business names and customer names are rendered in their correct contexts.
+- Added regression coverage for new-account fake-data isolation and provider/customer identity separation.
+
+### Evidence
+
+- Clean `supabase db reset --local` and `supabase db lint --local`: PASS.
+- Local integration: Step 11 19, no-show 3, expiry 3, review 4, Admin, and Provider Profile 22 checks: PASS.
+- `node supabase/tests/validate_phase2.mjs`: PASS, 13 checks.
+- `node scripts/validate_version11.mjs`: PASS, 69 checks; Provider Profile validator: PASS, 15 checks.
+- Flutter analyze: PASS; Flutter tests: PASS, 50 tests; debug APK: PASS.
+- Admin lint/build: PASS; npm audit reports 0 vulnerabilities.
+
+### Remaining gates
+
+Hosted Supabase, USB physical-device UI, dual-device UI, real SMS, native FCM, and formal Git-history secret scanning remain unverified/deferred. Local PASS must not be presented as hosted or real-device PASS.
+
+### Phase 2 decision
+
+The local account/profile binding gate is PASS. The next authorized step is commit/review of this phase, followed by device or hosted validation only when explicitly requested.

@@ -15,7 +15,8 @@ final providerApplicationRepositoryProvider =
     return FakeProviderApplicationRepository(
         initialStatus: providerApplicationStatusFromValue(
             auth.profile?.providerVerificationStatus),
-        initialDisplayName: authDisplayName(auth.user, auth.profile));
+        initialDisplayName: auth.profile?.providerDisplayName ??
+            authDisplayName(auth.user, auth.profile));
   }
   return SupabaseProviderApplicationRepository(client, auth.user!.id);
 });

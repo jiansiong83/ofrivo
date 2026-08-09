@@ -133,7 +133,7 @@ export async function loadAdminData(): Promise<AdminData> {
   const [usersRaw, profilesRaw, providersRaw, verificationsRaw, providerCategoriesRaw, providerAreasRaw, categoriesRaw, areasRaw, jobsRaw, bidsRaw, reportsRaw, auditRaw] = await Promise.all([
     read<unknown>(client.rpc('admin_list_users')),
     read<unknown>(client.from('profiles').select('id, full_name, display_name, account_status, is_admin, created_at')),
-    read<unknown>(client.from('provider_profiles').select('user_id, bio, verification_status, rating_average, rating_count, completed_jobs, updated_at, approved_at, suspended_at')),
+    read<unknown>(client.from('provider_profiles').select('user_id, display_name, bio, verification_status, rating_average, rating_count, completed_jobs, updated_at, approved_at, suspended_at')),
     read<unknown>(client.from('provider_verifications').select('provider_id, ic_front_path, ic_back_path, selfie_path, ssm_path, certificate_paths, status, submitted_at, reviewed_at, admin_note').order('submitted_at', { ascending: false })),
     read<unknown>(client.from('provider_categories').select('provider_id, category_id, status, submitted_at, reviewed_at, admin_note')),
     read<unknown>(client.from('provider_areas').select('provider_id, area_id')),
@@ -188,10 +188,14 @@ export async function loadAdminData(): Promise<AdminData> {
     const id = text(bid.provider_id);
     bidsByProvider.set(id, (bidsByProvider.get(id) ?? 0) + 1);
   });
-  const providerName = (id: string): string => {
+  const accountName = (id: string): string => {
     const user = userById.get(id);
     return text(user?.display_name, text(user?.full_name, text(user?.email, id)));
   };
+  const providerName = (id: string): string =>
+    text(providerById.get(id)?.display_name, accountName(id));
+  const participantName = (id: string): string =>
+    providerById.has(id) ? providerName(id) : accountName(id);
   const evidenceLinksByProvider = await Promise.all(providerProfiles.map(async (provider) => {
     const verification = verificationByProvider.get(text(provider.user_id));
     if (!verification) return [text(provider.user_id), [] as { label: string; path: string; url: string | null }[]] as const;
@@ -253,7 +257,7 @@ export async function loadAdminData(): Promise<AdminData> {
     const role = user.is_admin === true ? 'admin' : providerById.has(id) ? 'provider' : 'customer';
     return {
       id,
-      name: text(user.display_name, text(user.full_name, text(user.email, id))),
+      name: accountName(id),
       email: text(user.email, `${id}@local.invalid`),
       role,
       status: text(user.account_status, 'active') as AccountStatus,
@@ -266,7 +270,7 @@ export async function loadAdminData(): Promise<AdminData> {
   const adminJobs: AdminJob[] = jobs.map((job) => ({
     id: text(job.id),
     title: text(job.title, 'Untitled job'),
-    customer: providerName(text(job.customer_id)),
+    customer: accountName(text(job.customer_id)),
     area: areaById.get(text(job.area_id)) ?? text(job.area_id),
     category: categoryById.get(text(job.category_id)) ?? text(job.category_id),
     budget: numberValue(job.budget_amount),
@@ -283,7 +287,7 @@ export async function loadAdminData(): Promise<AdminData> {
       id: text(bid.id),
       jobTitle: text(job?.title, text(bid.job_id)),
       provider: providerName(text(bid.provider_id)),
-      customer: providerName(text(job?.customer_id)),
+      customer: accountName(text(job?.customer_id)),
       amount: numberValue(bid.amount),
       status: text(bid.status, 'pending') as BidStatus,
       createdAt: formatDate(bid.created_at),
@@ -295,8 +299,8 @@ export async function loadAdminData(): Promise<AdminData> {
     return {
       id: text(report.id),
       jobTitle: text(job?.title, text(report.job_id)),
-      reporter: providerName(text(report.reporter_id)),
-      reportedUser: providerName(text(report.reported_user_id)),
+      reporter: participantName(text(report.reporter_id)),
+      reportedUser: participantName(text(report.reported_user_id)),
       reason: text(report.reason_code, 'Unspecified report'),
       description: text(report.description, 'No report description supplied.'),
       status: text(report.status, 'open') as ReportStatus,
@@ -306,7 +310,7 @@ export async function loadAdminData(): Promise<AdminData> {
 
   const adminAudit: AdminAuditEvent[] = audit.map((event) => ({
     id: text(event.id),
-    actor: providerName(text(event.actor_id)),
+    actor: accountName(text(event.actor_id)),
     action: text(event.action, 'Admin action'),
     target: `${text(event.target_type, 'record')}:${text(event.target_id, 'unknown')}`,
     createdAt: formatDate(event.created_at),

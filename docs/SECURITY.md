@@ -143,3 +143,16 @@ Edge functions: FCM service credentials only in managed server secrets.
 - The six local runners pass: Step 11 19 checks, no-show 3, expiry 3, review 4, Admin live integration, and provider-profile/category 19.
 - No migration or policy fix was required after runtime validation; the existing latest category-approval migration remains authoritative on clean reset.
 - Hosted Supabase, formal Git-history secret scan, physical-device UI, native FCM, and real SMS remain unverified and are not security PASS claims.
+
+## Phase 2 account/profile isolation controls (2026-08-09)
+
+- Customer identity remains in `profiles.full_name/display_name`; provider business identity is isolated in `provider_profiles.display_name`.
+- The public provider directory prefers the provider profile name and exposes only approved active providers.
+- Legacy provider RPC implementations are renamed and revoked from browser roles; authenticated wrappers preserve the customer profile name and update only the provider name.
+- Provider application hydration reads the provider profile name; Customer and Provider UI no longer share one display-name field.
+- Demo Provider repositories map only known Demo account IDs to seed Provider data; new accounts receive empty fake jobs/bids.
+- Provider job detail no longer searches the global fake-job list after authenticated state lookup.
+- Admin maps provider records through provider business names, while customer-owned jobs and account rows use customer names.
+- Local Docker integration proves identity preservation and provider-name update behavior; static validator covers the source contracts.
+
+No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this local evidence.

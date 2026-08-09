@@ -18,6 +18,21 @@ List<Job> fakeJobsForCustomer(String userId, List<Job> jobs) =>
 List<Job> fakeJobsForProvider(String userId, List<Job> jobs) =>
     demoProviderUserIds.contains(userId) ? List<Job>.from(jobs) : <Job>[];
 
+String? demoProviderSeedIdForUser(String userId) => switch (userId) {
+      'demo-user' || 'demo-user-provider-example-test' => 'demo-user',
+      'demo-user-provider-b-example-test' => 'provider-b',
+      _ => null,
+    };
+
+List<Bid> fakeBidsForProvider(String userId, List<Bid> bids) {
+  final seedId = demoProviderSeedIdForUser(userId);
+  if (seedId == null) return <Bid>[];
+  return [
+    for (final bid in bids)
+      if (bid.providerId == seedId) bid,
+  ];
+}
+
 List<Bid> fakeBidsForJobs(List<Job> jobs, List<Bid> bids) {
   final jobIds = jobs.map((job) => job.id).toSet();
   return [

@@ -274,6 +274,7 @@ switch ($Command) {
         try {
             & node scripts/validate_version11.mjs
             & node supabase/tests/validate_provider_profile.mjs
+            & node supabase/tests/validate_phase2.mjs
             if ($LASTEXITCODE -ne 0) { throw 'Version 1.1 contract validation failed.' }
             Invoke-Flutter -Arguments @('analyze', '--no-pub')
             Invoke-Flutter -Arguments @('test', '--no-pub')

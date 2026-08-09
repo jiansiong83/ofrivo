@@ -16,6 +16,17 @@ void main() {
     expect(jobs.map((job) => job.id), ['job-001']);
   });
 
+  test('new accounts receive no fake provider jobs or bids', () {
+    expect(fakeJobsForProvider('demo-user-new-account', fakeJobs), isEmpty);
+    expect(fakeBidsForProvider('demo-user-new-account', fakeBids), isEmpty);
+  });
+
+  test('demo provider seed mapping is account-scoped', () {
+    expect(demoProviderSeedIdForUser('demo-user-provider-example-test'), 'demo-user');
+    expect(demoProviderSeedIdForUser('demo-user-provider-b-example-test'), 'provider-b');
+    expect(demoProviderSeedIdForUser('demo-user-new-account'), isNull);
+  });
+
   test('provider feed can find jobs with no active bids', () async {
     final noBidJob = fakeJobs.first.copyWith(bidCount: 0);
     final repository = FakeProviderJobRepository(initialJobs: [noBidJob], initialBids: const []);

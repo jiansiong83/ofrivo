@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/data/fake_data.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../auth/auth_controller.dart';
@@ -13,16 +14,16 @@ final providerJobRepositoryProvider = Provider<ProviderJobRepository>((ref) {
   final client = AppBootstrap.client;
   if (client == null || auth.user == null) {
     final providerId = auth.user?.id ?? 'demo-user';
-    final providerName = authDisplayName(auth.user, auth.profile);
+    final providerName = auth.profile?.providerDisplayName ??
+        authDisplayName(auth.user, auth.profile);
+    final seedProviderId = demoProviderSeedIdForUser(providerId);
     final scopedBids = [
       for (final bid in ref.watch(fakeBidsProvider))
-        if (bid.providerId == 'demo-user')
+        if (seedProviderId != null && bid.providerId == seedProviderId)
           bid.copyWith(providerId: providerId, providerName: providerName)
-        else
-          bid,
     ];
     return FakeProviderJobRepository(
-      initialJobs: ref.watch(fakeJobsProvider),
+      initialJobs: fakeJobsForProvider(providerId, ref.watch(fakeJobsProvider)),
       initialBids: scopedBids,
       providerId: providerId,
       providerName: providerName,

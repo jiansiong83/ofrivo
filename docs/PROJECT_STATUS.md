@@ -210,3 +210,17 @@ Phase 1 local runtime security validation is complete on the clean Supabase Dock
 - Hosted Supabase, formal history secret scan, physical-device UI, dual-device UI, SMS, FCM, and cloud deployment remain BLOCKED or deferred.
 
 Next phase: account/profile and product-logic edge-case audit, followed by device validation. Do not treat local runtime PASS as hosted or real-device PASS.
+
+## Current Phase 2 status (2026-08-09)
+
+Account/profile and product-logic audit is complete locally on a clean Docker reset.
+
+- Provider business identity is stored in `provider_profiles.display_name`; customer identity remains in `profiles.display_name`.
+- Provider application/update RPCs preserve the customer-facing name while updating the provider-facing name.
+- Demo Provider jobs/bids and Provider detail routes are scoped to the authenticated Demo account; unrelated/new accounts receive no fake Provider data.
+- Admin live data now uses provider business names for Provider records and customer names for Jobs/Bids/Users.
+- Local integration: PASS; Provider Profile runner now passes 22 checks.
+- Static Phase 2 validator: PASS, 13 checks. Flutter analyze: PASS. Flutter tests: PASS, 50 tests. Debug APK: PASS.
+- Admin lint/build: PASS. `npm audit --audit-level=high`: 0 vulnerabilities.
+
+Hosted Supabase, USB physical-device UI, dual-device UI, SMS, FCM, and secret-history scanning remain separate gates and are not claimed as PASS.

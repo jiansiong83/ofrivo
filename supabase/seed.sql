@@ -96,11 +96,11 @@ values
   ('00000000-0000-0000-0000-000000000199', 'Ofrivo Admin', 'Ofrivo Admin', null, null, 'active', true)
 on conflict (id) do nothing;
 
-insert into public.provider_profiles (user_id, bio, verification_status, rating_average, rating_count, completed_jobs, is_available, approved_at)
+insert into public.provider_profiles (user_id, display_name, bio, verification_status, rating_average, rating_count, completed_jobs, is_available, approved_at)
 values
-  ('00000000-0000-0000-0000-000000000102', 'Friendly local plumbing service for homes and small shops.', 'approved', 4.90, 27, 86, true, now()),
-  ('00000000-0000-0000-0000-000000000103', 'General home repair provider awaiting verification.', 'pending', 0, 0, 0, false, null),
-  ('00000000-0000-0000-0000-000000000104', 'Reliable home repair and handyman service.', 'approved', 4.70, 18, 42, true, now())
+  ('00000000-0000-0000-0000-000000000102', 'Ahmad Plumbing', 'Friendly local plumbing service for homes and small shops.', 'approved', 4.90, 27, 86, true, now()),
+  ('00000000-0000-0000-0000-000000000103', 'Pending Provider', 'General home repair provider awaiting verification.', 'pending', 0, 0, 0, false, null),
+  ('00000000-0000-0000-0000-000000000104', 'JB Home Fix', 'Reliable home repair and handyman service.', 'approved', 4.70, 18, 42, true, now())
 on conflict (user_id) do nothing;
 
 insert into public.service_categories (id, slug, name_en, name_ms, name_zh, icon_name, sort_order)

@@ -11,6 +11,7 @@ void main() {
 
     expect(user.email, 'demo@ofrivo.local');
     expect(profile?.isApprovedProvider, isTrue);
+    expect(profile?.providerDisplayName, 'Alex Home Services');
     expect(profile?.isSuspended, isFalse);
   });
 
@@ -24,8 +25,10 @@ void main() {
     final provider = await repository.ensureProfile(providerResult.user!);
 
     expect(customerResult.user?.id, isNot(providerResult.user?.id));
+    expect(customer?.providerDisplayName, isNull);
     expect(customer?.fullName, 'Alex Tan');
     expect(customer?.isApprovedProvider, isFalse);
+    expect(provider?.providerDisplayName, 'Ahmad Plumbing');
     expect(provider?.fullName, 'Ahmad Plumbing');
     expect(provider?.isApprovedProvider, isTrue);
   });
@@ -36,8 +39,9 @@ void main() {
       'full_name': 'Alex Tan',
       'account_status': 'active',
       'is_admin': false,
-      'provider_profiles': {'verification_status': 'pending'},
+      'provider_profiles': {'display_name': 'Alex Home Services', 'verification_status': 'pending'},
     });
+    expect(profile.providerDisplayName, 'Alex Home Services');
 
     expect(profile.id, 'user-1');
     expect(profile.providerVerificationStatus, 'pending');

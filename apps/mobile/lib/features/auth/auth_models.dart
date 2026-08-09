@@ -11,6 +11,7 @@ class ProfileData {
     required this.id,
     required this.fullName,
     required this.displayName,
+    this.providerDisplayName,
     required this.phone,
     required this.whatsapp,
     required this.accountStatus,
@@ -21,6 +22,7 @@ class ProfileData {
   final String id;
   final String? fullName;
   final String? displayName;
+  final String? providerDisplayName;
   final String? phone;
   final String? whatsapp;
   final String accountStatus;
@@ -43,6 +45,7 @@ class ProfileData {
       id: (map['id'] as String?) ?? id ?? '',
       fullName: map['full_name'] as String?,
       displayName: map['display_name'] as String?,
+      providerDisplayName: providerMap['display_name'] as String?,
       phone: map['phone'] as String?,
       whatsapp: map['whatsapp'] as String?,
       accountStatus: (map['account_status'] as String?) ?? 'active',

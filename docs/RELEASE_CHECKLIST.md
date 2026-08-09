@@ -188,3 +188,18 @@
 - [ ] Formal Git-history secret scan; gitleaks/trufflehog are not installed in this environment.
 
 This local gate does not authorize cloud deployment or external-user release.
+
+## Phase 2 release gate (2026-08-09)
+
+- [x] Provider and customer display identities are stored separately.
+- [x] Provider application/update RPCs preserve customer identity and retain fixed `search_path`.
+- [x] Demo/fake Provider feed, bids, and detail routes are account-scoped.
+- [x] Admin uses provider business names only for provider-facing records and customer names for customer-owned jobs.
+- [x] Clean local Supabase reset/lint and all Docker integration runners pass.
+- [x] Phase 2 static validator, Flutter analyze/tests/APK, Admin lint/build, and npm audit pass.
+- [ ] Hosted Supabase migration/RLS/Storage/Auth validation.
+- [ ] USB physical-device and two-device UI workflow.
+- [ ] Formal Git-history secret scan.
+- [ ] Real SMS/FCM delivery.
+
+This phase is suitable for local development review only; cloud and external-user release remain gated.

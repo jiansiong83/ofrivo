@@ -175,3 +175,13 @@
 - Confirmed approved-category feed and notification gating, customer/provider isolation, private Storage ownership, Admin authorization, and one-winner bid concurrency at runtime.
 - No business-code or migration change was required in this phase.
 - Hosted Supabase, real-device UI, dual-device UI, formal history secret scan, SMS, FCM, and paid/cloud services remain deferred or blocked.
+
+## Unreleased - 2026-08-09 Phase 2 account/profile isolation
+
+- Added `provider_profiles.display_name` and a clean migration/backfill so provider business names no longer overwrite customer identity.
+- Wrapped the provider application/update RPCs to preserve `profiles.display_name` while updating provider-facing data.
+- Scoped Demo Provider jobs and bids to mapped authenticated accounts and removed the unscoped Provider detail fallback.
+- Hydrated provider display names in mobile auth/application repositories and separated Provider/Customer naming in the Admin repository.
+- Added Flutter regressions for new-account fake-data isolation and a 13-check Phase 2 static validator.
+- Local Docker reset/lint/integration pass; Provider Profile integration now passes 22 checks; Flutter 50 tests/APK and Admin lint/build/audit pass.
+- Hosted Supabase, physical-device UI, dual-device UI, SMS, FCM, and secret-history scanning remain deferred.

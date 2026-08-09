@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/data/fake_data.dart';
 import '../../core/localization/app_localization.dart';
 import '../../core/models/app_models.dart';
 import '../../core/models/service_options.dart';
@@ -888,11 +887,6 @@ class ProviderJobDetailScreen extends ConsumerWidget {
     Job? job;
     for (final candidate in state.jobs) {
       if (candidate.id == jobId) job = candidate;
-    }
-    if (job == null) {
-      for (final candidate in fakeJobs) {
-        if (candidate.id == jobId) job = candidate;
-      }
     }
     if (job == null) {
       return EmptyState(

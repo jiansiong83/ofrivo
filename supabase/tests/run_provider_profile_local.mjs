@@ -49,7 +49,7 @@ async function login(email) {
 async function rpc(name, params, token) { return request(`${apiUrl}/rest/v1/rpc/${name}`, { method: 'POST', token, body: params }); }
 async function cleanup() {
   await rest(`/provider_categories?provider_id=eq.${ids.provider}&category_id=eq.${ids.categoryElectrical}`, { key: serviceRoleKey, token: serviceRoleKey, method: 'DELETE', headers: { prefer: 'return=minimal' } });
-  await rest(`/provider_profiles?user_id=eq.${ids.provider}`, { key: serviceRoleKey, token: serviceRoleKey, method: 'PATCH', headers: { prefer: 'return=minimal' }, body: { is_available: true, bio: 'Friendly local plumbing service for homes and small shops.' } });
+  await rest(`/provider_profiles?user_id=eq.${ids.provider}`, { key: serviceRoleKey, token: serviceRoleKey, method: 'PATCH', headers: { prefer: 'return=minimal' }, body: { display_name: 'Ahmad Plumbing', is_available: true, bio: 'Friendly local plumbing service for homes and small shops.' } });
   await rest(`/profiles?id=eq.${ids.provider}`, { key: serviceRoleKey, token: serviceRoleKey, method: 'PATCH', headers: { prefer: 'return=minimal' }, body: { display_name: 'Ahmad Plumbing', phone: '+60 12 000 0102', whatsapp: '+60 12 000 0102' } });
 }
 
@@ -97,10 +97,16 @@ try {
   const available = await rpc('set_provider_availability', { p_is_available: true }, providerToken);
   pass('availability on can be restored', available.ok && available.data?.is_available === true);
 
+  const separatedBefore = await rest(`/provider_profiles?user_id=eq.${ids.provider}&select=display_name`, { key: serviceRoleKey, token: serviceRoleKey });
+  const identityBefore = await rest(`/profiles?id=eq.${ids.provider}&select=display_name`, { key: serviceRoleKey, token: serviceRoleKey });
+  pass('provider fixture has a separate business name field', separatedBefore.ok && separatedBefore.data[0]?.display_name === 'Ahmad Plumbing');
+  pass('customer identity baseline is readable', identityBefore.ok && identityBefore.data[0]?.display_name === 'Ahmad Plumbing');
   const profile = await rpc('update_provider_profile', { p_display_name: 'Ahmad Plumbing Test', p_bio: 'Friendly local plumbing service for homes and small shops.', p_phone: '+60 12 999 0102', p_whatsapp: '+60 12 999 0102', p_area_ids: [ids.areaMountAustin, ids.areaTamanMolek], p_work_photo_paths: [] }, providerToken);
   pass('profile update RPC persists public fields', profile.ok, JSON.stringify(profile.data));
   const profileRow = await rest(`/profiles?id=eq.${ids.provider}&select=display_name,phone,whatsapp`, { token: providerToken });
-  pass('provider can read its updated profile fields', profileRow.ok && profileRow.data[0]?.display_name === 'Ahmad Plumbing Test');
+  const providerRow = await rest(`/provider_profiles?user_id=eq.${ids.provider}&select=display_name`, { token: providerToken });
+  pass('customer identity remains unchanged after provider edit', profileRow.ok && profileRow.data[0]?.display_name === 'Ahmad Plumbing');
+  pass('provider business name updates independently', providerRow.ok && providerRow.data[0]?.display_name === 'Ahmad Plumbing Test');
 } finally {
   await cleanup();
 }
