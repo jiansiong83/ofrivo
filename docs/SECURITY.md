@@ -189,3 +189,10 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Displaying from the persisted UTC endpoints removes reliance on mutable legacy text and keeps Customer/Provider schedule views consistent.
 - The Malaysia-time conversion is client display logic; database constraints continue to validate the UTC range and Malaysia calendar day.
 - No auth, RLS, Storage, or service-role boundary was weakened by this client-only fix.
+
+## Phase 7 photo Storage security evidence (2026-08-09)
+
+- Customer-authenticated readback found exactly one `job_photos` row for the newly published local Job and its private Storage object returned HTTP 200.
+- Provider feed readback exposed only the permitted photo path for the matching open Job; the object was readable through the authenticated Provider session, not via an unauthenticated request.
+- No service-role key was placed in the APK or browser; all checks used short-lived local user sessions and the public anon key.
+- Physical-device, hosted Storage, and cross-account negative tests remain separate gates.

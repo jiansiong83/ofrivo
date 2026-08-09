@@ -172,3 +172,11 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 - Customer and Provider repositories now format the display range from the parsed UTC endpoints after local conversion; rows with no endpoints still use the legacy `time_window` fallback.
 - Added a regression test for local range formatting and the legacy fallback.
 - This validates the local display conversion only; it does not close the physical-device or hosted gates.
+
+## Phase 7 device photo-upload validation (2026-08-09)
+
+- On `medium_phone` / `emulator-5554` (Android 16/API 36, `Asia/Kuala_Lumpur`), Customer selected one image through the Android system Photo Picker.
+- The Job preview showed `1 photo(s) attached`; publishing returned `Job published.` and the new Job appeared as `open` in My Jobs.
+- Customer-authenticated REST readback found one `job_photos` row and a private `job-photos` object returned HTTP 200.
+- Provider-authenticated `public_job_feed` readback found the same Job with one photo path; the protected Storage object returned HTTP 200 through the Provider session.
+- The test address contains only local adb-input text and is not production data. This validates local emulator photo selection, upload, and authorized reads only.

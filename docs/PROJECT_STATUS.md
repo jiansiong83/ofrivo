@@ -270,3 +270,10 @@ Do not promote this result to a hosted or external-beta release claim.
 - Rebuilt APK verification rendered the same `10:00Z–11:00Z` row as `6:00 PM–7:00 PM` on the Malaysia-time emulator.
 - Flutter analyze, 53 tests, and debug APK build pass after the timezone fix.
 - Physical-device, dual-device, photo-upload, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
+
+## Current Phase 7 status (2026-08-09)
+
+- The local emulator Photo Picker flow now passes: one image was selected, preview retained it, and publishing created an open Job.
+- Customer REST readback confirmed one `job_photos` row and private Storage HTTP 200; Provider feed readback confirmed one photo path and authorized Storage HTTP 200.
+- No mobile source change was needed for this validation; the existing photo-selection, upload, RLS, and Storage paths behaved as designed.
+- USB physical-device UI, dual-device UI concurrency, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.

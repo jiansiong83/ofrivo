@@ -254,3 +254,12 @@ This is a complete local single-emulator validation point, not an external beta 
 - [x] Legacy `time_window` fallback and Flutter regression test pass.
 - [ ] Physical-device timezone validation.
 - [ ] Hosted timezone and cross-device validation.
+
+## Phase 7 device photo-upload gate (2026-08-09)
+
+- [x] Android Photo Picker selects a supported image.
+- [x] Preview and publish retain the selected image.
+- [x] Customer-authenticated `job_photos` row and private Storage object read pass.
+- [x] Provider feed exposes the photo path and authorized Storage read pass.
+- [ ] Physical-device photo upload.
+- [ ] Hosted Storage and cross-device validation.

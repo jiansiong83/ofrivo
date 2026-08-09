@@ -214,3 +214,10 @@
 - Fixed Customer and Provider Job-card/detail time labels to derive from UTC `scheduled_at`/`scheduled_end_at` after local conversion.
 - Preserved legacy `time_window` fallback for old rows without schedule endpoints.
 - Verified `10:00Z–11:00Z` as `6:00 PM–7:00 PM` on an `Asia/Kuala_Lumpur` emulator; Flutter analyze, 53 tests, and APK build pass.
+
+## Unreleased - 2026-08-09 Phase 7 device photo upload
+
+- Validated Android Photo Picker selection, Job preview, and publish with one image on the local emulator.
+- Confirmed Customer `job_photos` persistence and private Storage HTTP 200, then Provider feed photo-path and authorized Storage HTTP 200.
+- No source change was required; the existing local photo upload and authorization paths passed.
+- Physical-device and hosted Storage validation remain deferred.

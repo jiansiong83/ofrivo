@@ -280,3 +280,13 @@ The single-emulator lifecycle is complete; physical-device and true UI concurren
 | UTC endpoints convert to Malaysia local display | PASS | Asia/Kuala_Lumpur emulator: 10:00Z–11:00Z rendered 6:00 PM–7:00 PM |
 | Legacy rows without endpoints remain readable | PASS | Formatter falls back to `time_window` |
 | Flutter timezone regression test | PASS | 53 tests passed |
+
+## Phase 7 device photo-upload validation (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Android Photo Picker selection | PASS | One supported image selected on `emulator-5554` |
+| Preview and publish | PASS | Preview showed `1 photo(s) attached`; Job published as `open` |
+| Customer photo row and private object | PASS | One `job_photos` row; Storage object HTTP 200 with Customer session |
+| Provider feed and authorized object | PASS | One photo path in `public_job_feed`; Storage object HTTP 200 with Provider session |
+| Physical-device and hosted Storage | BLOCKED/DEFERRED | No USB device; hosted environment not enabled |
