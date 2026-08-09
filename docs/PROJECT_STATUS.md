@@ -253,7 +253,7 @@ Do not promote this emulator smoke evidence to a complete E2E or hosted release 
 
 The local Docker stack now has a complete single-emulator Customer-to-Provider lifecycle pass.
 
-- Customer created a real scheduled Job with a 10:00 AM–11:00 AM range; UTC persistence and Malaysia-calendar display matched.
+- Customer created a real scheduled Job with a 10:00 AM–11:00 AM range; UTC persistence passed, and the rebuilt APK now derives display text from UTC endpoints (Asia/Kuala_Lumpur rendered 6:00 PM–7:00 PM for the stored 10:00Z–11:00Z row).
 - Provider bid, Customer acceptance, address unlock, start, complete, reciprocal reviews, and safety report all passed on `emulator-5554`.
 - Fixed the ambiguous PostgREST `jobs` embed by selecting `bids_job_id_fkey` explicitly in both Customer and Provider bid reads.
 - Fixed Customer Job-card offer counts; the rebuilt APK now renders the persisted count instead of a hard-coded zero.
@@ -263,3 +263,10 @@ The local Docker stack now has a complete single-emulator Customer-to-Provider l
 - Photo-upload UI, USB physical-device UI, dual-device UI concurrency, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
 
 Do not promote this result to a hosted or external-beta release claim.
+
+## Current Phase 6 status (2026-08-09)
+
+- Corrected the schedule display defect found when the emulator was changed from GMT to `Asia/Kuala_Lumpur`: UI text now derives from `scheduled_at` and `scheduled_end_at`, not stale `time_window` text.
+- Rebuilt APK verification rendered the same `10:00Z–11:00Z` row as `6:00 PM–7:00 PM` on the Malaysia-time emulator.
+- Flutter analyze, 53 tests, and debug APK build pass after the timezone fix.
+- Physical-device, dual-device, photo-upload, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.

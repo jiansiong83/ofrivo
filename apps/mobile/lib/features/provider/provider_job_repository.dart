@@ -350,6 +350,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
             .toList()
         : <String>[];
     final signedPaths = await Future.wait(paths.map(_signPhoto));
+    final scheduledAt = _parseDate(row['scheduled_at']);
+    final scheduledEndAt = _parseDate(row['scheduled_end_at']);
     return Job(
       id: row['id'] as String,
       title: row['title'] as String? ?? 'Untitled job',
@@ -358,7 +360,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       area:
           row['area_name'] as String? ?? _areaLabel(row['area_id'] as String?),
       budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
-      time: row['time_window'] as String? ?? 'Flexible',
+      time: formatJobTimeWindow(scheduledAt, scheduledEndAt,
+          row['time_window'] as String? ?? 'Flexible'),
       status: JobStatus.open,
       bidCount: (row['bid_count'] as num?)?.toInt() ?? 0,
       description: row['description'] as String? ?? '',
@@ -367,8 +370,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       areaId: row['area_id'] as String?,
       photoPaths: signedPaths.where((path) => path.isNotEmpty).toList(),
       createdAt: _parseDate(row['created_at']),
-      scheduledAt: _parseDate(row['scheduled_at']),
-      scheduledEndAt: _parseDate(row['scheduled_end_at']),
+      scheduledAt: scheduledAt,
+      scheduledEndAt: scheduledEndAt,
       expiresAt: _parseDate(row['expires_at']),
     );
   }
@@ -391,6 +394,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
             .toList()
         : <String>[];
     final signedPaths = await Future.wait(paths.map(_signPhoto));
+    final scheduledAt = _parseDate(row['scheduled_at']);
+    final scheduledEndAt = _parseDate(row['scheduled_end_at']);
     return Job(
       id: row['id'] as String,
       title: row['title'] as String? ?? 'Untitled job',
@@ -400,7 +405,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
           row['public_location_text'] as String? ??
           _areaLabel(row['area_id'] as String?),
       budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
-      time: row['time_window'] as String? ?? 'Flexible',
+      time: formatJobTimeWindow(scheduledAt, scheduledEndAt,
+          row['time_window'] as String? ?? 'Flexible'),
       status: status,
       bidCount: 0,
       description: row['description'] as String? ?? '',
@@ -412,8 +418,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       contactWhatsapp: row['contact_whatsapp'] as String?,
       photoPaths: signedPaths.where((path) => path.isNotEmpty).toList(),
       createdAt: _parseDate(row['created_at']),
-      scheduledAt: _parseDate(row['scheduled_at']),
-      scheduledEndAt: _parseDate(row['scheduled_end_at']),
+      scheduledAt: scheduledAt,
+      scheduledEndAt: scheduledEndAt,
       expiresAt: _parseDate(row['expires_at']),
       acceptedBidId: row['accepted_bid_id'] as String?,
     );
@@ -435,6 +441,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
           (item == JobStatus.inProgress && statusValue == 'in_progress'),
       orElse: () => JobStatus.open,
     );
+    final scheduledAt = _parseDate(row['scheduled_at']);
+    final scheduledEndAt = _parseDate(row['scheduled_end_at']);
     return Job(
       id: row['id'] as String,
       title: row['title'] as String? ?? 'Untitled job',
@@ -444,7 +452,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
           row['public_location_text'] as String? ??
           _areaLabel(row['area_id'] as String?),
       budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
-      time: row['time_window'] as String? ?? 'Flexible',
+      time: formatJobTimeWindow(scheduledAt, scheduledEndAt,
+          row['time_window'] as String? ?? 'Flexible'),
       status: status,
       bidCount: 0,
       description: row['description'] as String? ?? '',
@@ -452,8 +461,8 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
       categoryId: row['category_id'] as String?,
       areaId: row['area_id'] as String?,
       createdAt: _parseDate(row['created_at']),
-      scheduledAt: _parseDate(row['scheduled_at']),
-      scheduledEndAt: _parseDate(row['scheduled_end_at']),
+      scheduledAt: scheduledAt,
+      scheduledEndAt: scheduledEndAt,
     );
   }
 

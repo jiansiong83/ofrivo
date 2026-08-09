@@ -208,3 +208,9 @@
 - Hydrated Customer Job-card offer counts from real `bids` rows instead of always rendering zero.
 - Flutter analyze, 53 tests, and debug APK build pass after the fixes.
 - Physical-device, dual-device, hosted, SMS, FCM, and photo-upload gates remain explicitly pending/deferred.
+
+## Unreleased - 2026-08-09 Phase 6 schedule timezone display
+
+- Fixed Customer and Provider Job-card/detail time labels to derive from UTC `scheduled_at`/`scheduled_end_at` after local conversion.
+- Preserved legacy `time_window` fallback for old rows without schedule endpoints.
+- Verified `10:00Z–11:00Z` as `6:00 PM–7:00 PM` on an `Asia/Kuala_Lumpur` emulator; Flutter analyze, 53 tests, and APK build pass.

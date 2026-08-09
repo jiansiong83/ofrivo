@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 enum AppMode { customer, provider }
 
 enum JobStatus {
@@ -70,6 +72,15 @@ extension NotificationTypeLabel on NotificationType {
         return 'Notification';
     }
   }
+}
+
+String formatJobTimeWindow(
+    DateTime? scheduledAt, DateTime? scheduledEndAt, String fallback) {
+  if (scheduledAt == null || scheduledEndAt == null) return fallback;
+  final day = DateFormat('EEE, d MMM').format(scheduledAt);
+  final start = DateFormat('h:mm a').format(scheduledAt);
+  final end = DateFormat('h:mm a').format(scheduledEndAt);
+  return '$day, $start - $end';
 }
 
 class Job {

@@ -246,3 +246,11 @@ This is a local emulator smoke gate, not an external beta release approval.
 - [ ] Hosted Supabase/Auth/RLS/Storage, real SMS, and native FCM.
 
 This is a complete local single-emulator validation point, not an external beta or hosted release approval.
+
+## Phase 6 schedule timezone gate (2026-08-09)
+
+- [x] Customer and Provider display ranges derive from UTC schedule endpoints in device local time.
+- [x] Asia/Kuala_Lumpur emulator verification renders the expected local range.
+- [x] Legacy `time_window` fallback and Flutter regression test pass.
+- [ ] Physical-device timezone validation.
+- [ ] Hosted timezone and cross-device validation.

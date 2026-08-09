@@ -183,3 +183,9 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Customer offer counts are derived from the RLS-scoped `bids` relation; no service-role key is present in the APK or client code.
 - Reciprocal reviews and the safety report were written with the authenticated reporter/reviewer identities and verified by local REST readback.
 - Hosted RLS/Storage/Auth, physical-device, and dual-device attack validation remain unverified.
+
+## Phase 6 schedule timezone security evidence (2026-08-09)
+
+- Displaying from the persisted UTC endpoints removes reliance on mutable legacy text and keeps Customer/Provider schedule views consistent.
+- The Malaysia-time conversion is client display logic; database constraints continue to validate the UTC range and Malaysia calendar day.
+- No auth, RLS, Storage, or service-role boundary was weakened by this client-only fix.

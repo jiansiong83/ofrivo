@@ -136,7 +136,8 @@ Automated local validation and documentation are complete. Core local Supabase, 
 
 - Device: `medium_phone` / `emulator-5554` / Android 16 (API 36); the authorized data wipe left approximately 5 GB free.
 - Runtime: local Docker Supabase API `http://10.0.2.2:54421` from the emulator; no cloud, paid service, SMS provider, or FCM delivery was used.
-- Customer `customer@example.test` created and published a real Job with a Material date/time range: `Mon, 10 Aug 2026, 10:00 AM - 11:00 AM`; the database stored `scheduled_at` and `scheduled_end_at` in UTC.
+- Customer `customer@example.test` created and published a real Job with a Material date/time range; the initial emulator was GMT, so the selected `10:00 AM - 11:00 AM` persisted as `10:00Z - 11:00Z`.
+- That exposed a display defect: the app was showing the legacy `time_window` text instead of converting UTC endpoints. After the emulator was set to `Asia/Kuala_Lumpur`, the rebuilt APK correctly rendered the same row as `6:00 PM - 7:00 PM`.
 - Provider `provider@example.test` saw the matching Job, submitted a RM120 bid, and could not see the private address before acceptance.
 - Customer loaded the persisted bid, accepted it, and the Provider then saw the private address and phone.
 - Provider marked the Job started and completed; job history recorded Bid Accepted, Job Started, and Job Completed.
@@ -149,7 +150,7 @@ Automated local validation and documentation are complete. Core local Supabase, 
 
 | Scenario | Result | Evidence |
 | --- | --- | --- |
-| Customer Job creation and explicit time range | PASS | Emulator UI plus UTC `scheduled_at`/`scheduled_end_at` rows |
+| Customer Job creation and explicit time range | PASS | Emulator UI plus UTC `scheduled_at`/`scheduled_end_at` rows; local display verified after timezone fix |
 | Provider feed and pre-acceptance address privacy | PASS | Address protected until bid acceptance |
 | Provider bid submission and Customer bid read | PASS | RM120 bid persisted and rendered in Received bids |
 | Bid acceptance and address unlock | PASS | Acceptance message, assigned state, private details visible only after acceptance |
@@ -163,3 +164,11 @@ Automated local validation and documentation are complete. Core local Supabase, 
 | Hosted/SMS/FCM delivery | DEFERRED | Explicitly outside local-only scope |
 
 This closes the single-emulator local lifecycle gate, but it is not a physical-device, dual-device, or hosted release approval.
+
+## Phase 6 schedule timezone display validation (2026-08-09)
+
+- The emulator time-zone test state was set to `Asia/Kuala_Lumpur`.
+- The existing Job row stored `scheduled_at=10:00Z` and `scheduled_end_at=11:00Z`; the rebuilt APK rendered `6:00 PM - 7:00 PM` on the Malaysia-time emulator.
+- Customer and Provider repositories now format the display range from the parsed UTC endpoints after local conversion; rows with no endpoints still use the legacy `time_window` fallback.
+- Added a regression test for local range formatting and the legacy fallback.
+- This validates the local display conversion only; it does not close the physical-device or hosted gates.

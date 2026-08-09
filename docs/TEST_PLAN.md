@@ -260,7 +260,7 @@ The emulator smoke pass proves local UI connectivity and identity/privacy bounda
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Customer creates and publishes a scheduled Job | PASS | `medium_phone` UI; 10:00 AM–11:00 AM range |
-| UTC schedule persistence and consistent display | PASS | `scheduled_at`/`scheduled_end_at` REST readback and UI |
+| UTC schedule persistence and consistent display | PASS | REST readback plus Asia/Kuala_Lumpur emulator verification after deriving display from UTC endpoints |
 | Provider feed, bid submit, and Customer bid read | PASS | RM120 bid; explicit `bids_job_id_fkey` query |
 | Acceptance and address privacy boundary | PASS | Protected before accept; unlocked after accept |
 | Start and complete Job | PASS | UI status and history events |
@@ -272,3 +272,11 @@ The emulator smoke pass proves local UI connectivity and identity/privacy bounda
 | Hosted, SMS, and native FCM | DEFERRED | Local-only scope |
 
 The single-emulator lifecycle is complete; physical-device and true UI concurrency gates remain open.
+
+## Phase 6 schedule timezone display validation (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| UTC endpoints convert to Malaysia local display | PASS | Asia/Kuala_Lumpur emulator: 10:00Z–11:00Z rendered 6:00 PM–7:00 PM |
+| Legacy rows without endpoints remain readable | PASS | Formatter falls back to `time_window` |
+| Flutter timezone regression test | PASS | 53 tests passed |

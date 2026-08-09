@@ -6,6 +6,20 @@ import 'package:ofrivo_mobile/features/customer/customer_job_models.dart';
 import 'package:ofrivo_mobile/features/customer/customer_job_repository.dart';
 
 void main() {
+  test(
+      'scheduled ranges format from local DateTime values with legacy fallback',
+      () {
+    expect(
+      formatJobTimeWindow(
+        DateTime(2026, 8, 10, 18),
+        DateTime(2026, 8, 10, 19),
+        'Flexible',
+      ),
+      'Mon, 10 Aug, 6:00 PM - 7:00 PM',
+    );
+    expect(formatJobTimeWindow(null, null, 'Flexible'), 'Flexible');
+  });
+
   test('job draft validates required customer details', () {
     final draft = JobDraft.demo();
     expect(draft.validate(), isNull);
