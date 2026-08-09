@@ -237,6 +237,7 @@ Use the local Docker workflow as the reproducible baseline; do not promote these
 | Draft/open customer edit scope and owner filtering | PASS | Fake/Supabase repository tests and static validator |
 | Expiry is server-controlled and independent from scheduled end | PASS | Trigger and Phase 3 Docker runner |
 | Legacy rows with time_window and null scheduled_end_at remain readable | PASS | Phase 3 Docker runner |
+
 | Full local validation matrix | PASS | DB reset/lint, 14 Phase 3 checks, 53 Flutter tests, 69 Version 1.1 checks, Admin lint/build/audit |
 | Hosted, physical-device, and dual-device validation | BLOCKED/DEFERRED | No cloud or external device execution in this phase |
 
@@ -306,3 +307,15 @@ The single-emulator lifecycle is complete; physical-device and true UI concurren
 | Sensitive file paths across Git history | PASS | 55 commits; zero `.env`, keystore, certificate, or Google Services paths |
 | High-risk credential patterns across Git history | PASS | Zero private-key, service-role, Cloudflare, Firebase, common-token, or JWT matches |
 | Third-party gitleaks/trufflehog execution | DEFERRED | Binaries are not installed in this environment |
+
+## Phase 9 local regression rerun (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Provider/category/profile controls | PASS | 22 local integration checks |
+| RLS/Storage/lifecycle/concurrency | PASS | Step 11 local runner, 19 checks |
+| Schedule/no-show/expiry/review/Admin | PASS | 14 + 3 + 3 + 4 + Admin audit checks |
+| Flutter and APK | PASS | Analyze clean, 53 tests, APK installed/launched |
+| Admin | PASS | Lint and production build |
+| Physical/dual-device UI | BLOCKED | Only emulator connected |
+| Hosted/SMS/FCM/cloud | DEFERRED | Not enabled in local-only scope |

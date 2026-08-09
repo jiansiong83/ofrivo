@@ -215,9 +215,17 @@
 - Preserved legacy `time_window` fallback for old rows without schedule endpoints.
 - Verified `10:00Z–11:00Z` as `6:00 PM–7:00 PM` on an `Asia/Kuala_Lumpur` emulator; Flutter analyze, 53 tests, and APK build pass.
 
+
 ## Unreleased - 2026-08-09 Phase 7 device photo upload
 
 - Validated Android Photo Picker selection, Job preview, and publish with one image on the local emulator.
 - Confirmed Customer `job_photos` persistence and private Storage HTTP 200, then Provider feed photo-path and authorized Storage HTTP 200.
 - No source change was required; the existing local photo upload and authorization paths passed.
 - Physical-device and hosted Storage validation remain deferred.
+
+## Unreleased - 2026-08-09 Phase 9 local regression rerun
+
+- Re-ran Provider Profile/category, cross-account security, Storage, lifecycle, concurrency, no-show, expiry, review, and Admin integration suites on local Docker Supabase.
+- Re-ran Version 1.1 and closed-beta contract validation, Flutter analyze/tests/APK, and Admin lint/production build; all passed.
+- Installed and launched the rebuilt Debug APK on `emulator-5554`.
+- Physical-device, dual-device, hosted Supabase, SMS, FCM, and cloud deployment remain explicitly blocked or deferred.

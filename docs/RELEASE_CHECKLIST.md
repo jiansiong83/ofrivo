@@ -220,6 +220,7 @@ This gate is local-only and is not a hosted or external-user release approval.
 
 ## Phase 4 emulator smoke gate (2026-08-09)
 
+
 - [x] Authorized medium_phone data wipe and boot.
 - [x] Debug APK installs with the local Supabase endpoint and reports Supabase initialization.
 - [x] Customer login, seeded data visibility, and session restore pass.
@@ -270,3 +271,15 @@ This is a complete local single-emulator validation point, not an external beta 
 - [x] Git-native high-risk credential pattern scan returns zero matches.
 - [ ] Third-party gitleaks/trufflehog scan (not installed locally).
 - [ ] Hosted secret configuration and external-environment scan.
+
+## Phase 9 full local regression gate (2026-08-09)
+
+- [x] Provider Profile/category RLS integration (22 checks).
+- [x] Cross-account privacy, Storage, lifecycle, and bid concurrency (19 checks).
+- [x] Schedule/lifecycle, no-show, expiry, review, and Admin RPC runners (14 + 3 + 3 + 4 + Admin audit).
+- [x] Version 1.1 (69 checks), closed-beta contract (10 checks), Flutter analyze/tests/APK, and Admin lint/build.
+- [x] Debug APK installed and launched on `emulator-5554`.
+- [ ] USB physical-device UI and true two-device UI concurrency.
+- [ ] Hosted Supabase/Auth/RLS/Storage, real SMS, native FCM, and cloud deployment.
+
+This gate confirms the local Docker baseline only; it is not hosted or external-device release approval.

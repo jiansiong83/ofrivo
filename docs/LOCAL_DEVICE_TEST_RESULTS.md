@@ -173,6 +173,7 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 - Added a regression test for local range formatting and the legacy fallback.
 - This validates the local display conversion only; it does not close the physical-device or hosted gates.
 
+
 ## Phase 7 device photo-upload validation (2026-08-09)
 
 - On `medium_phone` / `emulator-5554` (Android 16/API 36, `Asia/Kuala_Lumpur`), Customer selected one image through the Android system Photo Picker.
@@ -187,6 +188,27 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 - Customer and approved Provider sessions both returned HTTP 200 for the same local object.
 
 ### Phase 8 Git history scan
+
+## Phase 9 full local regression rerun (2026-08-09)
+
+- Runtime: local Docker Supabase API `http://127.0.0.1:54421`; Android emulator `emulator-5554` only (Android 16/API 36, `Asia/Kuala_Lumpur`).
+- Provider profile/category integration passed 22 checks; Step 11 security/concurrency passed 19 checks; Phase 3 scheduling/lifecycle passed 14 checks; no-show, expiry, and review runners passed 3, 3, and 4 checks; Admin live integration passed with 6 audit events.
+- Version 1.1 contract validation passed 69 checks and closed-beta contract validation passed 10 checks.
+- Flutter analyze passed, 53 Flutter tests passed, and a new Debug APK built successfully. The APK installed and launched on `com.example.ofrivo_mobile`.
+- Admin lint and production build passed. No source changes were required by this rerun.
+
+### Phase 9 matrix
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Provider/category/RLS/profile controls | PASS | 22 local integration checks |
+| Cross-account privacy, Storage, lifecycle, concurrency | PASS | Step 11 local runner, 19 checks |
+| Schedule, expiry, no-show, review, Admin RPCs | PASS | 14 + 3 + 3 + 4 + Admin audit checks |
+| Flutter analyze/tests/APK | PASS | Analyze clean; 53 tests; APK installed/launched |
+| Admin lint/production build | PASS | Next.js production build completed |
+| USB physical-device UI | BLOCKED | Only `emulator-5554` is connected |
+| Two-device UI concurrency | BLOCKED | Backend concurrency passes; no second UI device |
+| Hosted/cloud/SMS/FCM | DEFERRED | Explicitly outside this local-only phase |
 
 - Git-native scan covered 55 reachable commits; sensitive file paths and high-risk credential patterns both returned zero hits.
 - No secrets were printed during the scan. Third-party gitleaks/trufflehog execution remains unavailable locally.

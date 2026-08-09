@@ -152,6 +152,7 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Provider application hydration reads the provider profile name; Customer and Provider UI no longer share one display-name field.
 - Demo Provider repositories map only known Demo account IDs to seed Provider data; new accounts receive empty fake jobs/bids.
 - Provider job detail no longer searches the global fake-job list after authenticated state lookup.
+
 - Admin maps provider records through provider business names, while customer-owned jobs and account rows use customer names.
 - Local Docker integration proves identity preservation and provider-name update behavior; static validator covers the source contracts.
 
@@ -208,3 +209,10 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Sensitive path scan found zero `.env`, keystore, certificate, or `google-services.json` paths.
 - Content scan found zero PEM private keys, service-role/Cloudflare/Firebase assignments, common token prefixes, or hardcoded JWTs.
 - This is a repository-history evidence pass; third-party gitleaks/trufflehog binaries are not installed and remain a separate optional check.
+
+## Phase 9 local regression security evidence (2026-08-09)
+
+- Repeated local RLS/RPC/Storage checks passed: Provider category approval, cross-account address/notification isolation, private photo and verification objects, invalid lifecycle transitions, and one-winner bid acceptance.
+- Admin live integration passed with attributable audit events; no service-role key was sent to the mobile APK or Admin browser.
+- The APK was installed and launched on the local emulator after the regression build. No hosted secrets or cloud configuration were introduced.
+- Physical-device, hosted-environment, and third-party scanner gates remain unverified.
