@@ -263,3 +263,10 @@ This is a complete local single-emulator validation point, not an external beta 
 - [x] Provider feed exposes the photo path and authorized Storage read pass.
 - [ ] Physical-device photo upload.
 - [ ] Hosted Storage and cross-device validation.
+
+## Phase 8 Git history security gate (2026-08-09)
+
+- [x] Git-native scan covers all 55 reachable commits with zero sensitive-path hits.
+- [x] Git-native high-risk credential pattern scan returns zero matches.
+- [ ] Third-party gitleaks/trufflehog scan (not installed locally).
+- [ ] Hosted secret configuration and external-environment scan.

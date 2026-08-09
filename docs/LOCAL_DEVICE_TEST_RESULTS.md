@@ -185,3 +185,9 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 
 - Unauthenticated object access returned HTTP 400; pending Provider Feed returned zero rows and pending Provider Storage access returned HTTP 400.
 - Customer and approved Provider sessions both returned HTTP 200 for the same local object.
+
+### Phase 8 Git history scan
+
+- Git-native scan covered 55 reachable commits; sensitive file paths and high-risk credential patterns both returned zero hits.
+- No secrets were printed during the scan. Third-party gitleaks/trufflehog execution remains unavailable locally.
+- This does not validate hosted environment secrets or deployment configuration.

@@ -279,3 +279,10 @@ Do not promote this result to a hosted or external-beta release claim.
 - USB physical-device UI, dual-device UI concurrency, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
 
 - Photo access negative checks passed locally: unauthenticated and pending-provider requests were denied while the owner and approved Provider were allowed.
+
+## Current Phase 8 status (2026-08-09)
+
+- Git-native history scan covered 55 reachable commits with zero sensitive paths and zero high-risk credential-pattern matches.
+- No repository rewrite or code change was needed.
+- Third-party gitleaks/trufflehog and hosted secret configuration remain separate gates.
+- USB physical-device UI, dual-device UI concurrency, hosted Supabase, SMS, FCM, and cloud deployment remain unverified.

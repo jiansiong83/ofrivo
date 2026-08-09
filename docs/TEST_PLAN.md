@@ -298,3 +298,11 @@ The single-emulator lifecycle is complete; physical-device and true UI concurren
 | Unauthenticated photo object access | PASS | HTTP 400 |
 | Pending Provider Feed and Storage access | PASS | 0 Feed rows; HTTP 400 object access |
 | Customer and approved Provider access | PASS | HTTP 200 through authenticated sessions |
+
+## Phase 8 Git history scan (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Sensitive file paths across Git history | PASS | 55 commits; zero `.env`, keystore, certificate, or Google Services paths |
+| High-risk credential patterns across Git history | PASS | Zero private-key, service-role, Cloudflare, Firebase, common-token, or JWT matches |
+| Third-party gitleaks/trufflehog execution | DEFERRED | Binaries are not installed in this environment |

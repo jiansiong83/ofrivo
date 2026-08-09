@@ -201,3 +201,10 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 
 - Unauthenticated access to the uploaded object returned HTTP 400; the pending Provider saw zero matching Feed rows and received HTTP 400 for the object.
 - The owning Customer and approved Provider both received HTTP 200 through their authenticated sessions.
+
+## Phase 8 Git history secret scan (2026-08-09)
+
+- Git-native scan covered all 55 commits reachable from the repository refs.
+- Sensitive path scan found zero `.env`, keystore, certificate, or `google-services.json` paths.
+- Content scan found zero PEM private keys, service-role/Cloudflare/Firebase assignments, common token prefixes, or hardcoded JWTs.
+- This is a repository-history evidence pass; third-party gitleaks/trufflehog binaries are not installed and remain a separate optional check.
