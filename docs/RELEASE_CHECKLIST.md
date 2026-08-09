@@ -173,3 +173,18 @@
 - [x] Phone <768px uses an independent mobile header/navigation drawer and Job list/detail flow.
 - [x] Admin responsive contract validator passes 20 checks; lint and production build pass.
 - [ ] Manual visual checks at all three viewport widths.
+
+## Phase 1 local security gate (2026-08-09)
+
+- [x] Clean local Supabase reset applies all migrations and seed.
+- [x] Local database lint reports no schema errors.
+- [x] Step 11 RLS/Storage/concurrency runner passes 19 checks.
+- [x] No-show, expiry, and review runners pass 3, 3, and 4 checks.
+- [x] Admin live Auth/RLS/Storage/RPC/audit runner passes.
+- [x] Provider-profile/category/availability runner passes 19 checks.
+- [x] Approved-category feed, notification fan-out, customer/provider isolation, private Storage, and Admin authorization pass locally.
+- [ ] Hosted Supabase migration/RLS/Storage validation.
+- [ ] Physical Android UI and dual-device UI validation.
+- [ ] Formal Git-history secret scan; gitleaks/trufflehog are not installed in this environment.
+
+This local gate does not authorize cloud deployment or external-user release.

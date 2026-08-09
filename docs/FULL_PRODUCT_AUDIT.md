@@ -187,3 +187,21 @@ These must not be presented as MVP validation passes.
 ## Audit decision
 
 Phase 0 is complete when this document is committed with exact outputs and blocked gates visibly blocked. Phase 1 starts with runtime security/data-isolation validation, not new features.
+
+## Phase 1 update (2026-08-09)
+
+This section supersedes the Phase 0 local-runtime BLOCKED snapshot above. Docker Desktop was started and the local runtime matrix was executed from a clean reset.
+
+- supabase db reset: PASS.
+- supabase db lint: PASS; no schema errors.
+- Step 11: PASS, 19 checks.
+- No-show: PASS, 3 checks.
+- Expiry: PASS, 3 checks.
+- Review dimensions: PASS, 4 checks.
+- Admin live Auth/RLS/Storage/RPC/audit runner: PASS.
+- Provider profile/category/availability runner: PASS, 19 checks.
+- Runtime checks confirmed customer/provider isolation, approved-only category feed and notification fan-out, private Storage ownership, Admin authorization, invalid transition rejection, and one-winner bid acceptance.
+
+Local P1-001 is closed for the Docker environment and C-001, C-002, C-005, and C-006 now have local runtime evidence. Hosted Supabase, formal Git-history secret scanning, physical-device UI, dual-device UI, SMS, and FCM remain blocked. No migration or business-code fix was required.
+
+The control-document drift finding is addressed by the Phase 1 updates in PROJECT_STATUS.md, TEST_PLAN.md, RELEASE_CHECKLIST.md, SECURITY.md, and CHANGELOG.md. The next phase is account/profile and product-logic edge-case validation; this local PASS must not be promoted to hosted or real-device PASS.

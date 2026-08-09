@@ -197,3 +197,14 @@ The Provider Profile change is covered by 15 static contract checks, 19 local Su
 - At <768px, verify the mobile header and navigation drawer replace the stacked desktop sidebar; selecting a Job opens full-screen detail and `← Jobs` returns to the list.
 - Verify mobile Job rows expose title, area, budget, status, offer count, and a touch affordance without horizontal scrolling.
 - Run `node supabase/tests/validate_step9.mjs`; the current Admin contract baseline is 20 checks, followed by `npm.cmd run lint` and `npm.cmd run build`.
+
+## Phase 1 runtime security validation (2026-08-09)
+
+- Clean Supabase Docker reset and schema lint pass from the complete migration history and seed.
+- Step 11 runner passes 19 checks covering customer/provider isolation, safe feed fields, private Storage, invalid transitions, and accept-bid concurrency.
+- No-show runner passes 3 checks; expiry runner passes 3 checks; review-dimension runner passes 4 checks.
+- Admin local runner passes live Auth, RLS reads, signed verification URL, moderation RPC, suspend/restore, report review, and audit-event checks.
+- Provider-profile runner passes 19 checks covering pending/rejected/approved categories, approved-only feed and notification fan-out, availability, area matching, profile update, and assigned-job preservation.
+- Hosted Supabase, physical-device, dual-device UI, real SMS, native FCM, and formal history secret scanner remain separate BLOCKED gates.
+
+Phase 1 result: no confirmed local P0/P1 security defect; retain the negative tests and do not convert unavailable hosted/device checks into PASS.

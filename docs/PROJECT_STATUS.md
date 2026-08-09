@@ -196,3 +196,17 @@ Next: provide an authorized USB Android phone or an approved larger AVD, then ru
 - Phone (<768px) uses a separate mobile header/navigation drawer and a touch-first Job list; tapping a Job opens a full-screen detail view with a back action.
 - Desktop Job detail remains visible beside the list; no desktop table-to-card replacement or sidebar collapse was introduced.
 - Admin static validation now covers 20 checks; Admin lint and production build pass.
+
+## Current Phase 1 status (2026-08-09)
+
+Phase 1 local runtime security validation is complete on the clean Supabase Docker stack. No migration, policy, or client-code defect was found, so no business-code change was required.
+
+- Baseline commit before this phase: 33c04be.
+- supabase db reset and supabase db lint pass.
+- Local integration passes: Step 11 19, no-show 3, expiry 3, review dimensions 4, Admin live/RPC/Storage, and provider-profile/category 19.
+- Cross-account job/address/notification checks, private Storage ownership, approved-category feed/notification gating, Admin authorization, and accept-bid concurrency pass locally.
+- Flutter baseline remains analyze PASS, 48 tests PASS, 69 Version 1.1 checks PASS, 15 provider-profile checks PASS, and debug APK PASS.
+- Admin lint/build and npm audit remain PASS with 0 vulnerabilities.
+- Hosted Supabase, formal history secret scan, physical-device UI, dual-device UI, SMS, FCM, and cloud deployment remain BLOCKED or deferred.
+
+Next phase: account/profile and product-logic edge-case audit, followed by device validation. Do not treat local runtime PASS as hosted or real-device PASS.

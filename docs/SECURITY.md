@@ -136,3 +136,10 @@ Edge functions: FCM service credentials only in managed server secrets.
 - `review_provider_category` requires an active Admin, records the reviewer/note in `provider_categories`, appends an audit event, and inserts a user-scoped notification.
 - Provider Profile and availability writes are authenticated RPCs. Turning availability off affects only new feed/open-job matching; accepted/assigned job access remains intact.
 - Feed matching and new-job notifications both require `provider_categories.status = 'approved'`, the provider's approved verification, a matching area, and `is_available`.
+## Phase 1 runtime security evidence (2026-08-09)
+
+- Clean Docker reset and schema lint pass.
+- Cross-account job/address/notification isolation, pending-category exclusion, approved-only feed/notification matching, private Storage ownership, Admin RPC authorization, and concurrent bid acceptance pass in the local integration matrix.
+- The six local runners pass: Step 11 19 checks, no-show 3, expiry 3, review 4, Admin live integration, and provider-profile/category 19.
+- No migration or policy fix was required after runtime validation; the existing latest category-approval migration remains authoritative on clean reset.
+- Hosted Supabase, formal Git-history secret scan, physical-device UI, native FCM, and real SMS remain unverified and are not security PASS claims.
