@@ -9,6 +9,7 @@ const jobAreaOptions = serviceAreaOptions;
 
 class JobDraft {
   const JobDraft({
+    this.jobId,
     required this.category,
     required this.area,
     required this.title,
@@ -24,6 +25,7 @@ class JobDraft {
     this.photoPaths = const [],
   });
 
+  final String? jobId;
   final JobCategoryOption category;
   final JobAreaOption area;
   final String title;
@@ -37,6 +39,32 @@ class JobDraft {
   final DateTime? scheduledEndAt;
   final bool urgent;
   final List<String> photoPaths;
+
+  static JobDraft fromJob(Job job) {
+    final category = jobCategoryOptions.firstWhere(
+      (option) => option.id == job.categoryId || option.label == job.category,
+      orElse: () => jobCategoryOptions.first,
+    );
+    final area = jobAreaOptions.firstWhere(
+      (option) => option.id == job.areaId || option.label == job.area,
+      orElse: () => jobAreaOptions.first,
+    );
+    return JobDraft(
+      jobId: job.id,
+      category: category,
+      area: area,
+      title: job.title,
+      description: job.description,
+      fullAddress: job.fullAddress ?? '',
+      contactPhone: job.contactPhone ?? '',
+      contactWhatsapp: job.contactWhatsapp ?? '',
+      budget: job.budget.toStringAsFixed(2),
+      timeWindow: job.time,
+      scheduledAt: job.scheduledAt,
+      scheduledEndAt: job.scheduledEndAt,
+      urgent: job.urgent,
+    );
+  }
 
   double? get budgetAmount => double.tryParse(budget.trim());
 

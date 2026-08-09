@@ -227,3 +227,15 @@ Phase 1 result: no confirmed local P0/P1 security defect; retain the negative te
 | Hosted/physical/dual-device validation | BLOCKED/DEFERRED | No cloud/device execution authorized in this phase |
 
 Use the local Docker workflow as the reproducible baseline; do not promote these results to hosted or real-device claims.
+
+## Phase 3 job scheduling and lifecycle validation (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| End time is later than start and same Malaysia calendar day | PASS | Phase 3 Docker runner, database constraints |
+| UTC persistence and provider-feed schedule exposure | PASS | Phase 3 Docker runner |
+| Draft/open customer edit scope and owner filtering | PASS | Fake/Supabase repository tests and static validator |
+| Expiry is server-controlled and independent from scheduled end | PASS | Trigger and Phase 3 Docker runner |
+| Legacy rows with time_window and null scheduled_end_at remain readable | PASS | Phase 3 Docker runner |
+| Full local validation matrix | PASS | DB reset/lint, 14 Phase 3 checks, 53 Flutter tests, 69 Version 1.1 checks, Admin lint/build/audit |
+| Hosted, physical-device, and dual-device validation | BLOCKED/DEFERRED | No cloud or external device execution in this phase |

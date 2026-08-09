@@ -203,3 +203,17 @@ This local gate does not authorize cloud deployment or external-user release.
 - [ ] Real SMS/FCM delivery.
 
 This phase is suitable for local development review only; cloud and external-user release remain gated.
+
+## Phase 3 local release gate (2026-08-09)
+
+- [x] Job schedule start/end validation rejects equal, reversed, or overnight Malaysia-calendar ranges.
+- [x] Schedule values persist in UTC and remain available to Provider and Admin reads.
+- [x] Customer edits are owner-scoped and limited to draft/open Jobs; assigned and later states are protected.
+- [x] Open Job expiry is server-controlled and cannot be extended by a customer update.
+- [x] Legacy time_window rows without scheduled_end_at remain readable.
+- [x] Clean Supabase reset/lint, Docker integration, Flutter analyze/tests/APK, Admin lint/build, and npm audit pass.
+- [ ] Hosted Supabase migration/RLS/Storage/Auth validation.
+- [ ] Physical Android and dual-device UI workflow.
+- [ ] Real SMS/FCM and formal Git-history secret scan.
+
+This gate is local-only and is not a hosted or external-user release approval.

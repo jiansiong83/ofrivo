@@ -10,6 +10,7 @@ import 'customer_job_models.dart';
 abstract interface class CustomerJobRepository {
   Future<List<Job>> loadMyJobs();
   Future<Job> saveDraft(JobDraft draft, {required bool publish});
+  Future<Job> updateJob(String jobId, JobDraft draft, {required bool publish});
   Future<void> cancelJob(String jobId, {String? reason});
 }
 
@@ -28,6 +29,8 @@ class FakeCustomerJobRepository implements CustomerJobRepository {
 
   @override
   Future<Job> saveDraft(JobDraft draft, {required bool publish}) async {
+    final validationError = draft.validate();
+    if (validationError != null) throw StateError(validationError);
     final job = draft
         .toPreviewJob()
         .copyWith(status: publish ? JobStatus.open : JobStatus.draft);
@@ -55,6 +58,51 @@ class FakeCustomerJobRepository implements CustomerJobRepository {
     );
     _jobs.insert(0, saved);
     return saved;
+  }
+
+  @override
+  Future<Job> updateJob(String jobId, JobDraft draft,
+      {required bool publish}) async {
+    final validationError = draft.validate();
+    if (validationError != null) throw StateError(validationError);
+    final index = _jobs.indexWhere((job) => job.id == jobId);
+    if (index < 0) throw StateError('Job not found');
+    final current = _jobs[index];
+    if (current.status != JobStatus.draft && current.status != JobStatus.open) {
+      throw StateError(
+          'Only draft or open jobs can be edited before a provider is selected.');
+    }
+    final status = current.status == JobStatus.draft && publish
+        ? JobStatus.open
+        : current.status;
+    final preview = draft.toPreviewJob();
+    final updated = Job(
+      id: current.id,
+      title: preview.title,
+      category: preview.category,
+      area: preview.area,
+      budget: preview.budget,
+      time: preview.time,
+      scheduledAt: draft.scheduledAt,
+      scheduledEndAt: draft.scheduledEndAt,
+      status: status,
+      bidCount: current.bidCount,
+      description: preview.description,
+      urgent: preview.urgent,
+      categoryId: preview.categoryId,
+      areaId: preview.areaId,
+      fullAddress: preview.fullAddress,
+      contactPhone: preview.contactPhone,
+      contactWhatsapp: preview.contactWhatsapp,
+      photoPaths: current.photoPaths,
+      createdAt: current.createdAt,
+      expiresAt: status == JobStatus.open
+          ? (current.expiresAt ?? DateTime.now().add(const Duration(days: 7)))
+          : null,
+      acceptedBidId: current.acceptedBidId,
+    );
+    _jobs[index] = updated;
+    return updated;
   }
 
   @override
@@ -177,6 +225,52 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
       return _mapJob(publishedRow);
     }
     return job;
+  }
+
+  @override
+  Future<Job> updateJob(String jobId, JobDraft draft,
+      {required bool publish}) async {
+    final validationError = draft.validate();
+    if (validationError != null) throw StateError(validationError);
+    final current = await client
+        .from('jobs')
+        .select('status')
+        .eq('id', jobId)
+        .eq('customer_id', userId)
+        .single();
+    final currentStatus = current['status'] as String? ?? 'draft';
+    if (currentStatus != 'draft' && currentStatus != 'open') {
+      throw StateError(
+          'Only draft or open jobs can be edited before a provider is selected.');
+    }
+    final targetStatus =
+        currentStatus == 'draft' && publish ? 'open' : currentStatus;
+    final row = await client
+        .from('jobs')
+        .update({
+          'category_id': draft.category.id,
+          'area_id': draft.area.id,
+          'title': draft.title.trim(),
+          'description': draft.description.trim(),
+          'public_location_text': draft.area.label,
+          'full_address': draft.fullAddress.trim(),
+          'budget_amount': draft.budgetAmount,
+          'time_window': draft.timeWindow,
+          'scheduled_at': draft.scheduledAt?.toUtc().toIso8601String(),
+          'scheduled_end_at': draft.scheduledEndAt?.toUtc().toIso8601String(),
+          'urgency': draft.urgent ? 'urgent' : 'normal',
+          'status': targetStatus,
+          'contact_phone': draft.contactPhone.trim(),
+          'contact_whatsapp': draft.contactWhatsapp.trim().isEmpty
+              ? null
+              : draft.contactWhatsapp.trim(),
+        })
+        .eq('id', jobId)
+        .eq('customer_id', userId)
+        .inFilter('status', ['draft', 'open'])
+        .select('*, service_categories(name_en), areas(area_name)')
+        .single();
+    return _mapJob(row);
   }
 
   Future<void> _uploadPhotos(String jobId, List<String> paths) async {

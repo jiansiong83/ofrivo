@@ -53,6 +53,12 @@ final appRouter = GoRouter(
             builder: (context, state) => const MyJobsScreen()),
         GoRoute(
             path: '/customer/jobs/:id',
+            routes: [
+              GoRoute(
+                  path: 'edit',
+                  builder: (context, state) =>
+                      EditJobScreen(jobId: state.pathParameters['id']!)),
+            ],
             builder: (context, state) =>
                 JobDetailScreen(jobId: state.pathParameters['id']!)),
         GoRoute(

@@ -156,3 +156,12 @@ Edge functions: FCM service credentials only in managed server secrets.
 - Local Docker integration proves identity preservation and provider-name update behavior; static validator covers the source contracts.
 
 No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this local evidence.
+
+## Phase 3 job/lifecycle controls (2026-08-09)
+
+- A jobs update trigger rejects customer attempts to roll an open Job back to draft or alter its server-controlled expiry.
+- Service-role-only grants cover the helper functions used by trusted local integration runners; browser roles are not granted these helpers.
+- Schedule checks require a real end timestamp after the start timestamp and the same Malaysia calendar day before UTC persistence.
+- Customer update queries include both customer_id = auth.uid() and the draft/open status boundary; assigned and terminal Jobs cannot be edited through the mobile repository.
+- Legacy time_window remains a read-only compatibility path while new writes use scheduled_at and scheduled_end_at.
+- These controls have local Docker evidence only; hosted policy execution, device testing, and history-wide secret scanning remain separate gates.

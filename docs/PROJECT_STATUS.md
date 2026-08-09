@@ -224,3 +224,15 @@ Account/profile and product-logic audit is complete locally on a clean Docker re
 - Admin lint/build: PASS. `npm audit --audit-level=high`: 0 vulnerabilities.
 
 Hosted Supabase, USB physical-device UI, dual-device UI, SMS, FCM, and secret-history scanning remain separate gates and are not claimed as PASS.
+
+## Current Phase 3 status (2026-08-09)
+
+Job scheduling and lifecycle hardening is complete on the local Docker stack.
+
+- Added owner-scoped editing for draft/open Jobs and a separate mobile edit route; assigned, in-progress, completed, and cancelled Jobs remain immutable to customers.
+- Database trigger blocks customer expiry tampering and open-to-draft rollback; trusted service-role runners retain the required server-side helper grants.
+- Schedule endpoints are stored as UTC, require end later than start, and must remain on the same Malaysia calendar day; the legacy time_window fallback remains readable.
+- Local evidence: Phase 3 runner 14 checks, Version 1.1 validator 69 checks, Flutter 53 tests/analyze/APK, DB reset/lint, and Admin lint/build/audit all pass.
+- Hosted Supabase, cloud deployment, USB physical-device UI, dual-device UI, SMS, FCM, and formal history secret scanning remain deferred or blocked.
+
+Next phase: review this local baseline, then perform explicitly authorized hosted or real-device validation.

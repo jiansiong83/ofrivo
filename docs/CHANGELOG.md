@@ -185,3 +185,11 @@
 - Added Flutter regressions for new-account fake-data isolation and a 13-check Phase 2 static validator.
 - Local Docker reset/lint/integration pass; Provider Profile integration now passes 22 checks; Flutter 50 tests/APK and Admin lint/build/audit pass.
 - Hosted Supabase, physical-device UI, dual-device UI, SMS, FCM, and secret-history scanning remain deferred.
+
+## Unreleased - 2026-08-09 Phase 3 job scheduling and lifecycle hardening
+
+- Added customer owner-scoped editing for draft/open Jobs, with publish/update routing and edit-state UI coverage.
+- Added server-side protection against customer expiry tampering and open-to-draft rollback.
+- Enforced valid UTC schedule ranges and Malaysia calendar-day constraints while preserving legacy time_window reads.
+- Added Phase 3 static and Docker regression runners covering schedule persistence, expiry, legacy compatibility, feed exposure, and assigned-job immutability.
+- Local Flutter, Supabase, Docker integration, Admin, and audit validation pass; hosted/device delivery remains deferred.

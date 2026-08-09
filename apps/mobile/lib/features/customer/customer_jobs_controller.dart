@@ -55,7 +55,9 @@ class CustomerJobsController extends StateNotifier<CustomerJobsState> {
     }
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final job = await repository.saveDraft(draft, publish: publish);
+      final job = draft.jobId == null
+          ? await repository.saveDraft(draft, publish: publish)
+          : await repository.updateJob(draft.jobId!, draft, publish: publish);
       final jobs = [job, ...state.jobs.where((item) => item.id != job.id)];
       state = CustomerJobsState(initialized: true, jobs: jobs);
       return job;

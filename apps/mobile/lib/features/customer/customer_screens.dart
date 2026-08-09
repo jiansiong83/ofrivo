@@ -96,7 +96,9 @@ class CustomerHomeScreen extends ConsumerWidget {
 }
 
 class PostJobScreen extends ConsumerStatefulWidget {
-  const PostJobScreen({super.key});
+  const PostJobScreen({this.initialJob, super.key});
+
+  final Job? initialJob;
 
   @override
   ConsumerState<PostJobScreen> createState() => _PostJobScreenState();
@@ -126,6 +128,34 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
     selectedDate = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
     startTime = const TimeOfDay(hour: 9, minute: 0);
     endTime = const TimeOfDay(hour: 11, minute: 0);
+    final job = widget.initialJob;
+    if (job != null) {
+      titleController.text = job.title;
+      descriptionController.text = job.description;
+      addressController.text = job.fullAddress ?? '';
+      phoneController.text = job.contactPhone ?? '';
+      whatsappController.text = job.contactWhatsapp ?? '';
+      budgetController.text = job.budget.toStringAsFixed(2);
+      selectedCategory = jobCategoryOptions.firstWhere(
+        (option) => option.id == job.categoryId || option.label == job.category,
+        orElse: () => jobCategoryOptions.first,
+      );
+      selectedArea = jobAreaOptions.firstWhere(
+        (option) => option.id == job.areaId || option.label == job.area,
+        orElse: () => jobAreaOptions.first,
+      );
+      urgent = job.urgent;
+      final scheduledAt = job.scheduledAt;
+      final scheduledEndAt = job.scheduledEndAt;
+      if (scheduledAt != null && scheduledEndAt != null) {
+        selectedDate =
+            DateTime(scheduledAt.year, scheduledAt.month, scheduledAt.day);
+        startTime =
+            TimeOfDay(hour: scheduledAt.hour, minute: scheduledAt.minute);
+        endTime =
+            TimeOfDay(hour: scheduledEndAt.hour, minute: scheduledEndAt.minute);
+      }
+    }
   }
 
   @override
@@ -140,6 +170,7 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
   }
 
   JobDraft _draft() => JobDraft(
+        jobId: widget.initialJob?.id,
         category: selectedCategory,
         area: selectedArea,
         title: titleController.text,
@@ -395,7 +426,9 @@ class PostJobPreviewScreen extends ConsumerWidget {
     }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(publish
-            ? strings.business('job_published')
+            ? (draft.jobId == null
+                ? strings.business('job_published')
+                : strings.business('job_updated'))
             : strings.business('draft_saved'))));
     context.go('/customer/jobs');
   }
@@ -445,7 +478,9 @@ class PostJobPreviewScreen extends ConsumerWidget {
         PrimaryButton(
             label: state.isLoading
                 ? strings.business('saving')
-                : strings.business('publish_job'),
+                : (draft.jobId == null
+                    ? strings.business('publish_job')
+                    : strings.business('update_job')),
             onPressed: state.isLoading
                 ? null
                 : () => _submit(context, ref, publish: true)),
@@ -511,6 +546,36 @@ class MyJobsScreen extends ConsumerWidget {
             child: JobCard(
                 job: job, onTap: () => context.go('/customer/jobs/${job.id}')))
     ]);
+  }
+}
+
+class EditJobScreen extends ConsumerWidget {
+  const EditJobScreen({required this.jobId, super.key});
+
+  final String jobId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations(ref.watch(appLanguageProvider));
+    final state = ref.watch(customerJobsControllerProvider);
+    Job? job;
+    for (final candidate in state.jobs) {
+      if (candidate.id == jobId) {
+        job = candidate;
+        break;
+      }
+    }
+    if (job == null) {
+      return EmptyState(
+          title: strings.business('job_not_found'),
+          message: strings.business('job_removed'));
+    }
+    if (job.status != JobStatus.draft && job.status != JobStatus.open) {
+      return EmptyState(
+          title: strings.business('job_cannot_edit'),
+          message: strings.business('job_cannot_edit_message'));
+    }
+    return PostJobScreen(initialJob: job);
   }
 }
 
@@ -596,6 +661,17 @@ class JobDetailScreen extends ConsumerWidget {
                         ]
                       ]))),
           const SizedBox(height: 18),
+          if (currentJob.status == JobStatus.draft ||
+              currentJob.status == JobStatus.open) ...[
+            Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                    onPressed: () =>
+                        context.push('/customer/jobs/${currentJob.id}/edit'),
+                    icon: const Icon(Icons.edit_outlined),
+                    label: Text(strings.business('edit_job')))),
+            const SizedBox(height: 4),
+          ],
           PrimaryButton(
               label:
                   '${currentJob.bidCount} ${strings.business('offers_received_suffix')}',

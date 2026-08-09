@@ -234,3 +234,28 @@ Hosted Supabase, USB physical-device UI, dual-device UI, real SMS, native FCM, a
 ### Phase 2 decision
 
 The local account/profile binding gate is PASS. The next authorized step is commit/review of this phase, followed by device or hosted validation only when explicitly requested.
+
+## Phase 3 update (2026-08-09): job scheduling and lifecycle audit
+
+The local product-logic audit is complete for Job creation, scheduling, editing, expiry, and state transitions. The confirmed gaps were hardened without adding a new marketplace feature.
+
+### Findings fixed
+
+- Customer Job editing now uses the authenticated owner and is limited to draft/open states.
+- The mobile flow exposes a dedicated edit route and preserves publish-versus-update behavior.
+- Database-side protection prevents customer expiry tampering and open-to-draft rollback.
+- New schedule ranges require a later end time on the same Malaysia calendar day and persist as UTC.
+- Legacy Jobs with only time_window remain readable while new writes use scheduled_end_at.
+
+### Evidence
+
+- Clean supabase db reset --local and supabase db lint --local: PASS.
+- Phase 3 Docker runner: PASS, 14 checks.
+- Static Phase 3 validator: PASS, 11 checks.
+- Flutter analyze/tests/debug APK: PASS; 53 tests.
+- Version 1.1 validator: PASS, 69 checks.
+- Admin lint/build and npm audit --audit-level=high: PASS, 0 vulnerabilities.
+
+### Remaining gates
+
+Hosted Supabase, USB physical-device UI, dual-device UI, real SMS, native FCM, and formal Git-history secret scanning remain unverified/deferred. Local PASS must not be presented as hosted or real-device PASS.

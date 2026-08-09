@@ -1404,6 +1404,33 @@ const businessTranslations = <String, Map<AppLanguage, String>>{
     AppLanguage.malay: 'Mulakan permohonan penyedia',
     AppLanguage.chinese: '开始服务商申请',
   },
+  'edit_job': {
+    AppLanguage.english: 'Edit job',
+    AppLanguage.malay: 'Edit kerja',
+    AppLanguage.chinese: '编辑工作',
+  },
+  'update_job': {
+    AppLanguage.english: 'Update job',
+    AppLanguage.malay: 'Kemas kini kerja',
+    AppLanguage.chinese: '更新工作',
+  },
+  'job_updated': {
+    AppLanguage.english: 'Job updated.',
+    AppLanguage.malay: 'Kerja dikemas kini.',
+    AppLanguage.chinese: '工作已更新。',
+  },
+  'job_cannot_edit': {
+    AppLanguage.english: 'This job cannot be edited',
+    AppLanguage.malay: 'Kerja ini tidak boleh diedit',
+    AppLanguage.chinese: '此工作无法编辑',
+  },
+  'job_cannot_edit_message': {
+    AppLanguage.english:
+        'Jobs can only be edited while they are drafts or still accepting offers.',
+    AppLanguage.malay:
+        'Kerja hanya boleh diedit semasa draf atau masih menerima tawaran.',
+    AppLanguage.chinese: '工作只能在草稿或仍接受报价时编辑。',
+  },
 };
 
 extension BusinessLocalizations on AppLocalizations {
