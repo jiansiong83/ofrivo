@@ -131,3 +131,35 @@ Automated local validation and documentation are complete. Core local Supabase, 
 - USB physical-device and true two-device UI concurrency remain blocked because no phone is connected.
 - Native FCM, real SMS, hosted Supabase, and cloud deployment remain intentionally deferred.
 - This evidence is local development validation, not a hosted or external-user release approval.
+
+## Phase 5 single-emulator complete lifecycle validation (2026-08-09)
+
+- Device: `medium_phone` / `emulator-5554` / Android 16 (API 36); the authorized data wipe left approximately 5 GB free.
+- Runtime: local Docker Supabase API `http://10.0.2.2:54421` from the emulator; no cloud, paid service, SMS provider, or FCM delivery was used.
+- Customer `customer@example.test` created and published a real Job with a Material date/time range: `Mon, 10 Aug 2026, 10:00 AM - 11:00 AM`; the database stored `scheduled_at` and `scheduled_end_at` in UTC.
+- Provider `provider@example.test` saw the matching Job, submitted a RM120 bid, and could not see the private address before acceptance.
+- Customer loaded the persisted bid, accepted it, and the Provider then saw the private address and phone.
+- Provider marked the Job started and completed; job history recorded Bid Accepted, Job Started, and Job Completed.
+- Provider submitted a 5-star review of the Customer, Customer submitted a 5-star review of the Provider, and Provider submitted a safety report. The database contains both reviews and the report.
+- The test title contains a literal `%20` because Android `adb input text` treats spaces specially; this is a test-input artifact, not a product-storage defect.
+- Fixed an actual PostgREST relationship ambiguity by naming `bids_job_id_fkey` in Customer received-bid and Provider bid queries.
+- Fixed Customer Job-card bid counts by embedding `bids!bids_job_id_fkey(count)`; the rebuilt APK displayed `1 offers received` for the completed test Job.
+
+### Phase 5 matrix
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Customer Job creation and explicit time range | PASS | Emulator UI plus UTC `scheduled_at`/`scheduled_end_at` rows |
+| Provider feed and pre-acceptance address privacy | PASS | Address protected until bid acceptance |
+| Provider bid submission and Customer bid read | PASS | RM120 bid persisted and rendered in Received bids |
+| Bid acceptance and address unlock | PASS | Acceptance message, assigned state, private details visible only after acceptance |
+| Start and complete lifecycle | PASS | UI messages and job history events |
+| Reciprocal reviews | PASS | Two review rows, both rating 5 |
+| Safety report | PASS | One open report row with provider reporter |
+| Customer Job-card offer count | PASS | Rebuilt APK displayed `1 offers received` |
+| Photo upload through the device UI | NOT RUN | No photo was selected in this smoke path |
+| USB physical-device UI | BLOCKED | No USB Android device connected |
+| Two-device UI concurrency | BLOCKED | Emulator-only; backend concurrency remains covered by integration tests |
+| Hosted/SMS/FCM delivery | DEFERRED | Explicitly outside local-only scope |
+
+This closes the single-emulator local lifecycle gate, but it is not a physical-device, dual-device, or hosted release approval.

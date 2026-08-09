@@ -254,3 +254,21 @@ Use the local Docker workflow as the reproducible baseline; do not promote these
 | Hosted/SMS/FCM validation | DEFERRED | Out of local-only scope |
 
 The emulator smoke pass proves local UI connectivity and identity/privacy boundaries only; it does not close the full device E2E gate.
+
+## Phase 5 single-emulator lifecycle validation (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Customer creates and publishes a scheduled Job | PASS | `medium_phone` UI; 10:00 AM–11:00 AM range |
+| UTC schedule persistence and consistent display | PASS | `scheduled_at`/`scheduled_end_at` REST readback and UI |
+| Provider feed, bid submit, and Customer bid read | PASS | RM120 bid; explicit `bids_job_id_fkey` query |
+| Acceptance and address privacy boundary | PASS | Protected before accept; unlocked after accept |
+| Start and complete Job | PASS | UI status and history events |
+| Provider and Customer reviews | PASS | Two reciprocal 5-star rows |
+| Safety report | PASS | Open report row persisted |
+| Customer offer count in Job list | PASS | Rebuilt APK showed one persisted offer |
+| Device photo upload | NOT RUN | Not exercised in this path |
+| Physical-device and dual-device UI | BLOCKED | No USB device; emulator-only run |
+| Hosted, SMS, and native FCM | DEFERRED | Local-only scope |
+
+The single-emulator lifecycle is complete; physical-device and true UI concurrency gates remain open.

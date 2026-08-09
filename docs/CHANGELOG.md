@@ -200,3 +200,11 @@
 - Verified local Supabase APK installation, Customer/Provider authentication, session restoration, mode switching, profile identity, feed matching, and pre-acceptance address privacy.
 - Corrected the auth screen environment label so configured builds identify Local Supabase or a Supabase backend instead of showing the Demo-only hint.
 - Recorded the emulator evidence and kept full multi-device lifecycle, hosted, SMS, and FCM gates explicitly pending/deferred.
+
+## Unreleased - 2026-08-09 Phase 5 single-emulator lifecycle validation
+
+- Completed the local Customer → Provider lifecycle on `medium_phone`: scheduled Job, bid, acceptance, address unlock, start, complete, reciprocal reviews, and report.
+- Disambiguated Customer and Provider bid reads with the `bids_job_id_fkey` PostgREST relationship after the composite accepted-bid migration introduced two `jobs` relationships.
+- Hydrated Customer Job-card offer counts from real `bids` rows instead of always rendering zero.
+- Flutter analyze, 53 tests, and debug APK build pass after the fixes.
+- Physical-device, dual-device, hosted, SMS, FCM, and photo-upload gates remain explicitly pending/deferred.

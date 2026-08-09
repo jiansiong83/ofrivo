@@ -168,9 +168,18 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 
 ## Phase 4 emulator security evidence (2026-08-09)
 
+
 - A wiped Android 16/API 36 emulator connected to the local API through 10.0.2.2:54421 using a debug-only configured build.
 - Customer and Provider fixture sessions were distinct; the UI rendered Alex/customer@example.test and Ahmad Plumbing/provider@example.test from their authenticated profiles.
 - Provider Mode did not substitute a seed identity, and the Provider feed exposed only the matching safe Job.
 - Pre-acceptance Job detail explicitly hid full address, phone, WhatsApp, and exact GPS.
 - The configured-build status label now makes local backend versus Demo mode visible to testers.
 - This is local emulator evidence only; hosted RLS/Storage/Auth and dual-device concurrency remain unverified.
+
+## Phase 5 lifecycle security evidence (2026-08-09)
+
+- The emulator verified that full address and phone remain hidden before bid acceptance and are readable only after the accepted bid transition.
+- Customer and Provider bid queries now name `bids_job_id_fkey`, preventing an ambiguous embed from returning an unintended `jobs` relationship.
+- Customer offer counts are derived from the RLS-scoped `bids` relation; no service-role key is present in the APK or client code.
+- Reciprocal reviews and the safety report were written with the authenticated reporter/reviewer identities and verified by local REST readback.
+- Hosted RLS/Storage/Auth, physical-device, and dual-device attack validation remain unverified.

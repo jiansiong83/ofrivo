@@ -230,3 +230,19 @@ This gate is local-only and is not a hosted or external-user release approval.
 - [ ] Hosted Supabase/Auth/RLS/Storage, real SMS, and native FCM.
 
 This is a local emulator smoke gate, not an external beta release approval.
+
+## Phase 5 local lifecycle gate (2026-08-09)
+
+- [x] Customer publishes a real Job with a selectable start/end time range.
+- [x] Provider submits a bid; Customer accepts it; the address remains private until acceptance.
+- [x] Provider starts and completes the Job.
+- [x] Customer and Provider each submit one review.
+- [x] Provider safety report is persisted as an open report.
+- [x] PostgREST bid reads use explicit foreign-key relationships and Customer offer counts are hydrated from real rows.
+- [x] Flutter analyze, 53 tests, and debug APK build pass.
+- [ ] Device photo-upload workflow.
+- [ ] USB physical-device and two-device UI workflow.
+- [ ] Admin browser UI re-run against this exact lifecycle record.
+- [ ] Hosted Supabase/Auth/RLS/Storage, real SMS, and native FCM.
+
+This is a complete local single-emulator validation point, not an external beta or hosted release approval.

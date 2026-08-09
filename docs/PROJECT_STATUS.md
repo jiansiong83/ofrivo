@@ -248,3 +248,18 @@ The authorized Android Emulator gate is partially complete on the local Docker s
 - Full UI lifecycle, USB physical device, dual-device UI, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
 
 Do not promote this emulator smoke evidence to a complete E2E or hosted release claim.
+
+## Current Phase 5 status (2026-08-09)
+
+The local Docker stack now has a complete single-emulator Customer-to-Provider lifecycle pass.
+
+- Customer created a real scheduled Job with a 10:00 AM–11:00 AM range; UTC persistence and Malaysia-calendar display matched.
+- Provider bid, Customer acceptance, address unlock, start, complete, reciprocal reviews, and safety report all passed on `emulator-5554`.
+- Fixed the ambiguous PostgREST `jobs` embed by selecting `bids_job_id_fkey` explicitly in both Customer and Provider bid reads.
+- Fixed Customer Job-card offer counts; the rebuilt APK now renders the persisted count instead of a hard-coded zero.
+- Flutter analyze, 53 Flutter tests, and debug APK build pass after these fixes.
+- Docker integration runners pass again: Step 11 (19), no-show (3), expiry (3), review (4), Admin audit (6), Provider Profile (22), and Phase 3 (14).
+- Admin lint, production build, and `npm audit --audit-level=high` pass (0 vulnerabilities).
+- Photo-upload UI, USB physical-device UI, dual-device UI concurrency, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
+
+Do not promote this result to a hosted or external-beta release claim.

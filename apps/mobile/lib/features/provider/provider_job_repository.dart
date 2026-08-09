@@ -338,7 +338,7 @@ class SupabaseProviderJobRepository implements ProviderJobRepository {
   }
 
   dynamic _bidsQuery() => client.from('bids').select(
-      '*, jobs!inner(id, category_id, area_id, title, description, public_location_text, budget_amount, time_window, scheduled_at, scheduled_end_at, urgency, status, created_at, service_categories(name_en), areas(area_name))');
+      '*, jobs!bids_job_id_fkey!inner(id, category_id, area_id, title, description, public_location_text, budget_amount, time_window, scheduled_at, scheduled_end_at, urgency, status, created_at, service_categories(name_en), areas(area_name))');
 
   Future<Job> _mapFeedJob(Map<String, dynamic> row) async {
     final rawPhotoPaths = row['photo_paths'];

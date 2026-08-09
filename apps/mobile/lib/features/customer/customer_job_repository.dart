@@ -169,7 +169,7 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
   Future<List<Job>> loadMyJobs() async {
     final rows = await client
         .from('jobs')
-        .select('*, service_categories(name_en), areas(area_name)')
+        .select('*, service_categories(name_en), areas(area_name), bids!bids_job_id_fkey(count)')
         .eq('customer_id', userId)
         .order('created_at', ascending: false);
     return (rows as List)
@@ -318,7 +318,7 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
       budget: (row['budget_amount'] as num?)?.toDouble() ?? 0,
       time: row['time_window'] as String? ?? 'Flexible',
       status: status,
-      bidCount: 0,
+      bidCount: _bidCount(row),
       description: row['description'] as String? ?? '',
       urgent: row['urgency'] == 'urgent',
       categoryId: row['category_id'] as String?,
@@ -333,6 +333,14 @@ class SupabaseCustomerJobRepository implements CustomerJobRepository {
       expiresAt: _parseDate(row['expires_at']),
       acceptedBidId: row['accepted_bid_id'] as String?,
     );
+  }
+
+  int _bidCount(Map<String, dynamic> row) {
+    final rawBids = row['bids'];
+    if (rawBids is! List || rawBids.isEmpty) return 0;
+    final first = rawBids.first;
+    if (first is! Map) return 0;
+    return (first['count'] as num?)?.toInt() ?? 0;
   }
 
   List<String> _photoPaths(Map<String, dynamic> row) {

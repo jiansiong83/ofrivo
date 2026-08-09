@@ -147,7 +147,7 @@ class SupabaseCustomerBidRepository implements CustomerBidRepository {
   Future<List<CustomerBidOffer>> loadReceivedBids(String jobId) async {
     final rows = await client
         .from('bids')
-        .select('*, jobs!inner(customer_id)')
+        .select('*, jobs!bids_job_id_fkey!inner(customer_id)')
         .eq('job_id', jobId)
         .eq('jobs.customer_id', userId)
         .order('created_at', ascending: false);
