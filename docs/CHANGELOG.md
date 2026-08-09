@@ -193,3 +193,10 @@
 - Enforced valid UTC schedule ranges and Malaysia calendar-day constraints while preserving legacy time_window reads.
 - Added Phase 3 static and Docker regression runners covering schedule persistence, expiry, legacy compatibility, feed exposure, and assigned-job immutability.
 - Local Flutter, Supabase, Docker integration, Admin, and audit validation pass; hosted/device delivery remains deferred.
+
+## Unreleased - 2026-08-09 Phase 4 emulator smoke validation
+
+- Wiped and recovered the medium_phone Android 16/API 36 emulator for local UI testing.
+- Verified local Supabase APK installation, Customer/Provider authentication, session restoration, mode switching, profile identity, feed matching, and pre-acceptance address privacy.
+- Corrected the auth screen environment label so configured builds identify Local Supabase or a Supabase backend instead of showing the Demo-only hint.
+- Recorded the emulator evidence and kept full multi-device lifecycle, hosted, SMS, and FCM gates explicitly pending/deferred.

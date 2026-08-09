@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/config/app_config.dart';
 import '../../core/localization/app_localization.dart';
 import '../../shared/widgets/app_widgets.dart';
 import 'auth_controller.dart';
@@ -101,6 +102,13 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final strings = AppLocalizations(ref.watch(appLanguageProvider));
+    final environmentHint = AppBootstrap.demoMode
+        ? strings.text('demo_mode_hint')
+        : (AppConfig.supabaseUrl.contains('10.0.2.2') ||
+                AppConfig.supabaseUrl.contains('127.0.0.1') ||
+                AppConfig.supabaseUrl.contains('localhost')
+            ? strings.text('local_backend_hint')
+            : strings.text('backend_connected_hint'));
     return Scaffold(
       appBar: AppBar(actions: const [LanguagePicker()]),
       body: ListView(padding: const EdgeInsets.all(24), children: [
@@ -171,7 +179,7 @@ class _AuthScreenState extends ConsumerState<_AuthScreen> {
               child: Text(widget.footerAction))
         ]),
         const SizedBox(height: 12),
-        Text(strings.text('demo_mode_hint'),
+        Text(environmentHint,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Color(0xFF5B6870), fontSize: 12)),
       ]),

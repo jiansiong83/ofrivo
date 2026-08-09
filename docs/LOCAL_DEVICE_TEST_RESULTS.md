@@ -101,3 +101,33 @@ Automated local validation and documentation are complete. Core local Supabase, 
 - Added a production bootstrap guard that refuses Demo OTP without Supabase runtime configuration.
 - Replaced the Admin fake-data preview path with local Supabase Auth, RLS-backed data reads, signed verification URLs, atomic moderation RPCs, and attributable audit events.
 - No service-role key, hosted URL, cloud deployment, SMS provider, FCM credential, or paid integration was added.
+
+## Phase 4 emulator evidence (2026-08-09)
+
+- Device: medium_phone, emulator-5554, sdk_gphone64_x86_64, Android 16 / API 36.
+- AVD data was wiped as explicitly authorized; the emulator booted with approximately 5.0 GB available in /data.
+- Local Supabase started on API 54421 and the development APK was built, installed, and initialized Supabase successfully.
+- The login screen now identifies the configured runtime as Connected to local Supabase backend; it no longer incorrectly shows the Demo-only notice.
+- Customer fixture login passed: customer@example.test rendered Good morning, Alex and its seeded Customer jobs.
+- Force-stop and relaunch passed: the Supabase session restored to the Customer home without another login.
+- Provider fixture login passed: provider@example.test rendered Good morning, Ahmad Plumbing.
+- Provider Mode switch passed without changing the authenticated provider identity; the Provider profile showed Ahmad Plumbing and provider@example.test.
+- Provider feed passed with one matching Toilet blockage Job; the pre-acceptance detail showed Address protected and hid full address/contact/GPS.
+
+### Smoke matrix
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Wipe/boot/storage recovery | PASS | medium_phone booted; /data approximately 5.0 GB free |
+| Local Supabase-configured APK install | PASS | Flutter run log: Supabase init completed |
+| Customer login and seeded data | PASS | Good morning, Alex; active Customer jobs visible |
+| Session restore after force-stop | PASS | Home restored without login |
+| Provider login/profile identity | PASS | Good morning, Ahmad Plumbing; provider email visible |
+| Provider mode/feed/privacy boundary | PASS | Job Feed, matching Job, Address protected before acceptance |
+
+### Still blocked/deferred
+
+- Full UI job creation with photo upload, bid submission, Customer acceptance, start/complete, reciprocal reviews, and report remains pending on this single-device round.
+- USB physical-device and true two-device UI concurrency remain blocked because no phone is connected.
+- Native FCM, real SMS, hosted Supabase, and cloud deployment remain intentionally deferred.
+- This evidence is local development validation, not a hosted or external-user release approval.

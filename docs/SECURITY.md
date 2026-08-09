@@ -165,3 +165,12 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Customer update queries include both customer_id = auth.uid() and the draft/open status boundary; assigned and terminal Jobs cannot be edited through the mobile repository.
 - Legacy time_window remains a read-only compatibility path while new writes use scheduled_at and scheduled_end_at.
 - These controls have local Docker evidence only; hosted policy execution, device testing, and history-wide secret scanning remain separate gates.
+
+## Phase 4 emulator security evidence (2026-08-09)
+
+- A wiped Android 16/API 36 emulator connected to the local API through 10.0.2.2:54421 using a debug-only configured build.
+- Customer and Provider fixture sessions were distinct; the UI rendered Alex/customer@example.test and Ahmad Plumbing/provider@example.test from their authenticated profiles.
+- Provider Mode did not substitute a seed identity, and the Provider feed exposed only the matching safe Job.
+- Pre-acceptance Job detail explicitly hid full address, phone, WhatsApp, and exact GPS.
+- The configured-build status label now makes local backend versus Demo mode visible to testers.
+- This is local emulator evidence only; hosted RLS/Storage/Auth and dual-device concurrency remain unverified.

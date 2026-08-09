@@ -217,3 +217,16 @@ This phase is suitable for local development review only; cloud and external-use
 - [ ] Real SMS/FCM and formal Git-history secret scan.
 
 This gate is local-only and is not a hosted or external-user release approval.
+
+## Phase 4 emulator smoke gate (2026-08-09)
+
+- [x] Authorized medium_phone data wipe and boot.
+- [x] Debug APK installs with the local Supabase endpoint and reports Supabase initialization.
+- [x] Customer login, seeded data visibility, and session restore pass.
+- [x] Provider login, Provider Mode switch, profile identity, feed matching, and pre-acceptance address privacy pass.
+- [x] Configured-build status label distinguishes local Supabase from Demo mode.
+- [ ] Full Customer → Provider → Admin UI lifecycle on one or two devices.
+- [ ] USB physical-device and dual-device UI validation.
+- [ ] Hosted Supabase/Auth/RLS/Storage, real SMS, and native FCM.
+
+This is a local emulator smoke gate, not an external beta release approval.

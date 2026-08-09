@@ -239,3 +239,18 @@ Use the local Docker workflow as the reproducible baseline; do not promote these
 | Legacy rows with time_window and null scheduled_end_at remain readable | PASS | Phase 3 Docker runner |
 | Full local validation matrix | PASS | DB reset/lint, 14 Phase 3 checks, 53 Flutter tests, 69 Version 1.1 checks, Admin lint/build/audit |
 | Hosted, physical-device, and dual-device validation | BLOCKED/DEFERRED | No cloud or external device execution in this phase |
+
+## Phase 4 emulator smoke validation (2026-08-09)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Wiped medium_phone boots with installable storage | PASS | Android 16/API 36; approximately 5.0 GB free |
+| APK uses configured local Supabase runtime | PASS | Supabase init completed; status label says local backend |
+| Customer login and session restore | PASS | customer@example.test; Alex; force-stop/relaunch |
+| Provider login and identity binding | PASS | provider@example.test; Ahmad Plumbing |
+| Provider Mode and feed privacy | PASS | Same provider account; matching Job; Address protected |
+| Complete multi-account UI lifecycle | PENDING | Bid/accept/start/complete/review/report not completed in this single-device round |
+| USB and dual-device UI | BLOCKED | No authorized physical Android device connected |
+| Hosted/SMS/FCM validation | DEFERRED | Out of local-only scope |
+
+The emulator smoke pass proves local UI connectivity and identity/privacy boundaries only; it does not close the full device E2E gate.

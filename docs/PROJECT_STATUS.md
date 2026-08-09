@@ -236,3 +236,15 @@ Job scheduling and lifecycle hardening is complete on the local Docker stack.
 - Hosted Supabase, cloud deployment, USB physical-device UI, dual-device UI, SMS, FCM, and formal history secret scanning remain deferred or blocked.
 
 Next phase: review this local baseline, then perform explicitly authorized hosted or real-device validation.
+
+## Current Phase 4 status (2026-08-09)
+
+The authorized Android Emulator gate is partially complete on the local Docker stack.
+
+- medium_phone was wiped and booted successfully with approximately 5.0 GB free storage; the local Supabase-configured APK installed and initialized Supabase.
+- Customer login/session restore, Provider login, same-account mode switching, Provider profile identity, feed matching, and pre-acceptance address privacy passed on emulator-5554.
+- Fixed the login environment label so configured builds show Local Supabase or Supabase backend instead of the misleading Demo-only message.
+- Flutter analyze/tests and Phase 3 static validation remain PASS after the UI fix.
+- Full UI lifecycle, USB physical device, dual-device UI, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
+
+Do not promote this emulator smoke evidence to a complete E2E or hosted release claim.

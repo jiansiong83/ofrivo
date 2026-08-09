@@ -166,6 +166,16 @@ class AppLocalizations {
           'Tiada kunci Supabase? Binaan ini menggunakan mod demo tempatan tanpa backend.',
       AppLanguage.chinese: '没有 Supabase 密钥？此版本使用本地演示模式，不连接后端。',
     },
+    'local_backend_hint': {
+      AppLanguage.english: 'Connected to local Supabase backend.',
+      AppLanguage.malay: 'Disambungkan ke backend Supabase tempatan.',
+      AppLanguage.chinese: '已连接到本地 Supabase 后端。',
+    },
+    'backend_connected_hint': {
+      AppLanguage.english: 'Connected to Supabase backend.',
+      AppLanguage.malay: 'Disambungkan ke backend Supabase.',
+      AppLanguage.chinese: '已连接到 Supabase 后端。',
+    },
     'phone_sign_in': {
       AppLanguage.english: 'Phone sign in',
       AppLanguage.malay: 'Log masuk telefon',

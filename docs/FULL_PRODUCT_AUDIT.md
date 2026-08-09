@@ -259,3 +259,25 @@ The local product-logic audit is complete for Job creation, scheduling, editing,
 ### Remaining gates
 
 Hosted Supabase, USB physical-device UI, dual-device UI, real SMS, native FCM, and formal Git-history secret scanning remain unverified/deferred. Local PASS must not be presented as hosted or real-device PASS.
+
+## Phase 4 update (2026-08-09): emulator smoke and environment separation
+
+The authorized Android Emulator was wiped and used for a local Supabase-backed smoke run. This closes a subset of the device gate without overstating the unavailable full lifecycle.
+
+- The medium_phone AVD booted with approximately 5.0 GB free storage after the wipe.
+- A configured debug APK installed through the documented emulator endpoint and logged successful Supabase initialization.
+- Customer login/session restore and Provider login/mode/profile/feed flows passed with distinct authenticated identities.
+- Provider pre-acceptance detail kept full address, phone, WhatsApp, and GPS hidden.
+- The auth screen environment label was corrected after observing a misleading Demo-only message in a configured build.
+
+### Evidence
+
+- Device log: docs/LOCAL_DEVICE_TEST_RESULTS.md, Phase 4 emulator evidence.
+- Flutter analyze: PASS; Flutter tests: PASS, 53 tests.
+- Phase 3 static validator: PASS, 11 checks.
+- Debug APK install and Supabase initialization: PASS on emulator-5554.
+- Full lifecycle UI, USB/two-device UI, hosted Supabase, SMS, FCM, and cloud deployment remain open gates.
+
+### Decision
+
+Local emulator smoke is PASS for connectivity, session restoration, identity binding, mode switching, feed matching, and pre-acceptance privacy. It is not a complete multi-device E2E or hosted release approval.
