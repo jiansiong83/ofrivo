@@ -196,3 +196,8 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Provider feed readback exposed only the permitted photo path for the matching open Job; the object was readable through the authenticated Provider session, not via an unauthenticated request.
 - No service-role key was placed in the APK or browser; all checks used short-lived local user sessions and the public anon key.
 - Physical-device, hosted Storage, and cross-account negative tests remain separate gates.
+
+### Phase 7 negative access boundary
+
+- Unauthenticated access to the uploaded object returned HTTP 400; the pending Provider saw zero matching Feed rows and received HTTP 400 for the object.
+- The owning Customer and approved Provider both received HTTP 200 through their authenticated sessions.

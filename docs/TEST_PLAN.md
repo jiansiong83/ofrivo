@@ -290,3 +290,11 @@ The single-emulator lifecycle is complete; physical-device and true UI concurren
 | Customer photo row and private object | PASS | One `job_photos` row; Storage object HTTP 200 with Customer session |
 | Provider feed and authorized object | PASS | One photo path in `public_job_feed`; Storage object HTTP 200 with Provider session |
 | Physical-device and hosted Storage | BLOCKED/DEFERRED | No USB device; hosted environment not enabled |
+
+### Phase 7.1 photo access boundary
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Unauthenticated photo object access | PASS | HTTP 400 |
+| Pending Provider Feed and Storage access | PASS | 0 Feed rows; HTTP 400 object access |
+| Customer and approved Provider access | PASS | HTTP 200 through authenticated sessions |

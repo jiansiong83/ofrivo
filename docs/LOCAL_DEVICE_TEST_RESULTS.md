@@ -180,3 +180,8 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 - Customer-authenticated REST readback found one `job_photos` row and a private `job-photos` object returned HTTP 200.
 - Provider-authenticated `public_job_feed` readback found the same Job with one photo path; the protected Storage object returned HTTP 200 through the Provider session.
 - The test address contains only local adb-input text and is not production data. This validates local emulator photo selection, upload, and authorized reads only.
+
+### Phase 7 photo access boundary
+
+- Unauthenticated object access returned HTTP 400; pending Provider Feed returned zero rows and pending Provider Storage access returned HTTP 400.
+- Customer and approved Provider sessions both returned HTTP 200 for the same local object.

@@ -277,3 +277,5 @@ Do not promote this result to a hosted or external-beta release claim.
 - Customer REST readback confirmed one `job_photos` row and private Storage HTTP 200; Provider feed readback confirmed one photo path and authorized Storage HTTP 200.
 - No mobile source change was needed for this validation; the existing photo-selection, upload, RLS, and Storage paths behaved as designed.
 - USB physical-device UI, dual-device UI concurrency, hosted Supabase, SMS, FCM, and cloud deployment remain separate gates.
+
+- Photo access negative checks passed locally: unauthenticated and pending-provider requests were denied while the owner and approved Provider were allowed.
