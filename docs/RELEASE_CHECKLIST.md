@@ -296,3 +296,17 @@ This gate confirms the local Docker baseline only; it is not hosted or external-
 - [ ] Hosted Supabase/Auth/RLS/Storage, SMS, FCM, and cloud deployment.
 
 This gate remains local-only and is not external-device or hosted release approval.
+
+## Phase 11 Provider UI revalidation gate (2026-08-10)
+
+- [x] Provider Auth login loads the authenticated Provider profile from local Supabase.
+- [x] Provider account Customer mode shows its own empty state when it has no Jobs.
+- [x] Same-session Provider Mode switch preserves the account and renders the Provider business identity.
+- [x] Provider feed category matching excludes the Electrical Job when Electrical is not selected/approved.
+- [x] Pre-acceptance Job detail keeps address, phone, WhatsApp, and GPS protected.
+- [x] Provider Profile card opens the real edit route with persisted fields and category controls.
+- [x] Force-stop/relaunch restores the Auth session; Customer mode is the intentional default after restart.
+- [ ] USB physical-device UI and true two-device UI concurrency.
+- [ ] Hosted Supabase/Auth/RLS/Storage, SMS, FCM, and cloud deployment.
+
+This gate adds emulator evidence only; it does not replace the physical-device or hosted release gates.

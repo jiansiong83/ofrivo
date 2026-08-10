@@ -223,3 +223,12 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Authenticated Customer UI readback showed the local account's own Jobs, including the persisted photo-upload test Job; no Demo seed fallback was used in the authenticated flow.
 - APK runtime config used only the local Supabase anon key; no service-role key was sent to the mobile client.
 - Physical-device, hosted-environment, and native-delivery security gates remain unverified.
+
+## Phase 11 Provider identity and feed privacy evidence (2026-08-10)
+
+- The exact local Provider Auth session loaded `Ahmad Plumbing` and an account-owned Customer empty state; no unrelated Customer seed Jobs were rendered.
+- Same-session Provider Mode switching did not change the Auth identity. The feed returned only matching Plumbing rows, while the Electrical Job stayed out of scope for the Provider's selected/approved categories.
+- Pre-acceptance Provider Job detail exposed only public fields and the `Address protected` notice; full address, phone, WhatsApp, and GPS were not present in the UI tree.
+- Provider Profile card navigation reached the authenticated edit route, and the persisted verification/category/availability values were shown from the Provider profile rather than a global seed profile.
+- Force-stop/relaunch restored the Auth session. The default return to Customer mode is a presentation-state reset and does not grant Provider data access.
+- No service-role key, hosted secret, or cloud operation was used in this round; physical-device and hosted-environment security remain separate gates.

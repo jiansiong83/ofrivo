@@ -236,3 +236,12 @@
 - Rebuilt a local-Supabase APK through the project runbook and verified Customer Auth through ADB reverse.
 - Confirmed real local Job data renders in Customer Home and survives force-stop/relaunch session restoration.
 - Physical-device, dual-device, hosted Supabase, SMS, FCM, and cloud deployment remain blocked or deferred.
+
+## Unreleased - 2026-08-10 Phase 11 Provider UI revalidation
+
+- Reauthenticated `provider@example.test` through the local Supabase APK and rendered the account's own customer-side empty state (`No jobs yet`), with no unrelated Customer jobs shown.
+- Switched the same authenticated session to Provider Mode without substituting another account; the Provider home rendered `Ahmad Plumbing` and a two-row matching feed.
+- The feed exposed only the Provider's matching Plumbing jobs; the Electrical category job remained absent because Electrical was not an approved/selected Provider category.
+- Provider Job detail showed `Address protected` and the `Submit a bid` entry while hiding full address, phone, WhatsApp, and GPS before acceptance.
+- Provider Profile navigation opened the real edit route; persisted display name, categories, availability, and approved verification status were read from the authenticated profile.
+- Force-stop/relaunch restored the Provider Auth session; the app intentionally returned to Customer mode on restart. No source-code change was required.

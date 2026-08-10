@@ -331,3 +331,14 @@ The single-emulator lifecycle is complete; physical-device and true UI concurren
 | Session restore after force-stop | PASS | Authenticated home returned after relaunch |
 | Physical/dual-device UI | BLOCKED | No USB device; emulator-only |
 | Hosted/SMS/FCM/cloud | DEFERRED | Not enabled in local-only scope |
+
+## Phase 11 Provider identity/feed/profile UI checks (2026-08-10)
+
+- Sign in as `provider@example.test` through the local Supabase APK and verify the Customer-side empty state is scoped to that account.
+- Use the mode menu to enter Provider Mode and verify the business identity remains `Ahmad Plumbing` for the same Auth session.
+- Verify the Provider feed contains only approved category/area matches; an Electrical Job must remain absent when Electrical is not selected/approved.
+- Open a matching Job and verify `Address protected` appears before acceptance and full address/contact/GPS are absent.
+- Open the Provider Profile card and verify the real edit route loads persisted name, categories, availability, and verification state.
+- Force-stop/relaunch and verify the Auth session returns; record the intentional Customer-mode default separately from session restoration.
+
+Phase 11 was executed on `emulator-5554`; USB physical-device and true two-device UI checks remain open.

@@ -236,3 +236,28 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 - Git-native scan covered 55 reachable commits; sensitive file paths and high-risk credential patterns both returned zero hits.
 - No secrets were printed during the scan. Third-party gitleaks/trufflehog execution remains unavailable locally.
 - This does not validate hosted environment secrets or deployment configuration.
+
+## Phase 11 Provider identity, feed, and profile UI revalidation (2026-08-10)
+
+- Cleared the emulator app data only to remove malformed test input, then signed in with the exact local account `provider@example.test` / development password through the ADB-reverse local Supabase build.
+- Customer mode rendered `Good morning, Ahmad Plumbing` and `No jobs yet`, confirming the Provider account did not inherit Alex's Customer jobs.
+- The mode menu offered `Switch to Provider Mode`; after switching, Provider Mode rendered `Ahmad Plumbing`, `Job Feed`, and `2 jobs available`.
+- The feed contained `Photo upload smoke test` and `Toilet blockage` (both Plumbing matches) and did not contain the Electrical job; the selected profile categories were `Plumbing / Toilet` and `Handyman`.
+- Opening `Toilet blockage` showed the persisted budget/time range, `Address protected`, and `Submit a bid`; no full address/contact/GPS fields were exposed before acceptance.
+- Provider Profile showed `Ahmad Plumbing`, the persisted categories, `Available for new jobs` enabled, and `Verification status: Approved`; tapping the profile card opened `Edit Provider Profile` with real fields and category controls.
+- Force-stop/relaunch restored the authenticated session and returned to Customer mode by default; this is a mode-default behavior, not a session loss.
+
+### Phase 11 matrix
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Provider Auth with local Supabase | PASS | Exact `provider@example.test` login; Provider profile data loaded |
+| Provider account Customer empty state | PASS | `No jobs yet`; no Alex/Customer seed jobs |
+| Same-session Provider Mode switch | PASS | Provider Mode; `Ahmad Plumbing`; no account substitution |
+| Category and area feed matching | PASS | 2 Plumbing rows; Electrical row absent for unselected category |
+| Pre-acceptance address privacy | PASS | `Address protected`; no full address/contact/GPS |
+| Provider Profile card/edit route | PASS | Card opened `Edit Provider Profile`; real profile fields rendered |
+| Provider session restore | PASS | Force-stop/relaunch restored Auth session |
+| Physical-device UI | BLOCKED | No USB Android device connected |
+| Two-device UI concurrency | BLOCKED | Emulator-only; backend concurrency remains PASS |
+| Hosted/cloud/SMS/FCM | DEFERRED | Explicitly outside this local-only phase |

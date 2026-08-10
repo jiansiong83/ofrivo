@@ -301,3 +301,11 @@ Do not promote this result to a hosted or external-beta release claim.
 - A local-Supabase APK was rebuilt through scripts/local-dev.ps1. With ADB reverse tcp:54421, Customer Auth login succeeded and the UI loaded real local Jobs.
 - Customer home showed Alex, Your active jobs, and the persisted local Photo upload smoke test Job; force-stop/relaunch restored the authenticated session.
 - No source-code change was required. USB physical-device UI, two-device UI, hosted Supabase, SMS, FCM, and cloud deployment remain blocked or deferred.
+
+## Current Phase 11 status (2026-08-10)
+
+- Revalidated `provider@example.test` against the local Supabase APK after the runtime recovery. Customer mode showed the account's own empty Job state, not Alex's seed Jobs.
+- Same-session mode switching opened Provider Mode as `Ahmad Plumbing`; the feed returned two matching Plumbing Jobs and excluded the Electrical Job because Electrical was not selected/approved for this Provider.
+- Provider Job detail preserved the pre-acceptance privacy boundary (`Address protected`), and Provider Profile card navigation opened the real edit screen with persisted profile/category/availability/verification data.
+- Force-stop/relaunch restored the Auth session and intentionally defaulted the UI back to Customer mode.
+- No source-code change was needed. USB physical-device UI and true two-device UI concurrency remain BLOCKED; hosted Supabase, SMS, FCM, and cloud deployment remain deferred.
