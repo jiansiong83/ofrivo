@@ -281,3 +281,30 @@ The authorized Android Emulator was wiped and used for a local Supabase-backed s
 ### Decision
 
 Local emulator smoke is PASS for connectivity, session restoration, identity binding, mode switching, feed matching, and pre-acceptance privacy. It is not a complete multi-device E2E or hosted release approval.
+
+## Phase 5 update (2026-08-10): local runtime recovery and Provider/Admin revalidation
+
+This section supersedes the original Docker-unavailable snapshot for the local environment. It does not close hosted, physical-device, or native-delivery gates.
+
+- Docker Desktop and Supabase were safely recovered with CLI stop/start; the existing Docker volume was preserved and no database reset or volume deletion was performed in this round.
+- Local REST, Auth, Studio, and Mailpit returned HTTP 200 with 12 Supabase containers running.
+- The complete local integration sequence passed: Step 11 (19), no-show (3), expiry (3), review (4), Admin live integration (6 audit events), Provider Profile (22), and Phase 3 scheduling/lifecycle (14).
+- A configured local-Supabase APK was installed on `emulator-5554`; exact `provider@example.test` Auth login loaded `Ahmad Plumbing` and an account-owned Customer empty state.
+- Same-session mode switching entered Provider Mode without identity substitution. The feed returned two matching Plumbing jobs and excluded the Electrical job because Electrical was not selected/approved for this Provider.
+- Pre-acceptance Job detail showed `Address protected` and `Submit a bid`; full address, phone, WhatsApp, and GPS were absent from the UI tree.
+- Provider Profile showed persisted business name, categories, availability, and Approved verification; the profile card opened the real edit route.
+- Force-stop/relaunch restored the Auth session and intentionally returned the UI to Customer mode.
+- Local Admin integration re-read real provider verification, jobs, bids, reports, audit rows, signed URL behavior, and moderation RPCs; all runner checks passed. `http://localhost:3000/` also returned HTTP 200 while the dev server was running.
+- Interactive Admin browser click-through was not claimed: the Codex Browser runtime failed to start in the current Windows sandbox. This is an environment/tooling limitation, not a product PASS or FAIL.
+
+### Updated decision
+
+Local automated validation, local Supabase runtime, and single-emulator Customer/Provider UI evidence are PASS for the covered scenarios. The current documentation baseline is commit `7c958ab`; this audit update is documentation-only. No cloud deployment, paid service, real SMS, or native FCM was used.
+
+### Remaining gates
+
+- USB physical-device UI and true two-device UI concurrency remain BLOCKED.
+- Interactive Admin browser moderation smoke remains BLOCKED until browser control is available; live Admin database/RPC integration is PASS.
+- Hosted Supabase/Auth/RLS/Storage, staging secrets, real SMS, and native FCM remain DEFERRED.
+- Third-party gitleaks/trufflehog history scanning remains unavailable; Git-native history scan is PASS with zero sensitive-path/pattern hits.
+- Cloudflare, Vercel, Play Store, domain, payment, maps, chat, membership, and other frozen features remain out of scope.
