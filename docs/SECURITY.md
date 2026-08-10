@@ -216,3 +216,10 @@ No hosted, physical-device, SMS, FCM, or secret-history claim is implied by this
 - Admin live integration passed with attributable audit events; no service-role key was sent to the mobile APK or Admin browser.
 - The APK was installed and launched on the local emulator after the regression build. No hosted secrets or cloud configuration were introduced.
 - Physical-device, hosted-environment, and third-party scanner gates remain unverified.
+
+## Phase 10 local runtime recovery security evidence (2026-08-10)
+
+- The stopped local stack was recovered with Supabase CLI stop/start; no database reset, volume deletion, or cloud operation was performed.
+- Authenticated Customer UI readback showed the local account's own Jobs, including the persisted photo-upload test Job; no Demo seed fallback was used in the authenticated flow.
+- APK runtime config used only the local Supabase anon key; no service-role key was sent to the mobile client.
+- Physical-device, hosted-environment, and native-delivery security gates remain unverified.

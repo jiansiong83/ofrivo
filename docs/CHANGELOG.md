@@ -229,3 +229,10 @@
 - Re-ran Version 1.1 and closed-beta contract validation, Flutter analyze/tests/APK, and Admin lint/production build; all passed.
 - Installed and launched the rebuilt Debug APK on `emulator-5554`.
 - Physical-device, dual-device, hosted Supabase, SMS, FCM, and cloud deployment remain explicitly blocked or deferred.
+
+## Unreleased - 2026-08-10 Phase 10 local runtime recovery
+
+- Recovered Docker Desktop and the local Supabase stack after host shutdown without resetting the database or deleting its volume.
+- Rebuilt a local-Supabase APK through the project runbook and verified Customer Auth through ADB reverse.
+- Confirmed real local Job data renders in Customer Home and survives force-stop/relaunch session restoration.
+- Physical-device, dual-device, hosted Supabase, SMS, FCM, and cloud deployment remain blocked or deferred.

@@ -210,6 +210,29 @@ This closes the single-emulator local lifecycle gate, but it is not a physical-d
 | Two-device UI concurrency | BLOCKED | Backend concurrency passes; no second UI device |
 | Hosted/cloud/SMS/FCM | DEFERRED | Explicitly outside this local-only phase |
 
+## Phase 10 local runtime recovery and Auth validation (2026-08-10)
+
+- Docker Desktop was not running at the start of the round. Supabase containers had exited with 137/143 after host shutdown; CLI stop/start preserved the Docker volume and restored the stack.
+- Local REST, Auth, Studio, and Mailpit returned HTTP 200 with 12 Supabase containers running.
+- The medium_phone Android 16/API 36 emulator was rebooted after its Package Manager service became unavailable; its timezone was restored to Asia/Kuala_Lumpur.
+- A local-Supabase Debug APK was rebuilt with scripts/local-dev.ps1; the standard emulator endpoint was checked, and an ADB-reverse 127.0.0.1:54421 build was used for the deterministic UI Auth check.
+- Customer customer@example.test signed in through real local Supabase Auth. Customer Home rendered Alex, Your active jobs, and the persisted Photo upload smoke test Job; no fake-data preview was used.
+- Force-stop/relaunch restored the authenticated Customer session.
+- No mobile source change was needed in this recovery round.
+
+### Phase 10 matrix
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Docker/Supabase recovery | PASS | CLI stop/start; volume preserved; 12 containers healthy |
+| Local API/Auth/Studio/Mailpit | PASS | HTTP 200 |
+| Local-Supabase APK build/install | PASS | Runbook build and emulator install |
+| Real Customer Auth and Job data | PASS | ADB reverse login; Alex and Photo upload smoke test visible |
+| Session restore | PASS | Force-stop/relaunch returned to authenticated home |
+| USB physical-device UI | BLOCKED | No USB Android device connected |
+| Two-device UI concurrency | BLOCKED | Emulator-only; backend concurrency remains PASS |
+| Hosted/cloud/SMS/FCM | DEFERRED | Explicitly outside local-only phase |
+
 - Git-native scan covered 55 reachable commits; sensitive file paths and high-risk credential patterns both returned zero hits.
 - No secrets were printed during the scan. Third-party gitleaks/trufflehog execution remains unavailable locally.
 - This does not validate hosted environment secrets or deployment configuration.

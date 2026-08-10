@@ -293,3 +293,11 @@ Do not promote this result to a hosted or external-beta release claim.
 - Version 1.1 contract validation passes 69 checks; closed-beta contract validation passes 10 checks; Flutter analyze, 53 tests, and Debug APK build pass.
 - The rebuilt APK installed and launched successfully on `emulator-5554`; Admin lint and production build also pass.
 - Only the Android emulator is connected. USB physical-device UI and true two-device UI concurrency remain BLOCKED; hosted Supabase, SMS, FCM, and cloud deployment remain intentionally deferred.
+
+## Current Phase 10 status (2026-08-10)
+
+- Docker Desktop was restarted after the host shutdown; Supabase containers that had exited with 137/143 were safely recovered with CLI stop/start, preserving the Docker volume. REST, Auth, Studio, and Mailpit returned HTTP 200, with 12 Supabase containers running.
+- The Android 16/API 36 medium_phone emulator was rebooted after its Package Manager service became unavailable; timezone is Asia/Kuala_Lumpur.
+- A local-Supabase APK was rebuilt through scripts/local-dev.ps1. With ADB reverse tcp:54421, Customer Auth login succeeded and the UI loaded real local Jobs.
+- Customer home showed Alex, Your active jobs, and the persisted local Photo upload smoke test Job; force-stop/relaunch restored the authenticated session.
+- No source-code change was required. USB physical-device UI, two-device UI, hosted Supabase, SMS, FCM, and cloud deployment remain blocked or deferred.

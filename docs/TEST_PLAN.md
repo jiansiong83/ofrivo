@@ -319,3 +319,15 @@ The single-emulator lifecycle is complete; physical-device and true UI concurren
 | Admin | PASS | Lint and production build |
 | Physical/dual-device UI | BLOCKED | Only emulator connected |
 | Hosted/SMS/FCM/cloud | DEFERRED | Not enabled in local-only scope |
+
+## Phase 10 local runtime recovery and Auth validation (2026-08-10)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Docker/Supabase recovery without reset | PASS | CLI stop/start preserved volume; 12 containers running |
+| API/Auth/Studio/Mailpit health | PASS | HTTP 200 |
+| Local-Supabase APK build/install | PASS | Runbook build; emulator install succeeded |
+| Customer Auth and real local Job data | PASS | Login through ADB reverse; Alex and Photo upload smoke test rendered |
+| Session restore after force-stop | PASS | Authenticated home returned after relaunch |
+| Physical/dual-device UI | BLOCKED | No USB device; emulator-only |
+| Hosted/SMS/FCM/cloud | DEFERRED | Not enabled in local-only scope |

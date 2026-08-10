@@ -283,3 +283,16 @@ This is a complete local single-emulator validation point, not an external beta 
 - [ ] Hosted Supabase/Auth/RLS/Storage, real SMS, native FCM, and cloud deployment.
 
 This gate confirms the local Docker baseline only; it is not hosted or external-device release approval.
+
+## Phase 10 local runtime recovery and Auth gate (2026-08-10)
+
+- [x] Docker Desktop and local Supabase stack safely recovered without db reset or volume deletion.
+- [x] Local REST/Auth/Studio/Mailpit health returned HTTP 200.
+- [x] Android 16/API 36 emulator Package Manager recovered after reboot.
+- [x] Local-Supabase APK built with the project runbook and installed.
+- [x] Customer login reached real local Auth through ADB reverse; real local Job rows rendered.
+- [x] Force-stop/relaunch restored the authenticated session.
+- [ ] USB physical-device and true two-device UI validation.
+- [ ] Hosted Supabase/Auth/RLS/Storage, SMS, FCM, and cloud deployment.
+
+This gate remains local-only and is not external-device or hosted release approval.
