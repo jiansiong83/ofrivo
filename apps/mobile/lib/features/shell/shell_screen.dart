@@ -72,6 +72,7 @@ class AppShell extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: 20,
         title: Text(isProvider ? strings.text('provider_mode') : 'Ofrivo'),
         actions: [
           IconButton(
@@ -177,16 +178,19 @@ class PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
-        const SizedBox(height: 6),
+                fontSize: 24,
+                height: 1.2,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary)),
+        const SizedBox(height: 4),
         Text(subtitle,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium
-                ?.copyWith(color: AppColors.textSecondary))
+                ?.copyWith(color: AppColors.textSecondary, height: 1.35))
       ]));
 }

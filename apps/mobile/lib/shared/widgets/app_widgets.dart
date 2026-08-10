@@ -39,8 +39,16 @@ class PrimaryButton extends StatelessWidget {
           ]);
     return SizedBox(
       width: double.infinity,
-      height: 50,
-      child: FilledButton(onPressed: onPressed, child: child),
+      height: 52,
+      child: FilledButton(
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
+          shape: const StadiumBorder(),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        child: child,
+      ),
     );
   }
 }
@@ -61,6 +69,13 @@ class SecondaryButton extends StatelessWidget {
         onPressed: onPressed,
         icon: Icon(icon ?? Icons.arrow_forward, size: 18),
         label: Text(label),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
@@ -78,7 +93,14 @@ class DangerButton extends StatelessWidget {
       height: 48,
       child: FilledButton.tonal(
         onPressed: onPressed,
-        style: FilledButton.styleFrom(foregroundColor: AppColors.danger),
+        style: FilledButton.styleFrom(
+          foregroundColor: AppColors.danger,
+          minimumSize: const Size.fromHeight(48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         child: Text(label),
       ),
     );
@@ -113,7 +135,7 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
           color: _color.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(99)),
@@ -507,21 +529,21 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
       child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(24),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 48, color: AppColors.textSecondary),
-            const SizedBox(height: 12),
+            Icon(icon, size: 40, color: AppColors.textSecondary),
+            const SizedBox(height: 10),
             Text(title,
                 style: Theme.of(context)
                     .textTheme
-                    .titleLarge
+                    .titleMedium
                     ?.copyWith(fontWeight: FontWeight.w800)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppColors.textSecondary)),
             if (onAction != null) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               OutlinedButton(onPressed: onAction, child: Text(actionLabel))
             ]
           ])));
