@@ -583,23 +583,31 @@ class ProviderFeedScreen extends ConsumerWidget {
               subtitle: strings.business('job_feed_subtitle')),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${jobs.length} ${strings.business('jobs_available_suffix')}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.rss_feed_outlined,
+                        color: AppColors.primary, size: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '${jobs.length} ${strings.business('jobs_available_suffix')}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => context.go('/provider/filters'),
+                      icon: const Icon(Icons.tune, size: 18),
+                      label: Text(strings.business('filters')),
+                    ),
+                  ],
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => context.go('/provider/filters'),
-                  icon: const Icon(Icons.tune, size: 18),
-                  label: Text(strings.business('filters')),
-                ),
-              ],
+              ),
             ),
           ),
           if (!state.filters.isDefault)
@@ -912,12 +920,7 @@ class ProviderJobDetailScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text(job.title,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 10),
+        PageHeader(title: job.title, subtitle: '${job.category} / ${job.area}'),
         Wrap(spacing: 8, runSpacing: 8, children: [
           if (job.urgent) StatusBadge(label: strings.business('urgent')),
           CategoryChip(label: job.category),
@@ -1341,9 +1344,17 @@ class AssignedJobsScreen extends ConsumerWidget {
               .loadAssignedJobs());
     }
     if (state.assignedJobs.isEmpty) {
-      return EmptyState(
-          title: strings.business('no_assigned_jobs'),
-          message: strings.business('accepted_jobs_message'));
+      return ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          PageHeader(
+              title: strings.business('assigned_jobs_title'),
+              subtitle: strings.business('assigned_jobs_subtitle')),
+          EmptyState(
+              title: strings.business('no_assigned_jobs'),
+              message: strings.business('accepted_jobs_message')),
+        ],
+      );
     }
     return ListView(padding: const EdgeInsets.only(bottom: 24), children: [
       PageHeader(
@@ -1388,12 +1399,9 @@ class AssignedJobDetailScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
-        Text(assignedJob.title,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 10),
+        PageHeader(
+            title: assignedJob.title,
+            subtitle: '${assignedJob.category} / ${assignedJob.area}'),
         Wrap(spacing: 8, children: [
           StatusBadge(label: assignedJob.status.name),
           AreaChip(label: assignedJob.area)
@@ -1489,21 +1497,24 @@ class ProviderProfileModeScreen extends ConsumerWidget {
           PortfolioGallery(urls: provider.portfolioUrls),
         ],
         const SizedBox(height: 16),
-        SwitchListTile.adaptive(
-          value: application.isAvailable,
-          onChanged: (value) async {
-            final result = await ref
-                .read(providerApplicationControllerProvider.notifier)
-                .setAvailability(value);
-            if (!context.mounted || result != null) return;
-            final error = ref.read(providerApplicationControllerProvider).error;
-            if (error != null) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(error)));
-            }
-          },
-          title: Text(strings.business('available_new_jobs')),
-          subtitle: Text(strings.business('show_matching_requests')),
+        Card(
+          child: SwitchListTile.adaptive(
+            value: application.isAvailable,
+            onChanged: (value) async {
+              final result = await ref
+                  .read(providerApplicationControllerProvider.notifier)
+                  .setAvailability(value);
+              if (!context.mounted || result != null) return;
+              final error =
+                  ref.read(providerApplicationControllerProvider).error;
+              if (error != null) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(error)));
+              }
+            },
+            title: Text(strings.business('available_new_jobs')),
+            subtitle: Text(strings.business('show_matching_requests')),
+          ),
         ),
         ListTile(
             leading: const Icon(Icons.verified_outlined),
